@@ -1,0 +1,21 @@
+Done:
+    - RPM Build
+    - Basic in-tree tests
+    - Basic out-of-tree tests
+
+TODO:
+    - Integration
+        - Simple Replication
+        - CA-less
+        - ExtCA
+        - Forced Client Re-Enrollment
+        - Kerberos Flags
+    - Web UI
+        - base
+        - CA-less
+        - DNS-less
+    - Docs
+    - Stats
+    - f19/ipa-3-3
+    - RHEL
+    - Debian

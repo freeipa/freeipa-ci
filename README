@@ -1,0 +1,87 @@
+
+These are test definitions for FreeIPA.
+
+Currently included are Jenkins job definitions for Fedora, in
+jenkins-job-builder YAML format.
+
+Contributions for other CI systems, platforms and setups are welcome.
+
+To install jenkins-job-builder (by the OpenStack project).
+See http://ci.openstack.org/jenkins-job-builder/index.html for docs.
+Sample usage:
+    install:
+        pip install --user jenkins-job-builder
+    test:
+        mkdir -p /tmp/jenkins-jobs
+        jenkins-jobs test ./jenkins-job-builder/ -o /tmp/jenkins-jobs
+        # examine /tmp/jenkins-jobs
+    configuration file for talking to Jenkins (default: /etc/jenkins_jobs/jenkins_jobs.ini):
+        [jenkins]
+        user=USERNAME
+        password=PASSWORD
+        url=JENKINS_URL
+    commit to Jenkins:
+        jenkins-jobs update ./jenkins-job-builder/
+
+Please change the recipient in the "mail-on-fail" publisher.
+
+This config provides job descriptions. Other required Jenkins configuration is:
+    These environment variables need to be set on build nodes:
+        export FREEIPACI_DNS_FORWARDER=<IP address of a DNS server>
+        export FREEIPACI_DNS_REVERSE_ZONE=<Reverse zone to use in IPA installation>
+        export FREEIPACI_PASSWORD=12345678
+        export FREEIPACI_REALM=EXAMPLE.COM
+        export FREEIPACI_DOMAIN=example.com
+        export FREEIPACI_BASEDN=dc=example,dc=com
+    Required Jenkins nodes:
+        - freeipa-builder-{f19,f20}
+        - freeipa-runner-{f19,f20}
+        - freeipa-webui-{f19,f20}: |
+            TODO, not used needed yet
+        - freeipa-controller-{f19,f20}: |
+            TODO, not used needed yet
+            Needs a script (TODO: name?) that brings up 3 machines with
+            proper the proper OS, and sets these variables to the hostnames:
+                $MASTER, $REPLICA, $CLIENT
+            Also calls a script (TODO: name?) that brings these machines down
+        - master:
+            should have Publican installed
+    Installed Jenkins plugins:
+        # TODO: Not all of these are needed. Prune.
+        - Ant Plugin
+        - Backup Plugin
+        - Copy Artifact Plugin
+        - Credentials Plugin
+        - Dashboard View
+        - External Monitor Job Type Plugin
+        - Green Balls
+        - Hudson Build-Publisher plugin
+        - Hudson Post build task
+        - Javadoc Plugin
+        - Jenkins Beaker builder
+        - Jenkins build timeout plugin
+        - Jenkins BuildResultTrigger Plug-in
+        - Jenkins GIT client plugin
+        - Jenkins GIT plugin
+        - Jenkins instant-messaging plugin
+        - Jenkins IRC Plugin
+        - Jenkins Job Configuration History Plugin
+        - Jenkins Mailer Plugin
+        - Jenkins Priority Sorter Plugin
+        - Jenkins SLOCCount Plug-in
+        - Jenkins SSH Slaves plugin
+        - Jenkins Workspace Cleanup Plugin
+        - LDAP Plugin
+        - Matrix Authorization Strategy Plugin
+        - Maven Integration plugin
+        - PAM Authentication plugin
+        - Periodic Backup
+        - Plot plugin
+        - SCM API Plugin
+        - SCM Sync Configuration Plugin
+        - Simple Theme Plugin
+        - SSH Agent Plugin
+        - SSH Credentials Plugin
+        - Static Analysis Utilities
+        - Warnings Plug-in
+        - xUnit plugin

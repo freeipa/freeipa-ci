@@ -1,0 +1,292 @@
+- defaults:
+    name: global
+    description: |
+      This job is managed by jenkins-job-builder and will be overwritten.
+
+      Do not edit this job through the web.
+    project-type: freestyle
+    concurrent: true
+    disabled: false
+    quiet-period: 5
+    wrappers:
+      - timeout:
+          timeout: 30
+          fail: true
+      - timestamps
+    logrotate:
+        daysToKeep: 60
+        numToKeep: 100
+
+- publisher:
+    name: mail-on-fail
+    publishers:
+        - email:
+            recipients: pviktori@redhat.com
+
+- publisher:
+    name: nosetests-xunit
+    publishers:
+        - junit:
+            results: nosetests.xml
+            keep-long-stdio: false
+
+- scm:
+    name: freeipa-fedorahosted
+    scm:
+        - git:
+            branches:
+                - "{git-branch}"
+            url: git://git.fedorahosted.org/git/freeipa.git
+            shallow-clone: true
+            use-author: true
+            browser: gitweb
+            browser-url: https://git.fedorahosted.org/cgit/freeipa.git/
+
+- builder:
+    name: install-builddeps
+    builders:
+        - shell: "sudo wget http://jdennis.fedorapeople.org/ipa-devel/ipa-devel-fedora.repo -O /etc/yum.repos.d/ipa-devel-fedora.repo"
+        - shell: "sudo yum-config-manager --disable ipa-devel"
+        - shell: |
+            # FreeIPA requires:
+            DEPS=$(grep "^BuildRequires" freeipa.spec.in | awk '{ print $2 }' | grep -v "^/")
+            # Fedora min build env (https://fedoraproject.org/wiki/Packaging:Guidelines#Exceptions_2)
+            DEPS="$DEPS bash bzip2 coreutils cpio diffutils fedora-release"
+            DEPS="$DEPS findutils gawk gcc gcc-c++ grep gzip info make patch"
+            DEPS="$DEPS redhat-rpm-config rpm-build sed shadow-utils tar unzip"
+            DEPS="$DEPS util-linux which xz"
+            # install all the RPMs
+            sudo yum distro-sync -y --enablerepo updates-testing
+            sudo yum install -y rpm-build $DEPS --enablerepo updates-testing
+        - shell: "rpm -qa | sort"
+
+- builder:
+    name: install-built-rpms
+    builders:
+        - copyartifact:
+            project: freeipa-build-{os}
+            which-build: upstream-build
+            fallback-to-last-successful: true
+        - shell: "sudo wget http://jdennis.fedorapeople.org/ipa-devel/ipa-devel-fedora.repo -O /etc/yum.repos.d/ipa-devel-fedora.repo"
+        - shell: "sudo yum-config-manager --disable ipa-devel"
+        - shell: |
+            sudo yum clean all
+            sudo yum distro-sync -y --enablerepo updates-testing
+            sudo yum install -y dist/rpms/freeipa-*.rpm bind-dyndb-ldap --enablerepo updates-testing
+        - shell: "rpm -qa | sort"
+
+- builder:
+    name: build-rpms
+    builders:
+        - shell: |
+            git clean -fxd
+            echo 0.$(date -u +%Y%m%d%H%M%SZ)jenkins${BUILD_NUMBER}git$(git rev-parse --short HEAD) > RELEASE
+            echo IPA_VERSION_IS_GIT_SNAPSHOT=no >> VERSION
+            make rpms
+
+- builder:
+    name: uninstall
+    builders:
+        - shell: |
+            sudo ipa-server-install --uninstall -U || :
+
+- builder:
+    name: clean-up-environment
+    builders:
+        - uninstall
+        - shell: |
+            sudo yum remove -y 'freeipa-*' || :
+            sudo setenforce 1 || :
+            sudo iptables -F || :
+            sudo systemctl stop dirsrv.target || :
+            sudo pkidestroy -s CA -i pki-tomcat || :
+            sudo systemctl reset-failed pki-tomcatd@pki-tomcat.service || :
+
+- builder:
+    name: install
+    builders:
+        - shell: |
+            # install
+            sudo ipa-server-install \
+                --setup-dns \
+                    --forwarder=$FREEIPACI_DNS_FORWARDER \
+                    --reverse-zone=$FREEIPACI_DNS_REVERSE_ZONE \
+                -p $FREEIPACI_PASSWORD -a $FREEIPACI_PASSWORD \
+                -r $FREEIPACI_REALM -n $FREEIPACI_DOMAIN \
+                -U
+
+            echo $FREEIPACI_PASSWORD | kinit admin
+
+- builder:
+    name: setup-default-conf
+    builders:
+        - shell: |
+            mkdir -p /var/lib/jenkins/.ipa/
+            echo """
+            [global]
+            basedn = $FREEIPACI_BASEDN
+            realm = $FREEIPACI_REALM
+            domain = $FREEIPACI_DOMAIN
+            xmlrpc_uri = https://$(hostname)/ipa/xml
+            enable_ra = True
+            ra_plugin = dogtag
+            in_tree=True
+            wait_for_attr=True
+            """ > ~/.ipa/default.conf
+
+- builder:
+    name: createrepo
+    builders:
+        - shell: "sudo yum install -y /usr/bin/createrepo"
+        - shell: (cd dist/rpms; createrepo .)
+
+- job-template:
+    name: freeipa-build-{os}
+    node: freeipa-builder-{os}
+    defaults: global
+    description: |
+        Build and archive FreeIPA RPMs.
+    triggers:
+        - pollscm: "H/15 * * * *"
+    scm:
+        - freeipa-fedorahosted:
+            git-branch: "{git-branch}"
+    wrappers:
+        - workspace-cleanup
+    builders:
+        - install-builddeps
+        - build-rpms
+        - createrepo
+    publishers:
+        - mail-on-fail
+        - warnings:
+            console-log-parsers:
+                - GNU Compiler 4 (gcc)
+            only-use-stable-builds-as-reference: true
+            total-thresholds:
+                unstable:
+                    total-all: 1
+        - archive:
+            artifacts: 'dist/rpms/**'
+        - fingerprint:
+            record-artifacts: true
+        - trigger:
+            project: freeipa-check-deps-{os}
+            threshold: UNSTABLE
+
+- job-template:
+    name: freeipa-check-deps-{os}
+    node: freeipa-builder-{os}
+    defaults: global
+    description: |
+        Check that the built RPMs are actually installable.
+
+        (Managed by jenkins-job-builder. Do not edit this job directly.)
+    builders:
+        - install-built-rpms:
+            os: "{os}"
+        - shell: "sudo yum check-update"
+        - shell: "rpm -qa | sort"
+    publishers:
+        - mail-on-fail
+    publishers:
+        - trigger:
+            project: freeipa-intree-tests-{os}
+            project: freeipa-outoftree-tests-{os}
+
+- job-template:
+    name: freeipa-intree-tests-{os}
+    node: freeipa-runner-{os}
+    defaults: global
+    description: |
+        Run the FreeIPA test suite (sans WebUI & Integration), in-tree.
+    scm:
+        - freeipa-fedorahosted:
+            git-branch: "{git-branch}"
+    wrappers:
+        - workspace-cleanup
+    builders:
+        - clean-up-environment
+        - install-built-rpms:
+            os: "{os}"
+        - shell: |
+            # We're running in-tree tests, but we get compiled files from RPMs
+            cp /usr/lib/python2.7/site-packages/ipapython/version.py ipapython/version.py
+            cp /usr/lib/python2.7/site-packages/ipapython/services.py ipapython/services.py
+            cp /usr/sbin/ipa-getkeytab ipa-client/ipa-getkeytab
+        - install
+        - setup-default-conf
+        - shell: |
+            # set up cert
+            rm -rvf ~/.ipa/alias
+            sudo cp -R /etc/httpd/alias ~/.ipa/alias
+            sudo cp  /etc/httpd/alias/pwdfile.txt ~/.ipa/alias/.pwd
+            sudo chown -R jenkins:jenkins ~/.ipa/alias/
+            rm tests/test_xmlrpc/service.crt || :
+        - shell: |
+            ./make-testcert
+            ./make-test --with-xunit || :
+        - uninstall
+    publishers:
+        - nosetests-xunit
+        - mail-on-fail
+    triggers:
+        - timed:
+            # Do the check nightly
+            "H H(0-5) * * *"
+
+- job-template:
+    name: freeipa-outoftree-tests-{os}
+    node: freeipa-runner-{os}
+    defaults: global
+    description: |
+        Run the FreeIPA test suite (sans WebUI & Integration), out-of-tree.
+    wrappers:
+        - workspace-cleanup
+    builders:
+        - clean-up-environment
+        - install-built-rpms:
+            os: "{os}"
+        - install
+        - setup-default-conf
+        - shell: |
+            ipa-run-tests --with-xunit || :
+        - uninstall
+    publishers:
+        - nosetests-xunit
+        - mail-on-fail
+
+- job-group:
+    name: build-and-check
+    jobs:
+        - freeipa-build-{os}
+        - freeipa-check-deps-{os}
+        - freeipa-intree-tests-{os}
+        - freeipa-outoftree-tests-{os}
+
+- project:
+    name: f20
+    os: f20
+    git-branch: master
+    jobs:
+        - build-and-check
+
+######### Meta-tests; use these for experimenting
+
+- job-template:
+    name: test1
+    node: master
+    builders:
+        shell: "echo 1"
+
+- job-template:
+    name: test2
+    node: master
+    builders:
+        shell: "echo 1"
+
+- project:
+    name: test
+    jobs:
+        - test1
+        - test2
