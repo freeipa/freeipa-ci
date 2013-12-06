@@ -1,0 +1,37 @@
+
+- job:
+    name: freeipa-docs
+    node: master
+    scm:
+        - git:
+            branches:
+                - master
+            url: git://git.fedorahosted.org/git/freeipa-docs.git
+            shallow-clone: true
+            use-author: true
+            browser: gitweb
+            browser-url: https://git.fedorahosted.org/cgit/freeipa-docs.git/
+    builders:
+        - shell: |
+            git clean -ffxd
+        - shell: |
+            # Add DRAFT stamps
+
+            patch -p1 <<EOP
+            diff --git a/src/user_guide/en-US/FreeIPA_Guide.xml b/src/user_guide/en-US/FreeIPA_Guide.xml
+            index c4c2d74..8cfa5b7 100644
+            --- a/src/user_guide/en-US/FreeIPA_Guide.xml
+            +++ b/src/user_guide/en-US/FreeIPA_Guide.xml
+            @@ -4,1 +4,1 @@
+            -<book>
+            +<book status="draft">
+            EOP
+        - shell: |
+            cd src/user_guide/
+            make
+    publishers:
+        - mail-on-fail
+        - archive:
+            artifacts: 'src/user_guide/tmp/**'
+    triggers:
+        - pollscm: "H/15 * * * *"
