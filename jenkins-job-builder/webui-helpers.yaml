@@ -1,0 +1,80 @@
+- builder:
+    name: install-selenium
+    builders:
+        # See: http://www.freeipa.org/page/Web_UI_Integration_Tests
+        - shell: |
+            sudo pip-python install -U selenium
+
+            SELENIUM_TMP_DIR=~/selenium
+            SELENIUM_SERVER_DIR=/opt/selenium
+
+            # this must match exact filename in http://selenium.googlecode.com/files
+            SELENIUM_JAR=selenium-server-standalone-2.37.0.jar
+
+            sudo yum install -y wget unzip xorg-x11-server-Xvfb
+
+            mkdir -p $SELENIUM_TMP_DIR
+            sudo mkdir -p $SELENIUM_SERVER_DIR
+
+            # Download selenium server
+            # http://code.google.com/p/selenium/downloads/list
+            pushd $SELENIUM_TMP_DIR > /dev/null
+                if [ ! -f $SELENIUM_JAR ]
+                then
+                    echo "Downloading Selenium server"
+                    wget http://selenium.googlecode.com/files/$SELENIUM_JAR
+                fi
+
+                if [ ! -f $SELENIUM_SERVER_DIR/selenium-server.jar ]
+                then
+                    echo "Installing Selenium server"
+                    sudo cp $SELENIUM_JAR $SELENIUM_SERVER_DIR/selenium-server.jar
+                fi
+            popd > /dev/null
+
+- builder:
+    name: install-browser-firefox
+    builders:
+        - shell: |
+            sudo yum install -y firefox
+
+- builder:
+    name: setup-webui-tests
+    builders:
+        - shell: |
+            echo """
+            # Current FreeIPA server configuration
+            # ====================================
+            ipa_admin: admin
+            ipa_password: $FREEIPACI_PASSWORD
+
+            ipa_server: $(hostname)
+            ipa_ip: $(ipa dnsrecord-show $FREEIPACI_DOMAIN `hostname -s` | grep '^ *A record:' | sed -e's/.*: *//')
+            ipa_domain: $FREEIPACI_DOMAIN
+            ipa_realm: $FREEIPACI_REALM
+
+            no_ca: {noca}
+
+            no_dns: {nodns}
+
+            # Uncomment when IPA is installed with trust support
+            #has_trusts: True
+            #
+            ## Active Directory configuration
+            #ad_domain: addomain.test
+            #ad_dc: dc.addomain.test
+            #ad_admin: Administrator
+            #ad_password: Secret123
+            #ad_dc_ip: 10.10.20.10
+            #trust_secret: Secret123
+
+            # Web driver setup:
+            # =================
+            # Selenium server is on localhost or remote machine.
+            # Allowed: ['local', 'remote']
+            type: local
+
+            # Browser to test with
+            # Allowed: ['chrome', 'chromium', 'firefox', 'ie']
+            browser: firefox
+            """ > ~/.ipa/ui_test.conf

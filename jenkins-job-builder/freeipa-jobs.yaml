@@ -109,9 +109,8 @@
         - shell: |
             # install
             sudo ipa-server-install \
-                --setup-dns \
-                    --forwarder=$FREEIPACI_DNS_FORWARDER \
-                    --reverse-zone=$FREEIPACI_DNS_REVERSE_ZONE \
+                {options-dns-setup} \
+                {options-ca-setup} \
                 -p $FREEIPACI_PASSWORD -a $FREEIPACI_PASSWORD \
                 -r $FREEIPACI_REALM -n $FREEIPACI_DOMAIN \
                 -U
@@ -196,6 +195,8 @@
             project: freeipa-intree-tests-{os}
         - trigger:
             project: freeipa-outoftree-tests-{os}
+        - trigger:
+            project: freeipa-webui-firefox-{os}-noca-False-nodns-False
 
 - job-template:
     name: freeipa-intree-tests-{os}
@@ -217,7 +218,9 @@
             cp /usr/lib/python2.7/site-packages/ipapython/version.py ipapython/version.py
             cp /usr/lib/python2.7/site-packages/ipapython/services.py ipapython/services.py
             cp /usr/sbin/ipa-getkeytab ipa-client/ipa-getkeytab
-        - install
+        - install:
+            options-dns-setup: "{options-dns-setup}"
+            options-ca-setup: "{options-ca-setup}"
         - setup-default-conf
         - shell: |
             # set up cert
@@ -249,7 +252,9 @@
         - clean-up-environment
         - install-built-rpms:
             os: "{os}"
-        - install
+        - install:
+            options-dns-setup: "{options-dns-setup}"
+            options-ca-setup: "{options-ca-setup}"
         - setup-default-conf
         - shell: |
             # Jenkins sets the PATH to its own default,
@@ -257,6 +262,37 @@
             export PATH=$PATH:/usr/sbin
 
             ipa-run-tests --with-xunit || :
+        - uninstall
+    publishers:
+        - nosetests-xunit
+        - mail-on-fail
+
+- job-template:
+    name: freeipa-webui-{browser}-{os}-noca-{noca}-nodns-{nodns}
+    node: freeipa-webui-{os}
+    defaults: global
+    description: |
+        Run the FreeIPA Web UI tests on Firefox
+    wrappers:
+        - workspace-cleanup
+    builders:
+        - clean-up-environment
+        - install-built-rpms:
+            os: "{os}"
+        - install:
+            options-dns-setup: "{options-dns-setup}"
+            options-ca-setup: "{options-ca-setup}"
+        - install-selenium
+        - install-browser-{browser}
+        - setup-webui-tests:
+            noca: "{noca}"
+            nodns: "{nodns}"
+        - shell: |
+            export DISPLAY=:99
+            /usr/bin/Xvfb $DISPLAY -ac -screen 0 1400x1200x8 > ~/xvfb-stdout 2> ~/xvfb-stderr &
+            sleep 5
+            ipa-run-tests -v --with-xunit --logging-level=INFO test_webui || :
+            kill %1
         - uninstall
     publishers:
         - nosetests-xunit
@@ -270,6 +306,10 @@
         - freeipa-check-deps-{os}
         - freeipa-intree-tests-{os}
         - freeipa-outoftree-tests-{os}
+        - freeipa-webui-{browser}-{os}-noca-{noca}-nodns-{nodns}:
+            noca: False
+            nodns: False
+            browser: firefox
 
 - job-template:
     name: freeipa-stats-{os}
@@ -316,6 +356,11 @@
     name: f20
     os: f20
     git-branch: master
+    options-dns-setup: >
+        --setup-dns
+        --forwarder=$FREEIPACI_DNS_FORWARDER
+        --reverse-zone=$FREEIPACI_DNS_REVERSE_ZONE
+    options-ca-setup: ""
     jobs:
         - build-and-check
 

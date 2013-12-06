@@ -4,6 +4,11 @@ Done:
         - Basic in-tree tests
         - Basic out-of-tree tests
         - Stats
+        - Web UI
+            - tests:
+                - base
+            - browsers:
+                - firefox
 
 TODO:
     - jobs:
@@ -15,12 +20,10 @@ TODO:
             - Kerberos Flags
         - Web UI
             - tests:
-                - base
                 - CA-less
                 - DNS-less
                 - Trusts
             - browsers:
-                - firefox
                 - Chromium
                 - Chrome
                 - IE?

@@ -36,10 +36,9 @@ This config provides job descriptions. Other required Jenkins configuration is:
     Required Jenkins nodes:
         - freeipa-builder-{f19,f20}
         - freeipa-runner-{f19,f20}
-        - freeipa-webui-{f19,f20}: |
-            TODO, not used needed yet
+        - freeipa-webui-{f19,f20}
         - freeipa-controller-{f19,f20}: |
-            TODO, not used needed yet
+            TODO, not used/needed yet
             Needs a script (TODO: name?) that brings up 3 machines with
             proper the proper OS, and sets these variables to the hostnames:
                 $MASTER, $REPLICA, $CLIENT
