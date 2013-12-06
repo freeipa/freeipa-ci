@@ -1,21 +1,36 @@
 Done:
-    - RPM Build
-    - Basic in-tree tests
-    - Basic out-of-tree tests
+    - jobs:
+        - RPM Build
+        - Basic in-tree tests
+        - Basic out-of-tree tests
 
 TODO:
-    - Integration
-        - Simple Replication
-        - CA-less
-        - ExtCA
-        - Forced Client Re-Enrollment
-        - Kerberos Flags
-    - Web UI
-        - base
-        - CA-less
-        - DNS-less
-    - Docs
-    - Stats
-    - f19/ipa-3-3
-    - RHEL
-    - Debian
+    - jobs:
+        - Integration
+            - Simple Replication
+            - CA-less
+            - ExtCA
+            - Forced Client Re-Enrollment
+            - Kerberos Flags
+        - Web UI
+            - tests:
+                - base
+                - CA-less
+                - DNS-less
+                - Trusts
+            - browsers:
+                - firefox
+                - Chromium
+                - Chrome
+                - IE?
+        - Docs
+        - Stats
+        - Trusts
+    - platforms:
+        - f19/ipa-3-3
+        - RHEL
+        - Debian
+    - config:
+        - |
+            Figure out a way to have each job define what triggers it,
+            instead of having a list of triggered projects in the upstream job
