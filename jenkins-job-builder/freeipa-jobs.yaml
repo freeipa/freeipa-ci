@@ -146,8 +146,6 @@
     defaults: global
     description: |
         Build and archive FreeIPA RPMs.
-    triggers:
-        - pollscm: "H/15 * * * *"
     scm:
         - freeipa-fedorahosted:
             git-branch: "{git-branch}"
@@ -259,10 +257,51 @@
 - job-group:
     name: build-and-check
     jobs:
+        - freeipa-stats-{os}
         - freeipa-build-{os}
         - freeipa-check-deps-{os}
         - freeipa-intree-tests-{os}
         - freeipa-outoftree-tests-{os}
+
+- job-template:
+    name: freeipa-stats-{os}
+    node: freeipa-builder-{os}
+    defaults: global
+    description: |
+        Collect some stats on the FreeIPA code
+    scm:
+        - freeipa-fedorahosted:
+            git-branch: "{git-branch}"
+    triggers:
+        - pollscm: "H/15 * * * *"
+    builders:
+        - shell: |
+            sudo yum install -y python-pip sloccount
+            pip install --user flake8
+        - shell: |
+            git clean -ffxd
+            echo -n 'YVALUE=' > pep8.properties
+
+            ~/.local/bin/flake8 --version
+            ~/.local/bin/flake8 . --statistics --count 2>> pep8.properties || :
+        - shell: |
+            /usr/bin/sloccount --duplicates --wide --details . > sloccount.sc
+    publishers:
+        - trigger:
+            project: freeipa-build-{os}
+        - mail-on-fail
+        - plot:
+          - title: PEP8+pyflakes problems
+            yaxis: problems
+            group: stats
+            style: line
+            series:
+              - file: pep8.properties
+                label: MyLabel
+                format: properties
+        - sloccount:
+            report-files: sloccount.sc
+            charset: UTF-8
 
 - project:
     name: f20

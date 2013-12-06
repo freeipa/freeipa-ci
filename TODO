@@ -3,6 +3,7 @@ Done:
         - RPM Build
         - Basic in-tree tests
         - Basic out-of-tree tests
+        - Stats
 
 TODO:
     - jobs:
@@ -24,7 +25,6 @@ TODO:
                 - Chrome
                 - IE?
         - Docs
-        - Stats
         - Trusts
     - platforms:
         - f19/ipa-3-3
