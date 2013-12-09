@@ -67,6 +67,7 @@
             project: freeipa-build-{os}
             which-build: upstream-build
             fallback-to-last-successful: true
+        - shell: "sudo yum remove -y 'freeipa-*' || :"
         - shell: "sudo wget http://jdennis.fedorapeople.org/ipa-devel/ipa-devel-fedora.repo -O /etc/yum.repos.d/ipa-devel-fedora.repo"
         - shell: "sudo yum-config-manager --disable ipa-devel"
         - shell: |
@@ -180,6 +181,8 @@
         Check that the built RPMs are actually installable.
 
         (Managed by jenkins-job-builder. Do not edit this job directly.)
+    wrappers:
+        - workspace-cleanup
     builders:
         - install-built-rpms:
             os: "{os}"
