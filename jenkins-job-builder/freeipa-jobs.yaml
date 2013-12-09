@@ -193,6 +193,7 @@
     publishers:
         - trigger:
             project: freeipa-intree-tests-{os}
+        - trigger:
             project: freeipa-outoftree-tests-{os}
 
 - job-template:
