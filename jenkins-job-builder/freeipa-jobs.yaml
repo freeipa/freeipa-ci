@@ -122,7 +122,7 @@
     name: setup-default-conf
     builders:
         - shell: |
-            mkdir -p /var/lib/jenkins/.ipa/
+            mkdir -p ~/.ipa/
             echo """
             [global]
             basedn = $FREEIPACI_BASEDN
