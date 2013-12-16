@@ -299,6 +299,7 @@
             yaxis: problems
             group: stats
             style: line
+            csv-file-name: flake8-plot.csv
             series:
               - file: pep8.properties
                 label: MyLabel
