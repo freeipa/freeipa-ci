@@ -129,6 +129,7 @@
             realm = $FREEIPACI_REALM
             domain = $FREEIPACI_DOMAIN
             xmlrpc_uri = https://$(hostname)/ipa/xml
+            ldap_uri = ldap://$(hostname)
             enable_ra = True
             ra_plugin = dogtag
             in_tree=True
