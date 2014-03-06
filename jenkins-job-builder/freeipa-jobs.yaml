@@ -227,7 +227,6 @@
             sudo chown -R jenkins:jenkins ~/.ipa/alias/
             rm tests/test_xmlrpc/service.crt || :
         - shell: |
-            ./make-testcert
             ./make-test --with-xunit || :
         - uninstall
     publishers:
