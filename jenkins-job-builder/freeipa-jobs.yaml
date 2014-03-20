@@ -104,6 +104,14 @@
             sudo systemctl reset-failed pki-tomcatd@pki-tomcat.service || :
 
 - builder:
+    name: download-certificate
+    builders:
+        - shell: |
+            # download certificates for CA less files
+            wget http://jenkins.idm.lab.eng.brq.redhat.com/~jenkins/STAR.idm.lab.eng.brq.redhat.com.p12
+            wget http://jenkins.idm.lab.eng.brq.redhat.com/~jenkins/Ext_CA.crt
+
+- builder:
     name: install
     builders:
         - shell: |
@@ -281,6 +289,7 @@
         - clean-up-environment
         - install-built-rpms:
             os: "{os}"
+        - download-certificate
         - install:
             options-dns-setup: "{options-dns-setup}"
             options-ca-setup: "{options-ca-setup}"
