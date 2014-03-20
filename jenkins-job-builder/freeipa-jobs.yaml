@@ -196,7 +196,9 @@
         - trigger:
             project: freeipa-outoftree-tests-{os}
         - trigger:
-            project: freeipa-webui-firefox-{os}-noca-False-nodns-False
+            project: freeipa-webui-firefox-{os}-with-dns-with-ca
+        - trigger:
+            project: freeipa-webui-firefox-{os}-no-dns-no-ca
 
 - job-template:
     name: freeipa-intree-tests-{os}
@@ -268,11 +270,11 @@
         - mail-on-fail
 
 - job-template:
-    name: freeipa-webui-{browser}-{os}-noca-{noca}-nodns-{nodns}
+    name: freeipa-webui-{browser}-{os}-{prettyname}
     node: freeipa-webui-{os}
     defaults: global
     description: |
-        Run the FreeIPA Web UI tests on Firefox
+        Run the FreeIPA Web UI tests on {browser}.
     wrappers:
         - workspace-cleanup
     builders:
@@ -306,10 +308,22 @@
         - freeipa-check-deps-{os}
         - freeipa-intree-tests-{os}
         - freeipa-outoftree-tests-{os}
-        - freeipa-webui-{browser}-{os}-noca-{noca}-nodns-{nodns}:
+        - freeipa-webui-{browser}-{os}-{prettyname}:
+            prettyname: with-dns-with-ca
             noca: False
             nodns: False
             browser: firefox
+        - freeipa-webui-{browser}-{os}-{prettyname}:
+            prettyname: no-dns-no-ca
+            noca: True
+            nodns: True
+            browser: firefox
+            options-dns-setup: ""
+            options-ca-setup: >
+                --http_pkcs12 STAR.idm.lab.eng.brq.redhat.com.p12 \
+                --dirsrv_pkcs12 STAR.idm.lab.eng.brq.redhat.com.p12 \
+                --http_pin 12345678 --dirsrv_pin 12345678 \
+                --root-ca-file Ext_CA.crt
 
 - job-template:
     name: freeipa-stats-{os}

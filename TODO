@@ -20,8 +20,6 @@ TODO:
             - Kerberos Flags
         - Web UI
             - tests:
-                - CA-less
-                - DNS-less
                 - Trusts
             - browsers:
                 - Chromium
