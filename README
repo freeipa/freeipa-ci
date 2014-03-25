@@ -33,6 +33,9 @@ This config provides job descriptions. Other required Jenkins configuration is:
         export FREEIPACI_REALM=EXAMPLE.COM
         export FREEIPACI_DOMAIN=example.com
         export FREEIPACI_BASEDN=dc=example,dc=com
+        export FREEIPACI_STAR_CERT=<URL of a valid wildcard certificate (PKCS#12)>
+        export FREEIPACI_STAR_CERT_PIN=<password for FREEIPACI_STAR_CERT>
+        export FREEIPACI_CA_CERT=<URL of certificate that signed FREEIPACI_STAR_CERT (DER)>
     Required Jenkins nodes:
         - freeipa-builder-{f19,f20}
         - freeipa-runner-{f19,f20}
