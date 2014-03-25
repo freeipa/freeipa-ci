@@ -199,6 +199,8 @@
             project: freeipa-webui-firefox-{os}-with-dns-with-ca
         - trigger:
             project: freeipa-webui-firefox-{os}-no-dns-no-ca
+        - trigger:
+            project: freeipa-integration-{os}-simple_replication
 
 - job-template:
     name: freeipa-intree-tests-{os}
@@ -300,6 +302,41 @@
         - nosetests-xunit
         - mail-on-fail
 
+- job-template:
+    name: freeipa-integration-{os}-{pretty_name}
+    node: freeipa-controller-{os}
+    defaults: global
+    description: |
+        Run FreeIPA integration tests under {suite}.
+    wrappers:
+        - workspace-cleanup
+    builders:
+        - clean-up-environment
+        - install-built-rpms:
+            os: "{os}"
+        - shell: |
+            sudo yum install -y PyYAML python-requests python-paramiko
+            wget -O ./prepare-hosts $FREEIPACI_PREPARE_HOSTS_URL
+            cat ./prepare-hosts
+            chmod +x ./prepare-hosts
+            ./prepare-hosts <<END_YAML_FILE > test-config.yaml
+            {config_template}
+            END_YAML_FILE
+            cat test-config.yaml
+        - shell: |
+            export IPATEST_YAML_CONFIG=$(realpath ./test-config.yaml)
+            ipa-test-config --yaml
+            ipa-run-tests --with-xunit {suite} || :
+        - shell: |
+            wget -O ./shutdown-hosts $FREEIPACI_SHUTDOWN_HOSTS_URL
+            cat ./shutdown-hosts
+            chmod +x ./shutdown-hosts
+            ./shutdown-hosts < test-config.yaml
+        - uninstall
+    publishers:
+        - nosetests-xunit
+        - mail-on-fail
+
 - job-group:
     name: build-and-check
     jobs:
@@ -324,6 +361,18 @@
                 --dirsrv_pkcs12 STAR.idm.lab.eng.brq.redhat.com.p12 \
                 --http_pin 12345678 --dirsrv_pin 12345678 \
                 --root-ca-file Ext_CA.crt
+        - freeipa-integration-{os}-{pretty_name}:
+            pretty_name: simple_replication
+            suite: test_integration/test_simple_replication.py
+            config_template: |
+                domains:
+                  - hosts:
+                      - name: master.ipa.test
+                        role: master
+                      - name: replica.ipa.test
+                        role: replica
+                    name: ipa.test
+                    type: IPA
 
 - job-template:
     name: freeipa-stats-{os}

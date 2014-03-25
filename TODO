@@ -9,11 +9,12 @@ Done:
                 - base
             - browsers:
                 - firefox
+        - Integration
+            - Simple Replication
 
 TODO:
     - jobs:
         - Integration
-            - Simple Replication
             - CA-less
             - ExtCA
             - Forced Client Re-Enrollment

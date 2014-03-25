@@ -33,18 +33,15 @@ This config provides job descriptions. Other required Jenkins configuration is:
         export FREEIPACI_REALM=EXAMPLE.COM
         export FREEIPACI_DOMAIN=example.com
         export FREEIPACI_BASEDN=dc=example,dc=com
+        export FREEIPACI_PREPARE_HOSTS_URL=<URL, see Controller scripts below>
+        export FREEIPACI_SHUTDOWN_HOSTS_URL=<URL, see Controller scripts below>
     Required Jenkins nodes:
+        - master:
+            should have Publican installed
         - freeipa-builder-{f19,f20}
         - freeipa-runner-{f19,f20}
         - freeipa-webui-{f19,f20}
-        - freeipa-controller-{f19,f20}: |
-            TODO, not used/needed yet
-            Needs a script (TODO: name?) that brings up 3 machines with
-            proper the proper OS, and sets these variables to the hostnames:
-                $MASTER, $REPLICA, $CLIENT
-            Also calls a script (TODO: name?) that brings these machines down
-        - master:
-            should have Publican installed
+        - freeipa-controller-{f19,f20}  (see Controller scripts below)
     Installed Jenkins plugins:
         # TODO: Not all of these are needed. Prune.
         - Ant Plugin
@@ -84,3 +81,25 @@ This config provides job descriptions. Other required Jenkins configuration is:
         - Static Analysis Utilities
         - Warnings Plug-in
         - xUnit plugin
+
+Controller scripts
+Jenkins only allows a single slave for each test. For multi-machine testing,
+we use a "controller" machine that manages nodes.
+The controller uses two scripts, which it downloads from URLs specified
+by envoronment variables (see above).
+
+prepare-hosts:
+    Receives a test config JSON template on stdin,
+    where each host entry only has 'name' and 'role' specified.
+    The script brings up the mentioned machines and fills
+    in 'external_hostname' and 'ip'.
+    Also, fills in 'dns_forwarder', 'ntp_server', and either
+    'root_ssh_key_filename' or 'root_password', and may change
+    any other configuration.
+    It also installs built packages on the machines. These are found
+    in ./dist/rpms when prepare-hosts runs.
+    Output can be YAML or JSON.
+
+shutdown-hosts
+    Recieves a IPA test config file which the prepare-hosts script produced,
+    and brings down all machines specified in it.
