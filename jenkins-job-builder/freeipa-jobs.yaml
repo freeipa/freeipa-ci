@@ -362,6 +362,20 @@
                 --http_pin 12345678 --dirsrv_pin 12345678 \
                 --root-ca-file Ext_CA.crt
         - freeipa-integration-{os}-{pretty_name}:
+            pretty_name: caless
+            suite: test_integration/test_caless.py
+            config_template: |
+                domains:
+                  - hosts:
+                      - name: master.ipa.test
+                        role: master
+                      - name: replica.ipa.test
+                        role: replica
+                      - name: client.ipa.test
+                        role: client
+                    name: ipa.test
+                    type: IPA
+        - freeipa-integration-{os}-{pretty_name}:
             pretty_name: simple_replication
             suite: test_integration/test_simple_replication.py
             config_template: |
@@ -371,6 +385,42 @@
                         role: master
                       - name: replica.ipa.test
                         role: replica
+                    name: ipa.test
+                    type: IPA
+        - freeipa-integration-{os}-{pretty_name}:
+            pretty_name: external_ca
+            suite: test_integration/test_external_ca.py
+            config_template: |
+                domains:
+                  - hosts:
+                      - name: master.ipa.test
+                        role: master
+                    name: ipa.test
+                    type: IPA
+        - freeipa-integration-{os}-{pretty_name}:
+            pretty_name: forced_client_reenrollment
+            suite: test_integration/test_forced_client_reenrollment.py
+            config_template: |
+                domains:
+                  - hosts:
+                      - name: master.ipa.test
+                        role: master
+                      - name: replica.ipa.test
+                        role: replica
+                      - name: client.ipa.test
+                        role: client
+                    name: ipa.test
+                    type: IPA
+        - freeipa-integration-{os}-{pretty_name}:
+            pretty_name: kerberos_flags
+            suite: test_integration/test_kerberos_flags.py
+            config_template: |
+                domains:
+                  - hosts:
+                      - name: master.ipa.test
+                        role: master
+                      - name: client.ipa.test
+                        role: client
                     name: ipa.test
                     type: IPA
 

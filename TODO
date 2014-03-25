@@ -11,14 +11,16 @@ Done:
                 - firefox
         - Integration
             - Simple Replication
-
-TODO:
-    - jobs:
-        - Integration
             - CA-less
             - ExtCA
             - Forced Client Re-Enrollment
             - Kerberos Flags
+
+TODO:
+    - jobs:
+        - Integration
+            - Legacy clients
+            - Trusts
         - Web UI
             - tests:
                 - Trusts
@@ -27,7 +29,6 @@ TODO:
                 - Chrome
                 - IE?
         - Docs
-        - Trusts
     - platforms:
         - f19/ipa-3-3
         - RHEL
