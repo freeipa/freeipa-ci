@@ -209,6 +209,14 @@
             project: freeipa-webui-firefox-{os}-no-dns-no-ca
         - trigger:
             project: freeipa-integration-{os}-simple_replication
+        - trigger:
+            project: freeipa-integration-{os}-caless.py
+        - trigger:
+            project: freeipa-integration-{os}-external_ca
+        - trigger:
+            project: freeipa-integration-{os}-forced_client_reenrollment
+        - trigger:
+            project: freeipa-integration-{os}-kerberos_flags
 
 - job-template:
     name: freeipa-intree-tests-{os}
