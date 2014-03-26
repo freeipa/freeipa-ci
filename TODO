@@ -4,6 +4,7 @@ Done:
         - Basic in-tree tests
         - Basic out-of-tree tests
         - Stats
+        - Docs
         - Web UI
             - tests:
                 - base
@@ -28,7 +29,6 @@ TODO:
                 - Chromium
                 - Chrome
                 - IE?
-        - Docs
     - platforms:
         - f19/ipa-3-3
         - RHEL
