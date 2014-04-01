@@ -440,6 +440,44 @@
                         role: client
                     name: ipa.test
                     type: IPA
+        - freeipa-integration-{os}-{pretty_name}:
+            pretty_name: basic_trust
+            suite: test_integration/test_trust.py
+            config_template: |
+                domains:
+                  - hosts:
+                      - name: master.ipa.test
+                        role: trust_master
+                    name: ipa.test
+                    type: TRUST_IPA
+                  - hosts:
+                      - name: ad
+                        role: ad
+                    name: ad.test
+                    type: AD
+        - freeipa-integration-{os}-{pretty_name}:
+            pretty_name: legacy_clients
+            suite: test_integration/test_legacy_clients.py
+            config_template: |
+                domains:
+                  - hosts:
+                      - name: master.ipa.test
+                        role: trust_master
+                      - name: legacy_client_sssd_redhat.ipa.test
+                        role: legacy_client_sssd_redhat
+                      - name: legacy_client_nss_ldap_redhat.ipa.test
+                        role: legacy_client_nss_ldap_redhat
+                      - name: legacy_client_nss_pam_ldapd_redhat.ipa.test
+                        role: legacy_client_nss_pam_ldapd_redhat
+                    name: ipa.test
+                    type: TRUST_IPA
+                  - hosts:
+                      - name: ad.ad.test
+                        role: ad
+                      - name: child.child.ad.test
+                        role: ad_subdomain
+                    name: ad.test
+                    type: AD
 
 - job-template:
     name: freeipa-stats-{os}

@@ -101,6 +101,10 @@ prepare-hosts:
     any other configuration.
     It also installs built packages on the machines. These are found
     in ./dist/rpms when prepare-hosts runs.
+    It also handles the assigment of static test nodes. These are
+    specified by using special role names, such as TRUST_IPA for IPA domain
+    that AD is configured to establish trusts with, or trust_master for the
+    actual IPA master. These fake values are substituted by the script.
     Output can be YAML or JSON.
 
 shutdown-hosts
