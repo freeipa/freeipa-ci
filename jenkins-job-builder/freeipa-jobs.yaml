@@ -482,7 +482,7 @@
 
 - job-template:
     name: freeipa-stats-{os}
-    node: freeipa-builder-{os}
+    node: master
     defaults: global
     description: |
         Collect some stats on the FreeIPA code
