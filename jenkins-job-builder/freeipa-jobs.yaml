@@ -323,6 +323,7 @@
     name: freeipa-integration-{os}-{pretty_name}
     node: freeipa-controller-{os}
     defaults: global
+    concurrent: false
     description: |
         Run FreeIPA integration tests under {suite}.
     wrappers:
