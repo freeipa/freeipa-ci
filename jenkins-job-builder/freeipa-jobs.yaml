@@ -36,11 +36,11 @@
         - git:
             branches:
                 - "{git-branch}"
-            url: git://git.fedorahosted.org/git/freeipa.git
+            url: "{git-url}"
             shallow-clone: true
             use-author: true
             browser: gitweb
-            browser-url: https://git.fedorahosted.org/cgit/freeipa.git/
+            browser-url: "{git-browser-url}"
 
 - builder:
     name: install-builddeps
@@ -158,6 +158,8 @@
     scm:
         - freeipa-fedorahosted:
             git-branch: "{git-branch}"
+            git-url: "{git-url}"
+            git-browser-url: "{git-browser-url}"
     wrappers:
         - workspace-cleanup
     builders:
@@ -227,6 +229,8 @@
     scm:
         - freeipa-fedorahosted:
             git-branch: "{git-branch}"
+            git-url: "{git-url}"
+            git-browser-url: "{git-browser-url}"
     wrappers:
         - workspace-cleanup
     builders:
@@ -489,6 +493,8 @@
     scm:
         - freeipa-fedorahosted:
             git-branch: "{git-branch}"
+            git-url: "{git-url}"
+            git-browser-url: "{git-browser-url}"
     triggers:
         - pollscm: "H/15 * * * *"
     builders:
@@ -524,6 +530,8 @@
     name: f20
     os: f20
     git-branch: master
+    git-url: git://git.fedorahosted.org/git/freeipa.git
+    git-browser-url: https://git.fedorahosted.org/cgit/freeipa.git/
     options-dns-setup: >
         --setup-dns
         --forwarder=$FREEIPACI_DNS_FORWARDER
