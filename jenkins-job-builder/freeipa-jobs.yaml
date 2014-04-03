@@ -150,7 +150,7 @@
         - shell: (cd dist/rpms; createrepo .)
 
 - job-template:
-    name: freeipa-build-{os}
+    name: '{prefix}-build-{os}'
     node: freeipa-builder-{os}
     defaults: global
     description: |
@@ -180,11 +180,11 @@
         - fingerprint:
             record-artifacts: true
         - trigger:
-            project: freeipa-check-deps-{os}
+            project: '{prefix}-check-deps-{os}'
             threshold: UNSTABLE
 
 - job-template:
-    name: freeipa-check-deps-{os}
+    name: '{prefix}-check-deps-{os}'
     node: freeipa-builder-{os}
     defaults: global
     description: |
@@ -202,26 +202,26 @@
         - mail-on-fail
     publishers:
         - trigger:
-            project: freeipa-intree-tests-{os}
+            project: '{prefix}-intree-tests-{os}'
         - trigger:
-            project: freeipa-outoftree-tests-{os}
+            project: '{prefix}-outoftree-tests-{os}'
         - trigger:
-            project: freeipa-webui-firefox-{os}-with-dns-with-ca
+            project: '{prefix}-webui-firefox-{os}-with-dns-with-ca'
         - trigger:
-            project: freeipa-webui-firefox-{os}-no-dns-no-ca
+            project: '{prefix}-webui-firefox-{os}-no-dns-no-ca'
         - trigger:
-            project: freeipa-integration-{os}-simple_replication
+            project: '{prefix}-integration-{os}-simple_replication'
         - trigger:
-            project: freeipa-integration-{os}-caless.py
+            project: '{prefix}-integration-{os}-caless.py'
         - trigger:
-            project: freeipa-integration-{os}-external_ca
+            project: '{prefix}-integration-{os}-external_ca'
         - trigger:
-            project: freeipa-integration-{os}-forced_client_reenrollment
+            project: '{prefix}-integration-{os}-forced_client_reenrollment'
         - trigger:
-            project: freeipa-integration-{os}-kerberos_flags
+            project: '{prefix}-integration-{os}-kerberos_flags'
 
 - job-template:
-    name: freeipa-intree-tests-{os}
+    name: '{prefix}-intree-tests-{os}'
     node: freeipa-runner-{os}
     defaults: global
     description: |
@@ -265,7 +265,7 @@
             "H H(0-5) * * *"
 
 - job-template:
-    name: freeipa-outoftree-tests-{os}
+    name: '{prefix}-outoftree-tests-{os}'
     node: freeipa-runner-{os}
     defaults: global
     description: |
@@ -292,7 +292,7 @@
         - mail-on-fail
 
 - job-template:
-    name: freeipa-webui-{browser}-{os}-{prettyname}
+    name: '{prefix}-webui-{browser}-{os}-{prettyname}'
     node: freeipa-webui-{os}
     defaults: global
     description: |
@@ -324,7 +324,7 @@
         - mail-on-fail
 
 - job-template:
-    name: freeipa-integration-{os}-{pretty_name}
+    name: '{prefix}-integration-{os}-{pretty_name}'
     node: freeipa-controller-{os}
     defaults: global
     concurrent: false
@@ -362,17 +362,17 @@
 - job-group:
     name: build-and-check
     jobs:
-        - freeipa-stats-{os}
-        - freeipa-build-{os}
-        - freeipa-check-deps-{os}
-        - freeipa-intree-tests-{os}
-        - freeipa-outoftree-tests-{os}
-        - freeipa-webui-{browser}-{os}-{prettyname}:
+        - '{prefix}-stats-{os}'
+        - '{prefix}-build-{os}'
+        - '{prefix}-check-deps-{os}'
+        - '{prefix}-intree-tests-{os}'
+        - '{prefix}-outoftree-tests-{os}'
+        - '{prefix}-webui-{browser}-{os}-{prettyname}':
             prettyname: with-dns-with-ca
             noca: False
             nodns: False
             browser: firefox
-        - freeipa-webui-{browser}-{os}-{prettyname}:
+        - '{prefix}-webui-{browser}-{os}-{prettyname}':
             prettyname: no-dns-no-ca
             noca: True
             nodns: True
@@ -383,7 +383,7 @@
                 --dirsrv_pkcs12 star-cert.p12 \
                 --http_pin $FREEIPACI_STAR_CERT_PIN --dirsrv_pin $FREEIPACI_STAR_CERT_PIN \
                 --root-ca-file star-cert-ca.crt
-        - freeipa-integration-{os}-{pretty_name}:
+        - '{prefix}-integration-{os}-{pretty_name}':
             pretty_name: caless
             suite: test_integration/test_caless.py
             config_template: |
@@ -397,7 +397,7 @@
                         role: client
                     name: ipa.test
                     type: IPA
-        - freeipa-integration-{os}-{pretty_name}:
+        - '{prefix}-integration-{os}-{pretty_name}':
             pretty_name: simple_replication
             suite: test_integration/test_simple_replication.py
             config_template: |
@@ -409,7 +409,7 @@
                         role: replica
                     name: ipa.test
                     type: IPA
-        - freeipa-integration-{os}-{pretty_name}:
+        - '{prefix}-integration-{os}-{pretty_name}':
             pretty_name: external_ca
             suite: test_integration/test_external_ca.py
             config_template: |
@@ -419,7 +419,7 @@
                         role: master
                     name: ipa.test
                     type: IPA
-        - freeipa-integration-{os}-{pretty_name}:
+        - '{prefix}-integration-{os}-{pretty_name}':
             pretty_name: forced_client_reenrollment
             suite: test_integration/test_forced_client_reenrollment.py
             config_template: |
@@ -433,7 +433,7 @@
                         role: client
                     name: ipa.test
                     type: IPA
-        - freeipa-integration-{os}-{pretty_name}:
+        - '{prefix}-integration-{os}-{pretty_name}':
             pretty_name: kerberos_flags
             suite: test_integration/test_kerberos_flags.py
             config_template: |
@@ -445,7 +445,7 @@
                         role: client
                     name: ipa.test
                     type: IPA
-        - freeipa-integration-{os}-{pretty_name}:
+        - '{prefix}-integration-{os}-{pretty_name}':
             pretty_name: basic_trust
             suite: test_integration/test_trust.py
             config_template: |
@@ -460,7 +460,7 @@
                         role: ad
                     name: ad.test
                     type: AD
-        - freeipa-integration-{os}-{pretty_name}:
+        - '{prefix}-integration-{os}-{pretty_name}':
             pretty_name: legacy_clients
             suite: test_integration/test_legacy_clients.py
             config_template: |
@@ -485,7 +485,7 @@
                     type: AD
 
 - job-template:
-    name: freeipa-stats-{os}
+    name: '{prefix}-stats-{os}'
     node: master
     defaults: global
     description: |
@@ -510,7 +510,7 @@
             /usr/bin/sloccount --duplicates --wide --details . > sloccount.sc
     publishers:
         - trigger:
-            project: freeipa-build-{os}
+            project: '{prefix}-build-{os}'
         - mail-on-fail
         - plot:
           - title: PEP8+pyflakes problems
@@ -529,6 +529,7 @@
 - project:
     name: f20
     os: f20
+    prefix: freeipa
     git-branch: master
     git-url: git://git.fedorahosted.org/git/freeipa.git
     git-browser-url: https://git.fedorahosted.org/cgit/freeipa.git/
