@@ -493,7 +493,6 @@
         - pollscm: "H/15 * * * *"
     builders:
         - shell: |
-            sudo yum install -y python-pip sloccount
             pip install --user flake8
         - shell: |
             git clean -ffxd

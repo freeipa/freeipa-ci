@@ -40,7 +40,7 @@ This config provides job descriptions. Other required Jenkins configuration is:
         export FREEIPACI_SHUTDOWN_HOSTS_URL=<URL, see Controller scripts below>
     Required Jenkins nodes:
         - master:
-            should have Publican installed
+            should have Publican, pip and sloccount installed
         - freeipa-builder-{f19,f20}
         - freeipa-runner-{f19,f20}
         - freeipa-webui-{f19,f20}
