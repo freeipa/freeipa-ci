@@ -64,7 +64,7 @@
     name: install-built-rpms
     builders:
         - copyartifact:
-            project: freeipa-build-{os}
+            project: "{prefix}-build-{os}"
             which-build: upstream-build
             fallback-to-last-successful: true
         - shell: "sudo yum remove -y 'freeipa-*' || :"
@@ -196,6 +196,7 @@
         - workspace-cleanup
     builders:
         - install-built-rpms:
+            prefix: "{prefix}"
             os: "{os}"
         - shell: "sudo yum check-update"
         - shell: "rpm -qa | sort"
@@ -237,6 +238,7 @@
     builders:
         - clean-up-environment
         - install-built-rpms:
+            prefix: "{prefix}"
             os: "{os}"
         - shell: |
             # We're running in-tree tests, but we get compiled files from RPMs
@@ -276,6 +278,7 @@
     builders:
         - clean-up-environment
         - install-built-rpms:
+            prefix: "{prefix}"
             os: "{os}"
         - install:
             options-dns-setup: "{options-dns-setup}"
@@ -303,6 +306,7 @@
     builders:
         - clean-up-environment
         - install-built-rpms:
+            prefix: "{prefix}"
             os: "{os}"
         - download-certificate
         - install:
@@ -336,6 +340,7 @@
     builders:
         - clean-up-environment
         - install-built-rpms:
+            prefix: "{prefix}"
             os: "{os}"
         - shell: |
             sudo yum install -y PyYAML python-requests python-paramiko
