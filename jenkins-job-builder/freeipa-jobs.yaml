@@ -459,6 +459,18 @@
                     name: ipa.test
                     type: IPA
         - '{prefix}-integration-{os}-{pretty_name}':
+            pretty_name: sudo
+            suite: test_integration/test_sudo.py
+            config_template: |
+                domains:
+                  - hosts:
+                      - name: master.ipa.test
+                        role: master
+                      - name: client.ipa.test
+                        role: client
+                    name: ipa.test
+                    type: IPA
+        - '{prefix}-integration-{os}-{pretty_name}':
             pretty_name: basic_trust
             suite: test_integration/test_trust.py
             config_template: |
