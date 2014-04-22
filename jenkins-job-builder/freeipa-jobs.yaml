@@ -214,7 +214,7 @@
         - trigger:
             project: '{prefix}-integration-{os}-simple_replication'
         - trigger:
-            project: '{prefix}-integration-{os}-caless.py'
+            project: '{prefix}-integration-{os}-caless'
         - trigger:
             project: '{prefix}-integration-{os}-external_ca'
         - trigger:
