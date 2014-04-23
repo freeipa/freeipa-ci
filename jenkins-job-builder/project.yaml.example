@@ -14,3 +14,4 @@
     report-mail-address: your.email@example
     jobs:
         - build-and-check
+        - docs

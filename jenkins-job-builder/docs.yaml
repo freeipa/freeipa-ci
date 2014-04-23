@@ -1,7 +1,8 @@
 
-- job:
-    name: freeipa-docs
+- job-template:
+    name: '{prefix}-docs'
     node: master
+    defaults: global
     scm:
         - git:
             branches:
@@ -36,3 +37,8 @@
             artifacts: 'src/user_guide/tmp/**'
     triggers:
         - pollscm: "H/15 * * * *"
+
+- job-group:
+    name: docs
+    jobs:
+        - '{prefix}-docs'
