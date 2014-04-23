@@ -20,6 +20,8 @@ Sample usage:
         user=USERNAME
         password=PASSWORD
         url=JENKINS_URL
+    project configuration file:
+        Copy 'project.yaml.example' to 'project.yaml' and customize it to your needs
     commit to Jenkins:
         jenkins-jobs update ./jenkins-job-builder/
 

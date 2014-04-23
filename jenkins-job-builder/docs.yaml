@@ -30,7 +30,8 @@
             cd src/user_guide/
             make
     publishers:
-        - mail-on-fail
+        - mail-on-fail:
+            report-mail-address: '{report-mail-address}'
         - archive:
             artifacts: 'src/user_guide/tmp/**'
     triggers:

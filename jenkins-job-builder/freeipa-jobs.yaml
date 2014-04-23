@@ -21,7 +21,7 @@
     name: mail-on-fail
     publishers:
         - email:
-            recipients: pviktori@redhat.com
+            recipients: '{report-mail-address}'
 
 - publisher:
     name: nosetests-xunit
@@ -168,7 +168,8 @@
         - build-rpms
         - createrepo
     publishers:
-        - mail-on-fail
+        - mail-on-fail:
+            report-mail-address: '{report-mail-address}'
         - warnings:
             console-log-parsers:
                 - GNU Compiler 4 (gcc)
@@ -201,7 +202,8 @@
         - shell: "sudo yum check-update"
         - shell: "rpm -qa | sort"
     publishers:
-        - mail-on-fail
+        - mail-on-fail:
+            report-mail-address: '{report-mail-address}'
     publishers:
         - trigger:
             project: '{prefix}-intree-tests-{os}'
@@ -261,7 +263,8 @@
         - uninstall
     publishers:
         - nosetests-xunit
-        - mail-on-fail
+        - mail-on-fail:
+            report-mail-address: '{report-mail-address}'
     triggers:
         - timed:
             # Do the check nightly
@@ -293,7 +296,8 @@
         - uninstall
     publishers:
         - nosetests-xunit
-        - mail-on-fail
+        - mail-on-fail:
+            report-mail-address: '{report-mail-address}'
 
 - job-template:
     name: '{prefix}-webui-{browser}-{os}-{prettyname}'
@@ -326,7 +330,8 @@
         - uninstall
     publishers:
         - nosetests-xunit
-        - mail-on-fail
+        - mail-on-fail:
+            report-mail-address: '{report-mail-address}'
 
 - job-template:
     name: '{prefix}-integration-{os}-{pretty_name}'
@@ -363,7 +368,8 @@
         - uninstall
     publishers:
         - nosetests-xunit
-        - mail-on-fail
+        - mail-on-fail:
+            report-mail-address: '{report-mail-address}'
 
 - job-group:
     name: build-and-check
@@ -517,7 +523,8 @@
     publishers:
         - trigger:
             project: '{prefix}-build-{os}'
-        - mail-on-fail
+        - mail-on-fail:
+            report-mail-address: '{report-mail-address}'
         - plot:
           - title: PEP8+pyflakes problems
             yaxis: problems
@@ -531,21 +538,6 @@
         - sloccount:
             report-files: sloccount.sc
             charset: UTF-8
-
-- project:
-    name: f20
-    os: f20
-    prefix: freeipa
-    git-branch: master
-    git-url: git://git.fedorahosted.org/git/freeipa.git
-    git-browser-url: https://git.fedorahosted.org/cgit/freeipa.git/
-    options-dns-setup: >
-        --setup-dns
-        --forwarder=$FREEIPACI_DNS_FORWARDER
-        --reverse-zone=$FREEIPACI_DNS_REVERSE_ZONE
-    options-ca-setup: ""
-    jobs:
-        - build-and-check
 
 ######### Meta-tests; use these for experimenting
 
