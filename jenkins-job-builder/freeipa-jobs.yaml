@@ -56,6 +56,7 @@
             DEPS="$DEPS redhat-rpm-config rpm-build sed shadow-utils tar unzip"
             DEPS="$DEPS util-linux which xz"
             # install all the RPMs
+            sudo yum erase -y 'freeipa-*'
             sudo yum distro-sync -y --enablerepo updates-testing
             sudo yum install -y rpm-build $DEPS --enablerepo updates-testing
         - shell: "rpm -qa | sort"
