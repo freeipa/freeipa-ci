@@ -248,7 +248,9 @@
         - shell: |
             # We're running in-tree tests, but we get compiled files from RPMs
             cp /usr/lib/python2.7/site-packages/ipapython/version.py ipapython/version.py
-            cp /usr/lib/python2.7/site-packages/ipapython/services.py ipapython/services.py
+            cp /usr/lib/python2.7/site-packages/ipaplatform/services.py ipaplatform/services.py
+            cp /usr/lib/python2.7/site-packages/ipaplatform/paths.py ipaplatform/paths.py
+            cp /usr/lib/python2.7/site-packages/ipaplatform/tasks.py ipaplatform/tasks.py
             cp /usr/sbin/ipa-getkeytab ipa-client/ipa-getkeytab
         - install:
             options-dns-setup: "{options-dns-setup}"
