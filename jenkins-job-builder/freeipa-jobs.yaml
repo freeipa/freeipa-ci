@@ -224,6 +224,8 @@
             project: '{prefix}-integration-{os}-forced_client_reenrollment'
         - trigger:
             project: '{prefix}-integration-{os}-kerberos_flags'
+        - trigger:
+            project: '{prefix}-integration-{os}-sudo'
 
 - job-template:
     name: '{prefix}-intree-tests-{os}'
