@@ -14,7 +14,7 @@ Sample usage:
     test:
         mkdir -p /tmp/jenkins-jobs
         jenkins-jobs test ./jenkins-job-builder/ -o /tmp/jenkins-jobs
-        # examine /tmp/jenkins-jobs
+        (examine /tmp/jenkins-jobs)
     configuration file for talking to Jenkins (default: /etc/jenkins_jobs/jenkins_jobs.ini):
         [jenkins]
         user=USERNAME
