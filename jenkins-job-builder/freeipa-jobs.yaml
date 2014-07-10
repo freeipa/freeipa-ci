@@ -485,8 +485,10 @@
                     name: ipa.test
                     type: TRUST_IPA
                   - hosts:
-                      - name: ad
+                      - name: ad.ad.test
                         role: ad
+                      - name: child.child.ad.test
+                        role: ad_subdomain
                     name: ad.test
                     type: AD
         - '{prefix}-integration-{os}-{pretty_name}':
