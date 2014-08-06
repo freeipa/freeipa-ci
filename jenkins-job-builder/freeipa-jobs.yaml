@@ -254,6 +254,8 @@
             project: '{prefix}-integration-{project}-legacy_clients'
         - trigger:
             project: '{prefix}-integration-{project}-service_permissions'
+        - trigger:
+            project: '{prefix}-integration-{project}-backup_and_restore'
 
 - job-template:
     name: '{prefix}-intree-tests-{project}'
@@ -557,6 +559,16 @@
         - '{prefix}-integration-{project}-{pretty_name}':
             pretty_name: service_permissions
             suite: test_integration/test_service_permissions.py
+            config_template: |
+                domains:
+                  - hosts:
+                      - name: master.ipa.test
+                        role: master
+                    name: ipa.test
+                    type: IPA
+        - '{prefix}-integration-{project}-{pretty_name}':
+            pretty_name: backup_and_restore
+            suite: test_integration/test_backup_and_restore.py
             config_template: |
                 domains:
                   - hosts:
