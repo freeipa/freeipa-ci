@@ -45,8 +45,7 @@
 - builder:
     name: install-builddeps
     builders:
-        - shell: "sudo wget http://jdennis.fedorapeople.org/ipa-devel/ipa-devel-fedora.repo -O /etc/yum.repos.d/ipa-devel-fedora.repo"
-        - shell: "sudo yum-config-manager --disable ipa-devel"
+        - shell: '. /etc/os-release ; [ "$VERSION_ID" == "20" ] && sudo wget https://copr.fedoraproject.org/coprs/mkosek/freeipa/repo/fedora-20/mkosek-freeipa-fedora-20.repo -O /etc/yum.repos.d/mkosek-freeipa-fedora-20.repo'
         - shell: |
             # FreeIPA requires:
             DEPS=$(grep "^BuildRequires" freeipa.spec.in | awk '{ print $2 }' | grep -v "^/")
@@ -69,8 +68,7 @@
             which-build: upstream-build
             fallback-to-last-successful: true
         - shell: "sudo yum remove -y 'freeipa-*' || :"
-        - shell: "sudo wget http://jdennis.fedorapeople.org/ipa-devel/ipa-devel-fedora.repo -O /etc/yum.repos.d/ipa-devel-fedora.repo"
-        - shell: "sudo yum-config-manager --disable ipa-devel"
+        - shell: '. /etc/os-release ; [ "$VERSION_ID" == "20" ] && sudo wget https://copr.fedoraproject.org/coprs/mkosek/freeipa/repo/fedora-20/mkosek-freeipa-fedora-20.repo -O /etc/yum.repos.d/mkosek-freeipa-fedora-20.repo'
         - shell: |
             sudo yum clean all
             sudo yum distro-sync -y --enablerepo updates-testing
@@ -200,7 +198,7 @@
         - install-built-rpms:
             prefix: "{prefix}"
             os: "{os}"
-        - shell: "sudo yum check-update"
+        - shell: "sudo yum check-update --disablerepo=mkosek-freeipa"
         - shell: "rpm -qa | sort"
     publishers:
         - mail-on-fail:
