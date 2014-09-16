@@ -43,12 +43,28 @@
             browser-url: "{git-browser-url}"
 
 - builder:
+    name: setup-repos
+    builders:
+        - shell: |
+            sudo yum install -y dnf-plugins-core
+            if [ "{os}" == "f20" ]; then
+                sudo dnf copr enable -y mkosek/freeipa
+                if [ "{git-branch}" == "master" ]; then
+                    sudo dnf copr enable -y vakwetu/dogtag
+                fi
+            fi
+
+- builder:
     name: install-builddeps
     builders:
-        - shell: '. /etc/os-release ; [ "$VERSION_ID" == "20" ] && sudo wget https://copr.fedoraproject.org/coprs/mkosek/freeipa/repo/fedora-20/mkosek-freeipa-fedora-20.repo -O /etc/yum.repos.d/mkosek-freeipa-fedora-20.repo'
+        - setup-repos:
+            prefix: "{prefix}"
+            project: "{project}"
+            os: "{os}"
+            git-branch: "{git-branch}"
         - shell: |
             # FreeIPA requires:
-            DEPS=$(grep "^BuildRequires" freeipa.spec.in | awk '{ print $2 }' | grep -v "^/")
+            DEPS=$(grep "^BuildRequires" freeipa.spec.in | awk '{{ print $2 }}' | grep -v "^/")
             # Fedora min build env (https://fedoraproject.org/wiki/Packaging:Guidelines#Exceptions_2)
             DEPS="$DEPS bash bzip2 coreutils cpio diffutils fedora-release"
             DEPS="$DEPS findutils gawk gcc gcc-c++ grep gzip info make patch"
@@ -63,12 +79,16 @@
 - builder:
     name: install-built-rpms
     builders:
+        - setup-repos:
+            prefix: "{prefix}"
+            project: "{project}"
+            os: "{os}"
+            git-branch: "{git-branch}"
         - copyartifact:
             project: "{prefix}-build-{project}"
             which-build: upstream-build
             fallback-to-last-successful: true
         - shell: "sudo yum remove -y 'freeipa-*' || :"
-        - shell: '. /etc/os-release ; [ "$VERSION_ID" == "20" ] && sudo wget https://copr.fedoraproject.org/coprs/mkosek/freeipa/repo/fedora-20/mkosek-freeipa-fedora-20.repo -O /etc/yum.repos.d/mkosek-freeipa-fedora-20.repo'
         - shell: |
             sudo yum clean all
             sudo yum distro-sync -y --enablerepo updates-testing
@@ -163,7 +183,11 @@
     wrappers:
         - workspace-cleanup
     builders:
-        - install-builddeps
+        - install-builddeps:
+            prefix: "{prefix}"
+            project: "{project}"
+            os: "{os}"
+            git-branch: "{git-branch}"
         - build-rpms
         - createrepo
     publishers:
@@ -199,6 +223,7 @@
             prefix: "{prefix}"
             project: "{project}"
             os: "{os}"
+            git-branch: "{git-branch}"
         - shell: "sudo yum check-update --disablerepo=mkosek-freeipa"
         - shell: "rpm -qa | sort"
     publishers:
@@ -245,6 +270,7 @@
             prefix: "{prefix}"
             project: "{project}"
             os: "{os}"
+            git-branch: "{git-branch}"
         - shell: |
             # We're running in-tree tests, but we get compiled files from RPMs
             cp /usr/lib/python2.7/site-packages/ipapython/version.py ipapython/version.py
@@ -289,6 +315,7 @@
             prefix: "{prefix}"
             project: "{project}"
             os: "{os}"
+            git-branch: "{git-branch}"
         - install:
             options-dns-setup: "{options-dns-setup}"
             options-ca-setup: "{options-ca-setup}"
@@ -319,6 +346,7 @@
             prefix: "{prefix}"
             project: "{project}"
             os: "{os}"
+            git-branch: "{git-branch}"
         - download-certificate
         - install:
             options-dns-setup: "{options-dns-setup}"
@@ -355,6 +383,7 @@
             prefix: "{prefix}"
             project: "{project}"
             os: "{os}"
+            git-branch: "{git-branch}"
         - shell: |
             sudo yum install -y PyYAML python-requests python-paramiko
             wget -O ./prepare-hosts $FREEIPACI_PREPARE_HOSTS_URL
