@@ -250,6 +250,8 @@
             project: '{prefix}-integration-{project}-kerberos_flags'
         - trigger:
             project: '{prefix}-integration-{project}-sudo'
+        - trigger:
+            project: '{prefix}-integration-{project}-legacy_clients'
 
 - job-template:
     name: '{prefix}-intree-tests-{project}'
