@@ -1,6 +1,7 @@
 
 - project:
-    name: f20
+    name: f20master
+    project: f20master
     os: f20
     prefix: freeipa
     git-branch: master

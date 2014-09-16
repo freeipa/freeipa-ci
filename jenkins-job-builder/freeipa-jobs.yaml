@@ -64,7 +64,7 @@
     name: install-built-rpms
     builders:
         - copyartifact:
-            project: "{prefix}-build-{os}"
+            project: "{prefix}-build-{project}"
             which-build: upstream-build
             fallback-to-last-successful: true
         - shell: "sudo yum remove -y 'freeipa-*' || :"
@@ -150,7 +150,7 @@
         - shell: (cd dist/rpms; createrepo .)
 
 - job-template:
-    name: '{prefix}-build-{os}'
+    name: '{prefix}-build-{project}'
     node: freeipa-builder-{os}
     defaults: global
     description: |
@@ -181,11 +181,11 @@
         - fingerprint:
             record-artifacts: true
         - trigger:
-            project: '{prefix}-check-deps-{os}'
+            project: '{prefix}-check-deps-{project}'
             threshold: UNSTABLE
 
 - job-template:
-    name: '{prefix}-check-deps-{os}'
+    name: '{prefix}-check-deps-{project}'
     node: freeipa-builder-{os}
     defaults: global
     description: |
@@ -197,6 +197,7 @@
     builders:
         - install-built-rpms:
             prefix: "{prefix}"
+            project: "{project}"
             os: "{os}"
         - shell: "sudo yum check-update --disablerepo=mkosek-freeipa"
         - shell: "rpm -qa | sort"
@@ -205,28 +206,28 @@
             report-mail-address: '{report-mail-address}'
     publishers:
         - trigger:
-            project: '{prefix}-intree-tests-{os}'
+            project: '{prefix}-intree-tests-{project}'
         - trigger:
-            project: '{prefix}-outoftree-tests-{os}'
+            project: '{prefix}-outoftree-tests-{project}'
         - trigger:
-            project: '{prefix}-webui-firefox-{os}-with-dns-with-ca'
+            project: '{prefix}-webui-firefox-{project}-with-dns-with-ca'
         - trigger:
-            project: '{prefix}-webui-firefox-{os}-no-dns-no-ca'
+            project: '{prefix}-webui-firefox-{project}-no-dns-no-ca'
         - trigger:
-            project: '{prefix}-integration-{os}-simple_replication'
+            project: '{prefix}-integration-{project}-simple_replication'
         - trigger:
-            project: '{prefix}-integration-{os}-caless'
+            project: '{prefix}-integration-{project}-caless'
         - trigger:
-            project: '{prefix}-integration-{os}-external_ca'
+            project: '{prefix}-integration-{project}-external_ca'
         - trigger:
-            project: '{prefix}-integration-{os}-forced_client_reenrollment'
+            project: '{prefix}-integration-{project}-forced_client_reenrollment'
         - trigger:
-            project: '{prefix}-integration-{os}-kerberos_flags'
+            project: '{prefix}-integration-{project}-kerberos_flags'
         - trigger:
-            project: '{prefix}-integration-{os}-sudo'
+            project: '{prefix}-integration-{project}-sudo'
 
 - job-template:
-    name: '{prefix}-intree-tests-{os}'
+    name: '{prefix}-intree-tests-{project}'
     node: freeipa-runner-{os}
     defaults: global
     description: |
@@ -242,6 +243,7 @@
         - clean-up-environment
         - install-built-rpms:
             prefix: "{prefix}"
+            project: "{project}"
             os: "{os}"
         - shell: |
             # We're running in-tree tests, but we get compiled files from RPMs
@@ -274,7 +276,7 @@
             "H H(0-5) * * *"
 
 - job-template:
-    name: '{prefix}-outoftree-tests-{os}'
+    name: '{prefix}-outoftree-tests-{project}'
     node: freeipa-runner-{os}
     defaults: global
     description: |
@@ -285,6 +287,7 @@
         - clean-up-environment
         - install-built-rpms:
             prefix: "{prefix}"
+            project: "{project}"
             os: "{os}"
         - install:
             options-dns-setup: "{options-dns-setup}"
@@ -303,7 +306,7 @@
             report-mail-address: '{report-mail-address}'
 
 - job-template:
-    name: '{prefix}-webui-{browser}-{os}-{prettyname}'
+    name: '{prefix}-webui-{browser}-{project}-{prettyname}'
     node: freeipa-webui-{os}
     defaults: global
     description: |
@@ -314,6 +317,7 @@
         - clean-up-environment
         - install-built-rpms:
             prefix: "{prefix}"
+            project: "{project}"
             os: "{os}"
         - download-certificate
         - install:
@@ -337,7 +341,7 @@
             report-mail-address: '{report-mail-address}'
 
 - job-template:
-    name: '{prefix}-integration-{os}-{pretty_name}'
+    name: '{prefix}-integration-{project}-{pretty_name}'
     node: freeipa-controller-{os}
     defaults: global
     concurrent: false
@@ -349,6 +353,7 @@
         - clean-up-environment
         - install-built-rpms:
             prefix: "{prefix}"
+            project: "{project}"
             os: "{os}"
         - shell: |
             sudo yum install -y PyYAML python-requests python-paramiko
@@ -377,17 +382,17 @@
 - job-group:
     name: build-and-check
     jobs:
-        - '{prefix}-stats-{os}'
-        - '{prefix}-build-{os}'
-        - '{prefix}-check-deps-{os}'
-        - '{prefix}-intree-tests-{os}'
-        - '{prefix}-outoftree-tests-{os}'
-        - '{prefix}-webui-{browser}-{os}-{prettyname}':
+        - '{prefix}-stats-{project}'
+        - '{prefix}-build-{project}'
+        - '{prefix}-check-deps-{project}'
+        - '{prefix}-intree-tests-{project}'
+        - '{prefix}-outoftree-tests-{project}'
+        - '{prefix}-webui-{browser}-{project}-{prettyname}':
             prettyname: with-dns-with-ca
             noca: False
             nodns: False
             browser: firefox
-        - '{prefix}-webui-{browser}-{os}-{prettyname}':
+        - '{prefix}-webui-{browser}-{project}-{prettyname}':
             prettyname: no-dns-no-ca
             noca: True
             nodns: True
@@ -398,7 +403,7 @@
                 --dirsrv_pkcs12 star-cert.p12 \
                 --http_pin $FREEIPACI_STAR_CERT_PIN --dirsrv_pin $FREEIPACI_STAR_CERT_PIN \
                 --root-ca-file star-cert-ca.crt
-        - '{prefix}-integration-{os}-{pretty_name}':
+        - '{prefix}-integration-{project}-{pretty_name}':
             pretty_name: caless
             suite: test_integration/test_caless.py
             config_template: |
@@ -412,7 +417,7 @@
                         role: client
                     name: ipa.test
                     type: IPA
-        - '{prefix}-integration-{os}-{pretty_name}':
+        - '{prefix}-integration-{project}-{pretty_name}':
             pretty_name: simple_replication
             suite: test_integration/test_simple_replication.py
             config_template: |
@@ -424,7 +429,7 @@
                         role: replica
                     name: ipa.test
                     type: IPA
-        - '{prefix}-integration-{os}-{pretty_name}':
+        - '{prefix}-integration-{project}-{pretty_name}':
             pretty_name: external_ca
             suite: test_integration/test_external_ca.py
             config_template: |
@@ -434,7 +439,7 @@
                         role: master
                     name: ipa.test
                     type: IPA
-        - '{prefix}-integration-{os}-{pretty_name}':
+        - '{prefix}-integration-{project}-{pretty_name}':
             pretty_name: forced_client_reenrollment
             suite: test_integration/test_forced_client_reenrollment.py
             config_template: |
@@ -448,7 +453,7 @@
                         role: client
                     name: ipa.test
                     type: IPA
-        - '{prefix}-integration-{os}-{pretty_name}':
+        - '{prefix}-integration-{project}-{pretty_name}':
             pretty_name: kerberos_flags
             suite: test_integration/test_kerberos_flags.py
             config_template: |
@@ -460,7 +465,7 @@
                         role: client
                     name: ipa.test
                     type: IPA
-        - '{prefix}-integration-{os}-{pretty_name}':
+        - '{prefix}-integration-{project}-{pretty_name}':
             pretty_name: sudo
             suite: test_integration/test_sudo.py
             config_template: |
@@ -472,7 +477,7 @@
                         role: client
                     name: ipa.test
                     type: IPA
-        - '{prefix}-integration-{os}-{pretty_name}':
+        - '{prefix}-integration-{project}-{pretty_name}':
             pretty_name: basic_trust
             suite: test_integration/test_trust.py
             config_template: |
@@ -489,7 +494,7 @@
                         role: ad_subdomain
                     name: ad.test
                     type: AD
-        - '{prefix}-integration-{os}-{pretty_name}':
+        - '{prefix}-integration-{project}-{pretty_name}':
             pretty_name: legacy_clients
             suite: test_integration/test_legacy_clients.py
             config_template: |
@@ -514,7 +519,7 @@
                     type: AD
 
 - job-template:
-    name: '{prefix}-stats-{os}'
+    name: '{prefix}-stats-{project}'
     node: master
     defaults: global
     description: |
@@ -539,7 +544,7 @@
             /usr/bin/sloccount --duplicates --wide --details . > sloccount.sc
     publishers:
         - trigger:
-            project: '{prefix}-build-{os}'
+            project: '{prefix}-build-{project}'
         - mail-on-fail:
             report-mail-address: '{report-mail-address}'
         - plot:
