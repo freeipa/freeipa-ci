@@ -252,6 +252,8 @@
             project: '{prefix}-integration-{project}-sudo'
         - trigger:
             project: '{prefix}-integration-{project}-legacy_clients'
+        - trigger:
+            project: '{prefix}-integration-{project}-service_permissions'
 
 - job-template:
     name: '{prefix}-intree-tests-{project}'
@@ -548,6 +550,20 @@
                         role: ad_subdomain
                     name: ad.test
                     type: AD
+
+- job-group:
+    name: ipa-4-1-additions
+    jobs:
+        - '{prefix}-integration-{project}-{pretty_name}':
+            pretty_name: service_permissions
+            suite: test_integration/test_service_permissions.py
+            config_template: |
+                domains:
+                  - hosts:
+                      - name: master.ipa.test
+                        role: master
+                    name: ipa.test
+                    type: IPA
 
 - job-template:
     name: '{prefix}-stats-{project}'

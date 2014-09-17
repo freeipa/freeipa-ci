@@ -15,4 +15,5 @@
     report-mail-address: your.email@example
     jobs:
         - build-and-check
+        - ipa-4-1-additions
         - docs
