@@ -243,6 +243,8 @@
         - trigger:
             project: '{prefix}-integration-{project}-caless'
         - trigger:
+            project: '{prefix}-integration-{project}-basic_trust'
+        - trigger:
             project: '{prefix}-integration-{project}-external_ca'
         - trigger:
             project: '{prefix}-integration-{project}-forced_client_reenrollment'
