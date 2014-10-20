@@ -378,7 +378,7 @@
 
 - job-template:
     name: '{prefix}-integration-{project}-{pretty_name}'
-    node: freeipa-controller-{os}
+    node: freeipa-controller-{os}{controller_suffix}
     defaults: global
     concurrent: false
     description: |
@@ -443,6 +443,7 @@
         - '{prefix}-integration-{project}-{pretty_name}':
             pretty_name: caless
             suite: test_integration/test_caless.py
+            controller_suffix: ''
             config_template: |
                 domains:
                   - hosts:
@@ -457,6 +458,7 @@
         - '{prefix}-integration-{project}-{pretty_name}':
             pretty_name: simple_replication
             suite: test_integration/test_simple_replication.py
+            controller_suffix: ''
             config_template: |
                 domains:
                   - hosts:
@@ -469,6 +471,7 @@
         - '{prefix}-integration-{project}-{pretty_name}':
             pretty_name: external_ca
             suite: test_integration/test_external_ca.py
+            controller_suffix: ''
             config_template: |
                 domains:
                   - hosts:
@@ -479,6 +482,7 @@
         - '{prefix}-integration-{project}-{pretty_name}':
             pretty_name: forced_client_reenrollment
             suite: test_integration/test_forced_client_reenrollment.py
+            controller_suffix: ''
             config_template: |
                 domains:
                   - hosts:
@@ -493,6 +497,7 @@
         - '{prefix}-integration-{project}-{pretty_name}':
             pretty_name: kerberos_flags
             suite: test_integration/test_kerberos_flags.py
+            controller_suffix: ''
             config_template: |
                 domains:
                   - hosts:
@@ -505,6 +510,7 @@
         - '{prefix}-integration-{project}-{pretty_name}':
             pretty_name: sudo
             suite: test_integration/test_sudo.py
+            controller_suffix: ''
             config_template: |
                 domains:
                   - hosts:
@@ -517,6 +523,7 @@
         - '{prefix}-integration-{project}-{pretty_name}':
             pretty_name: basic_trust
             suite: test_integration/test_trust.py
+            controller_suffix: '-trusts'
             config_template: |
                 domains:
                   - hosts:
@@ -534,6 +541,7 @@
         - '{prefix}-integration-{project}-{pretty_name}':
             pretty_name: legacy_clients
             suite: test_integration/test_legacy_clients.py
+            controller_suffix: '-trusts'
             config_template: |
                 domains:
                   - hosts:
@@ -561,6 +569,7 @@
         - '{prefix}-integration-{project}-{pretty_name}':
             pretty_name: service_permissions
             suite: test_integration/test_service_permissions.py
+            controller_suffix: ''
             config_template: |
                 domains:
                   - hosts:
@@ -571,6 +580,7 @@
         - '{prefix}-integration-{project}-{pretty_name}':
             pretty_name: backup_and_restore
             suite: test_integration/test_backup_and_restore.py
+            controller_suffix: ''
             config_template: |
                 domains:
                   - hosts:
