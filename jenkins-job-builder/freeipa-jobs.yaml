@@ -302,7 +302,7 @@
             sudo chown -R jenkins:jenkins ~/.ipa/alias/
             rm tests/test_xmlrpc/service.crt || :
         - shell: |
-            ./make-test --with-xunit || :
+            ./make-test -v --with-xunit || :
         - uninstall
     publishers:
         - nosetests-xunit
@@ -337,7 +337,7 @@
             # compensate so ipa-getkeytab can be found
             export PATH=$PATH:/usr/sbin
 
-            ipa-run-tests --with-xunit || :
+            ipa-run-tests -v --with-xunit || :
         - uninstall
     publishers:
         - nosetests-xunit
@@ -408,7 +408,7 @@
         - shell: |
             export IPATEST_YAML_CONFIG=$(realpath ./test-config.yaml)
             ipa-test-config --yaml
-            ipa-run-tests --with-xunit {suite} || :
+            ipa-run-tests --with-xunit {suite} --logging-level=DEBUG || :
         - shell: |
             wget -O ./shutdown-hosts $FREEIPACI_SHUTDOWN_HOSTS_URL
             cat ./shutdown-hosts
