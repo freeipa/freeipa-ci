@@ -170,7 +170,7 @@
 - builder:
     name: createrepo
     builders:
-        - shell: "sudo yum install -y /usr/bin/createrepo"
+        - shell: "sudo yum install -y createrepo"
         - shell: (cd dist/rpms; createrepo .)
 
 - job-template:
