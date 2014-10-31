@@ -3,7 +3,7 @@
     builders:
         # See: http://www.freeipa.org/page/Web_UI_Integration_Tests
         - shell: |
-            sudo pip-python install -U selenium
+            sudo pip install -U selenium
 
             SELENIUM_TMP_DIR=~/selenium
             SELENIUM_SERVER_DIR=/opt/selenium
