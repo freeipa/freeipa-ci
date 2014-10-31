@@ -402,6 +402,7 @@
             cat ./prepare-hosts
             chmod +x ./prepare-hosts
             ./prepare-hosts <<END_YAML_FILE > test-config.yaml
+            _os: {os}
             {config_template}
             END_YAML_FILE
             cat test-config.yaml
