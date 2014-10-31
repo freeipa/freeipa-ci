@@ -228,7 +228,7 @@
             project: "{project}"
             os: "{os}"
             git-branch: "{git-branch}"
-        - shell: "sudo yum check-update --disablerepo=mkosek-freeipa"
+        - shell: "sudo yum check-update --disablerepo='mkosek-freeipa*'"
         - shell: "rpm -qa | sort"
     publishers:
         - mail-on-fail:
