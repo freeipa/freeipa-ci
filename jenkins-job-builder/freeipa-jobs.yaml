@@ -47,15 +47,12 @@
     builders:
         - shell: |
             sudo yum install -y dnf-plugins-core
-            if [ "{os}" == "f20" ]; then
-                sudo dnf copr enable -y mkosek/freeipa
-                if [ "{git-branch}" == "ipa-4-0" ]; then
-                    sudo dnf copr enable -y mkosek/freeipa-4.0
-                elif [ "{git-branch}" == "ipa-4-1" ]; then
-                    sudo dnf copr enable -y mkosek/freeipa-4.1
-                else
-                    sudo dnf copr enable -y mkosek/freeipa-master
-                fi
+            if [ "{git-branch}" == "ipa-4-0" ]; then
+                sudo dnf copr enable -y mkosek/freeipa-4.0
+            elif [ "{git-branch}" == "ipa-4-1" ]; then
+                sudo dnf copr enable -y mkosek/freeipa-4.1
+            else
+                sudo dnf copr enable -y mkosek/freeipa-master
             fi
 
 - builder:
@@ -93,6 +90,7 @@
             which-build: upstream-build
             fallback-to-last-successful: true
         - shell: "sudo yum remove -y 'freeipa-*' || :"
+        - shell: "more /etc/yum.repos.d/* | cat"
         - shell: |
             sudo yum clean all
             sudo yum distro-sync -y --enablerepo updates-testing
@@ -228,7 +226,7 @@
             project: "{project}"
             os: "{os}"
             git-branch: "{git-branch}"
-        - shell: "sudo yum check-update --disablerepo='mkosek-freeipa*'"
+        - shell: "sudo yum check-update --disablerepo='mkosek-freeipa*' -x 'freeipa-*'"
         - shell: "rpm -qa | sort"
     publishers:
         - mail-on-fail:
