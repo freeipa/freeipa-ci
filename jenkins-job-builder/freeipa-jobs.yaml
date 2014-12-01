@@ -287,7 +287,6 @@
             cp /usr/lib/python2.7/site-packages/ipaplatform/services.py ipaplatform/services.py
             cp /usr/lib/python2.7/site-packages/ipaplatform/paths.py ipaplatform/paths.py
             cp /usr/lib/python2.7/site-packages/ipaplatform/tasks.py ipaplatform/tasks.py
-            cp /usr/sbin/ipa-getkeytab ipa-client/ipa-getkeytab
         - install:
             options-dns-setup: "{options-dns-setup}"
             options-ca-setup: "{options-ca-setup}"
@@ -300,6 +299,10 @@
             sudo chown -R jenkins:jenkins ~/.ipa/alias/
             rm tests/test_xmlrpc/service.crt || :
         - shell: |
+            # Jenkins sets the PATH to its own default,
+            # compensate so ipa-getkeytab can be found
+            export PATH=$PATH:/usr/sbin
+
             ./make-test -v --with-xunit || :
         - uninstall
     publishers:
