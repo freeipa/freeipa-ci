@@ -53,8 +53,8 @@
                 sudo dnf copr enable -y mkosek/freeipa-4.1
             else
                 sudo dnf copr enable -y mkosek/freeipa-master
-            sudo dnf copr enable -y pviktori/pytest-plugins
             fi
+            sudo dnf copr enable -y pviktori/pytest-plugins
 
 - builder:
     name: install-builddeps
