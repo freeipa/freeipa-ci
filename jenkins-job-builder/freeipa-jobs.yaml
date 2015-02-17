@@ -528,6 +528,17 @@
                     name: ipa.test
                     type: IPA
         - '{prefix}-integration-{project}-{pretty_name}':
+            pretty_name: advise
+            suite: test_integration/test_advise.py
+            controller_suffix: ''
+            config_template: |
+                domains:
+                  - hosts:
+                      - name: master.ipa.test
+                        role: master
+                    name: ipa.test
+                    type: IPA
+        - '{prefix}-integration-{project}-{pretty_name}':
             pretty_name: basic_trust
             suite: test_integration/test_trust.py
             controller_suffix: '-trusts'
