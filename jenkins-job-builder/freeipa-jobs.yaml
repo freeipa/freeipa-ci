@@ -66,17 +66,16 @@
             git-branch: "{git-branch}"
         - shell: |
             # FreeIPA requires:
-            # DEPS=$(grep "^BuildRequires" freeipa.spec.in | awk '{{ print $2 }}' | grep -v "^/")
+            DEPS=$(awk '/^BuildRequires/ {{ print $2 }}' freeipa.spec.in)
             # Fedora min build env (https://fedoraproject.org/wiki/Packaging:Guidelines#Exceptions_2)
-            DEPS="bash bzip2 coreutils cpio diffutils fedora-release"
+            DEPS="$DEPS bash bzip2 coreutils cpio diffutils fedora-release"
             DEPS="$DEPS findutils gawk gcc gcc-c++ grep gzip info make patch"
             DEPS="$DEPS redhat-rpm-config rpm-build sed shadow-utils tar unzip"
             DEPS="$DEPS util-linux which xz"
             # install all the RPMs
-            sudo dnf erase -y 'freeipa-*'
+            sudo dnf erase -y 'freeipa-*' || :
             sudo dnf distro-sync -y --enablerepo updates-testing
-            sudo dnf install -y rpm-build --enablerepo updates-testing
-            sudo dnf builddep -y freeipa.spec.in --enablerepo updates-testing
+            sudo dnf install -y rpm-build $DEPS --enablerepo updates-testing
         - shell: "rpm -qa | sort"
 
 - builder:
@@ -313,10 +312,6 @@
         - nosetests-xunit
         - mail-on-fail:
             report-mail-address: '{report-mail-address}'
-    triggers:
-        - timed:
-            # Do the check nightly
-            "H H(0-5) * * *"
 
 - job-template:
     name: '{prefix}-outoftree-tests-{project}'
