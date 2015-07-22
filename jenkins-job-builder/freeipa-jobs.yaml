@@ -54,7 +54,6 @@
             else
                 sudo dnf copr enable -y mkosek/freeipa-master
             fi
-            sudo dnf copr enable -y pviktori/pytest-plugins
 
 - builder:
     name: install-builddeps
@@ -74,8 +73,9 @@
             DEPS="$DEPS util-linux which xz"
             # install all the RPMs
             sudo dnf erase -y 'freeipa-*' || :
-            sudo dnf distro-sync -y --enablerepo updates-testing
-            sudo dnf install -y rpm-build $DEPS --enablerepo updates-testing
+            sudo dnf clean metadata
+            sudo dnf --refresh distro-sync -y --enablerepo '*updates-testing'
+            sudo dnf --refresh install -y rpm-build $DEPS --enablerepo '*updates-testing'
         - shell: "rpm -qa | sort"
 
 - builder:
@@ -94,8 +94,8 @@
         - shell: "more /etc/yum.repos.d/* | cat"
         - shell: |
             sudo dnf clean all
-            sudo dnf distro-sync -y --enablerepo updates-testing
-            sudo dnf install -y dist/rpms/freeipa-*.rpm bind-dyndb-ldap --enablerepo updates-testing
+            sudo dnf distro-sync -y --enablerepo '*updates-testing'
+            sudo dnf install -y dist/rpms/freeipa-*.rpm bind-dyndb-ldap --enablerepo '*updates-testing'
         - shell: "rpm -qa | sort"
 
 - builder:
@@ -370,7 +370,7 @@
             nodns: "{nodns}"
         - shell: |
             export DISPLAY=:99
-            /usr/bin/Xvfb $DISPLAY -ac -screen 0 1400x1200x8 > ~/xvfb-stdout 2> ~/xvfb-stderr &
+            /usr/bin/Xvfb $DISPLAY -ac -noreset -screen 0 1400x1200x8 > ~/xvfb-stdout 2> ~/xvfb-stderr &
             sleep 5
             ipa-run-tests -v --with-xunit --logging-level=INFO test_webui || :
             kill %1
@@ -662,21 +662,21 @@
             charset: UTF-8
 
 ######### Meta-tests; use these for experimenting
-
-- job-template:
-    name: test1
-    node: master
-    builders:
-        shell: "echo 1"
-
-- job-template:
-    name: test2
-    node: master
-    builders:
-        shell: "echo 1"
-
-- project:
-    name: test
-    jobs:
-        - test1
-        - test2
+# 
+# - job-template:
+#     name: test1
+#     node: master
+#     builders:
+#         shell: "echo 1"
+# 
+# - job-template:
+#     name: test2
+#     node: master
+#     builders:
+#         shell: "echo 1"
+# 
+# - project:
+#     name: test
+#     jobs:
+#         - test1
+#         - test2
