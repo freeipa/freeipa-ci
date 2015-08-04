@@ -161,10 +161,34 @@
             """ > ~/.ipa/default.conf
 
 - builder:
+    name: copy-pw-files
+    builders:
+        - shell: |
+            mkdir -p $HOME/.ipa/alias
+            echo $FREEIPACI_PASSWORD > $HOME/.ipa/.dmpw
+            sudo cp /etc/httpd/alias/*.db $HOME/.ipa/alias
+            sudo cp /etc/httpd/alias/pwdfile.txt $HOME/.ipa/alias/.pwd
+            sudo chown -R jenkins:jenkins $HOME/.ipa
+
+- builder:
     name: createrepo
     builders:
         - shell: "sudo dnf install -y createrepo"
         - shell: (cd dist/rpms; createrepo .)
+
+- builder:
+    name: clean-user-configuration
+    builders:
+        - shell: |
+            rm -fr $HOME/.ipa || :
+
+- builder:
+    name: clean-httpd-dir
+    builders:
+        - shell: |
+            sudo rm -fr /etc/httpd/alias
+            sudo rm -fr /etc/httpd/conf/ipa.keytab
+            sudo rm -fr /etc/httpd/conf/password.conf*
 
 - job-template:
     name: '{prefix}-build-{project}'
@@ -273,6 +297,7 @@
         - workspace-cleanup
     builders:
         - clean-up-environment
+        - clean-user-configuration
         - install-built-rpms:
             prefix: "{prefix}"
             project: "{project}"
@@ -288,6 +313,7 @@
             options-dns-setup: "{options-dns-setup}"
             options-ca-setup: "{options-ca-setup}"
         - setup-default-conf
+          # - copy-pw-files
         - shell: |
             # set up cert
             rm -rvf ~/.ipa/alias
@@ -302,6 +328,8 @@
 
             ./make-test -v --with-xunit || :
         - uninstall
+        - clean-user-configuration
+        - clean-httpd-dir
     publishers:
         - nosetests-xunit
         - mail-on-fail:
@@ -317,6 +345,7 @@
         - workspace-cleanup
     builders:
         - clean-up-environment
+        - clean-user-configuration
         - install-built-rpms:
             prefix: "{prefix}"
             project: "{project}"
@@ -326,6 +355,7 @@
             options-dns-setup: "{options-dns-setup}"
             options-ca-setup: "{options-ca-setup}"
         - setup-default-conf
+        - copy-pw-files
         - shell: |
             # Jenkins sets the PATH to its own default,
             # compensate so ipa-getkeytab can be found
@@ -333,6 +363,8 @@
 
             ipa-run-tests -v --with-xunit || :
         - uninstall
+        - clean-user-configuration
+        - clean-httpd-dir
     publishers:
         - nosetests-xunit
         - mail-on-fail:
@@ -656,19 +688,19 @@
             charset: UTF-8
 
 ######### Meta-tests; use these for experimenting
-# 
+#
 # - job-template:
 #     name: test1
 #     node: master
 #     builders:
 #         shell: "echo 1"
-# 
+#
 # - job-template:
 #     name: test2
 #     node: master
 #     builders:
 #         shell: "echo 1"
-# 
+#
 # - project:
 #     name: test
 #     jobs:
