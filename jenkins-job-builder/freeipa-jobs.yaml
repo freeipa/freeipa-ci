@@ -42,6 +42,7 @@
             browser: gitweb
             browser-url: "{git-browser-url}"
 
+# for build and run deps on both development branches
 - builder:
     name: setup-repos
     builders:
@@ -97,8 +98,8 @@
     builders:
         - shell: |
             git clean -fxd
-            echo 0.$(date -u +%Y%m%d%H%M%SZ)jenkins${BUILD_NUMBER}git$(git rev-parse --short HEAD) > RELEASE
-            echo IPA_VERSION_IS_GIT_SNAPSHOT=no >> VERSION
+            echo $(date -u +%Y%m%d%H%M%SZ)jenkins${BUILD_NUMBER}git$(git rev-parse --short HEAD) > RELEASE
+            echo IPA_VERSION_IS_GIT_SNAPSHOT=yes >> VERSION
             make rpms
 
 - builder:
@@ -200,16 +201,7 @@
             chmod +x ./prepare-hosts
             wget $FREEIPACI_HOSTS_DOMAINS
             wget $FREEIPACI_HOSTS_STATIC
-
-- builder:
-    name: provision-hosts
-    builders:
-        - shell: |
-            ./prepare-hosts <<END_YAML_FILE > test-config.yaml
-            _os: {os}
-            {config_template}
-            END_YAML_FILE
-            cat test-config.yaml
+            wget $FREEIPACI_COBBLER_FIX
 
 - builder:
     name: destroy-hosts
@@ -453,7 +445,12 @@
             os: "{os}"
             git-branch: "{git-branch}"
         - prepare-controller
-        - provision-hosts
+        - shell: |
+            ./prepare-hosts <<END_YAML_FILE > test-config.yaml
+            _os: {os}
+            {config_template}
+            END_YAML_FILE
+            cat test-config.yaml
         - shell: |
             export IPATEST_YAML_CONFIG=$(realpath ./test-config.yaml)
             ipa-test-config --yaml
