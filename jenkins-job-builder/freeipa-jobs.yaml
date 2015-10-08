@@ -305,6 +305,10 @@
             project: '{prefix}-integration-{project}-dnssec'
         - trigger:
             project: '{prefix}-integration-{project}-advise'
+        - trigger:
+            project: '{prefix}-integration-{project}-backup_and_restore'
+        - trigger:
+            project: '{prefix}-integration-{project}-topology'
 
 - job-template:
     name: '{prefix}-intree-tests-{project}'
@@ -630,6 +634,43 @@
                   - hosts:
                       - name: master.ipa.test
                         role: master
+                      - name: replica.ipa.test
+                        role: replica
+                    name: ipa.test
+                    type: IPA
+        - '{prefix}-integration-{project}-{pretty_name}':
+            pretty_name: backup_and_restore
+            suite: test_integration/test_backup_and_restore.py
+            controller_suffix: ''
+            config_template: |
+                domains:
+                  - hosts:
+                      - name: master.ipa.test
+                        role: master
+                    name: ipa.test
+                    type: IPA
+        - '{prefix}-integration-{project}-{pretty_name}':
+            pretty_name: service_permissions
+            suite: test_integration/test_service_permissions.py
+            controller_suffix: ''
+            config_template: |
+                domains:
+                  - hosts:
+                      - name: master.ipa.test
+                        role: master
+                    name: ipa.test
+                    type: IPA
+        - '{prefix}-integration-{project}-{pretty_name}':
+            pretty_name: topology
+            suite: test_integration/test_topology.py
+            controller_suffix: ''
+            config_template: |
+                domains:
+                  - hosts:
+                      - name: master.ipa.test
+                        role: master
+                      - name: replica.ipa.test
+                        role: replica
                       - name: replica.ipa.test
                         role: replica
                     name: ipa.test
