@@ -46,7 +46,7 @@
     name: setup-repos
     builders:
         - shell: |
-            sudo yum install -y dnf-plugins-core
+            sudo dnf install -y dnf-plugins-core
             if [ "{git-branch}" == "ipa-4-0" ]; then
                 sudo dnf copr enable -y mkosek/freeipa-4.0
             elif [ "{git-branch}" == "ipa-4-1" ]; then
@@ -66,16 +66,17 @@
             git-branch: "{git-branch}"
         - shell: |
             # FreeIPA requires:
-            DEPS=$(grep "^BuildRequires" freeipa.spec.in | awk '{{ print $2 }}' | grep -v "^/")
+            # DEPS=$(grep "^BuildRequires" freeipa.spec.in | awk '{{ print $2 }}' | grep -v "^/")
             # Fedora min build env (https://fedoraproject.org/wiki/Packaging:Guidelines#Exceptions_2)
-            DEPS="$DEPS bash bzip2 coreutils cpio diffutils fedora-release"
+            DEPS="bash bzip2 coreutils cpio diffutils fedora-release"
             DEPS="$DEPS findutils gawk gcc gcc-c++ grep gzip info make patch"
             DEPS="$DEPS redhat-rpm-config rpm-build sed shadow-utils tar unzip"
             DEPS="$DEPS util-linux which xz"
             # install all the RPMs
-            sudo yum erase -y 'freeipa-*'
-            sudo yum distro-sync -y --enablerepo updates-testing
-            sudo yum install -y rpm-build $DEPS --enablerepo updates-testing
+            sudo dnf erase -y 'freeipa-*'
+            sudo dnf distro-sync -y --enablerepo updates-testing
+            sudo dnf install -y rpm-build --enablerepo updates-testing
+            sudo dnf builddep -y freeipa.spec.in --enablerepo updates-testing
         - shell: "rpm -qa | sort"
 
 - builder:
@@ -90,12 +91,12 @@
             project: "{prefix}-build-{project}"
             which-build: upstream-build
             fallback-to-last-successful: true
-        - shell: "sudo yum remove -y 'freeipa-*' || :"
+        - shell: "sudo dnf remove -y 'freeipa-*' || :"
         - shell: "more /etc/yum.repos.d/* | cat"
         - shell: |
-            sudo yum clean all
-            sudo yum distro-sync -y --enablerepo updates-testing
-            sudo yum install -y dist/rpms/freeipa-*.rpm bind-dyndb-ldap --enablerepo updates-testing
+            sudo dnf clean all
+            sudo dnf distro-sync -y --enablerepo updates-testing
+            sudo dnf install -y dist/rpms/freeipa-*.rpm bind-dyndb-ldap --enablerepo updates-testing
         - shell: "rpm -qa | sort"
 
 - builder:
@@ -118,7 +119,7 @@
     builders:
         - uninstall
         - shell: |
-            sudo yum remove -y 'freeipa-*' || :
+            sudo dnf remove -y 'freeipa-*' || :
             sudo setenforce 1 || :
             sudo iptables -F || :
             sudo systemctl stop dirsrv.target || :
@@ -169,7 +170,7 @@
 - builder:
     name: createrepo
     builders:
-        - shell: "sudo yum install -y createrepo"
+        - shell: "sudo dnf install -y createrepo"
         - shell: (cd dist/rpms; createrepo .)
 
 - job-template:
@@ -227,7 +228,7 @@
             project: "{project}"
             os: "{os}"
             git-branch: "{git-branch}"
-        - shell: "sudo yum check-update --disablerepo='mkosek-freeipa*' -x 'freeipa-*'"
+        - shell: "sudo dnf check-update --disablerepo='mkosek-freeipa*' -x 'freeipa-*'"
         - shell: "rpm -qa | sort"
     publishers:
         - mail-on-fail:
@@ -399,7 +400,7 @@
             os: "{os}"
             git-branch: "{git-branch}"
         - shell: |
-            sudo yum install -y PyYAML python-requests python-paramiko
+            sudo dnf install -y PyYAML python-requests python-paramiko
             wget -O ./prepare-hosts $FREEIPACI_PREPARE_HOSTS_URL
             cat ./prepare-hosts
             chmod +x ./prepare-hosts
