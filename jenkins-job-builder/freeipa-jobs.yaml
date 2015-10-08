@@ -303,6 +303,8 @@
             project: '{prefix}-integration-{project}-backup_and_restore'
         - trigger:
             project: '{prefix}-integration-{project}-dnssec'
+        - trigger:
+            project: '{prefix}-integration-{project}-advise'
 
 - job-template:
     name: '{prefix}-intree-tests-{project}'
