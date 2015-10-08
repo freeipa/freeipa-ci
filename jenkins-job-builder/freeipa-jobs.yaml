@@ -262,6 +262,8 @@
             project: '{prefix}-integration-{project}-service_permissions'
         - trigger:
             project: '{prefix}-integration-{project}-backup_and_restore'
+        - trigger:
+            project: '{prefix}-integration-{project}-dnssec'
 
 - job-template:
     name: '{prefix}-intree-tests-{project}'
@@ -581,6 +583,19 @@
                         role: ad_subdomain
                     name: ad.test
                     type: AD
+        - '{prefix}-integration-{project}-{pretty_name}':
+            pretty_name: dnssec
+            suite: test_integration/test_dnssec.py
+            controller_suffix: ''
+            config_template: |
+                domains:
+                  - hosts:
+                      - name: master.ipa.test
+                        role: master
+                      - name: replica.ipa.test
+                        role: replica
+                    name: ipa.test
+                    type: IPA
 
 - job-group:
     name: ipa-4-1-additions
