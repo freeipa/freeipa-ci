@@ -42,19 +42,13 @@
             browser: gitweb
             browser-url: "{git-browser-url}"
 
+# for build and run deps on both development branches
 - builder:
     name: setup-repos
     builders:
         - shell: |
-            sudo yum install -y dnf-plugins-core
-            if [ "{git-branch}" == "ipa-4-0" ]; then
-                sudo dnf copr enable -y mkosek/freeipa-4.0
-            elif [ "{git-branch}" == "ipa-4-1" ]; then
-                sudo dnf copr enable -y mkosek/freeipa-4.1
-            else
-                sudo dnf copr enable -y mkosek/freeipa-master
-            fi
-            sudo dnf copr enable -y pviktori/pytest-plugins
+            sudo dnf install -y dnf-plugins-core
+            sudo dnf copr enable -y mkosek/freeipa-master
 
 - builder:
     name: install-builddeps
@@ -66,16 +60,17 @@
             git-branch: "{git-branch}"
         - shell: |
             # FreeIPA requires:
-            DEPS=$(grep "^BuildRequires" freeipa.spec.in | awk '{{ print $2 }}' | grep -v "^/")
+            DEPS=$(awk '/^BuildRequires/ {{ print $2 }}' freeipa.spec.in)
             # Fedora min build env (https://fedoraproject.org/wiki/Packaging:Guidelines#Exceptions_2)
             DEPS="$DEPS bash bzip2 coreutils cpio diffutils fedora-release"
             DEPS="$DEPS findutils gawk gcc gcc-c++ grep gzip info make patch"
             DEPS="$DEPS redhat-rpm-config rpm-build sed shadow-utils tar unzip"
             DEPS="$DEPS util-linux which xz"
             # install all the RPMs
-            sudo yum erase -y 'freeipa-*'
-            sudo yum distro-sync -y --enablerepo updates-testing
-            sudo yum install -y rpm-build $DEPS --enablerepo updates-testing
+            sudo dnf erase -y 'freeipa-*' || :
+            sudo dnf clean metadata
+            sudo dnf --refresh distro-sync -y --enablerepo '*updates-testing'
+            sudo dnf --refresh install -y rpm-build $DEPS --enablerepo '*updates-testing'
         - shell: "rpm -qa | sort"
 
 - builder:
@@ -90,12 +85,12 @@
             project: "{prefix}-build-{project}"
             which-build: upstream-build
             fallback-to-last-successful: true
-        - shell: "sudo yum remove -y 'freeipa-*' || :"
+        - shell: "sudo dnf remove -y 'freeipa-*' || :"
         - shell: "more /etc/yum.repos.d/* | cat"
         - shell: |
-            sudo yum clean all
-            sudo yum distro-sync -y --enablerepo updates-testing
-            sudo yum install -y dist/rpms/freeipa-*.rpm bind-dyndb-ldap --enablerepo updates-testing
+            sudo dnf clean all
+            sudo dnf distro-sync -y --enablerepo '*updates-testing'
+            sudo dnf install -y dist/rpms/freeipa-*.rpm bind-dyndb-ldap --enablerepo '*updates-testing'
         - shell: "rpm -qa | sort"
 
 - builder:
@@ -103,8 +98,8 @@
     builders:
         - shell: |
             git clean -fxd
-            echo 0.$(date -u +%Y%m%d%H%M%SZ)jenkins${BUILD_NUMBER}git$(git rev-parse --short HEAD) > RELEASE
-            echo IPA_VERSION_IS_GIT_SNAPSHOT=no >> VERSION
+            echo $(date -u +%Y%m%d%H%M%SZ)jenkins${BUILD_NUMBER}git$(git rev-parse --short HEAD) > RELEASE
+            echo IPA_VERSION_IS_GIT_SNAPSHOT=yes >> VERSION
             make rpms
 
 - builder:
@@ -118,7 +113,7 @@
     builders:
         - uninstall
         - shell: |
-            sudo yum remove -y 'freeipa-*' || :
+            sudo dnf remove -y 'freeipa-*' || :
             sudo setenforce 1 || :
             sudo iptables -F || :
             sudo systemctl stop dirsrv.target || :
@@ -167,10 +162,55 @@
             """ > ~/.ipa/default.conf
 
 - builder:
+    name: copy-pw-files
+    builders:
+        - shell: |
+            mkdir -p $HOME/.ipa/alias
+            echo $FREEIPACI_PASSWORD > $HOME/.ipa/.dmpw
+            sudo cp /etc/httpd/alias/*.db $HOME/.ipa/alias
+            sudo cp /etc/httpd/alias/pwdfile.txt $HOME/.ipa/alias/.pwd
+            sudo chown -R jenkins:jenkins $HOME/.ipa
+
+- builder:
     name: createrepo
     builders:
-        - shell: "sudo yum install -y createrepo"
+        - shell: "sudo dnf install -y createrepo"
         - shell: (cd dist/rpms; createrepo .)
+
+- builder:
+    name: clean-user-configuration
+    builders:
+        - shell: |
+            rm -fr $HOME/.ipa || :
+
+- builder:
+    name: clean-httpd-dir
+    builders:
+        - shell: |
+            sudo rm -fr /etc/httpd/alias
+            sudo rm -fr /etc/httpd/conf/ipa.keytab
+            sudo rm -fr /etc/httpd/conf/password.conf*
+
+- builder:
+    name: prepare-controller
+    builders:
+        - shell: |
+            sudo dnf install -y PyYAML python-requests python-paramiko # TODO: move to ansible role
+            wget -O ./prepare-hosts $FREEIPACI_PREPARE_HOSTS_URL
+            cat ./prepare-hosts
+            chmod +x ./prepare-hosts
+            wget $FREEIPACI_HOSTS_DOMAINS
+            wget $FREEIPACI_HOSTS_STATIC
+            wget $FREEIPACI_COBBLER_FIX
+
+- builder:
+    name: destroy-hosts
+    builders:
+        - shell: |
+            wget -O ./shutdown-hosts $FREEIPACI_SHUTDOWN_HOSTS_URL
+            cat ./shutdown-hosts
+            chmod +x ./shutdown-hosts
+            ./shutdown-hosts < test-config.yaml
 
 - job-template:
     name: '{prefix}-build-{project}'
@@ -227,7 +267,7 @@
             project: "{project}"
             os: "{os}"
             git-branch: "{git-branch}"
-        - shell: "sudo yum check-update --disablerepo='mkosek-freeipa*' -x 'freeipa-*'"
+        - shell: "sudo dnf check-update --disablerepo='mkosek-freeipa*' -x 'freeipa-*'"
         - shell: "rpm -qa | sort"
     publishers:
         - mail-on-fail:
@@ -261,6 +301,14 @@
             project: '{prefix}-integration-{project}-service_permissions'
         - trigger:
             project: '{prefix}-integration-{project}-backup_and_restore'
+        - trigger:
+            project: '{prefix}-integration-{project}-dnssec'
+        - trigger:
+            project: '{prefix}-integration-{project}-advise'
+        - trigger:
+            project: '{prefix}-integration-{project}-backup_and_restore'
+        - trigger:
+            project: '{prefix}-integration-{project}-topology'
 
 - job-template:
     name: '{prefix}-intree-tests-{project}'
@@ -277,6 +325,7 @@
         - workspace-cleanup
     builders:
         - clean-up-environment
+        - clean-user-configuration
         - install-built-rpms:
             prefix: "{prefix}"
             project: "{project}"
@@ -292,6 +341,7 @@
             options-dns-setup: "{options-dns-setup}"
             options-ca-setup: "{options-ca-setup}"
         - setup-default-conf
+          # - copy-pw-files
         - shell: |
             # set up cert
             rm -rvf ~/.ipa/alias
@@ -306,14 +356,12 @@
 
             ./make-test -v --with-xunit || :
         - uninstall
+        - clean-user-configuration
+        - clean-httpd-dir
     publishers:
         - nosetests-xunit
         - mail-on-fail:
             report-mail-address: '{report-mail-address}'
-    triggers:
-        - timed:
-            # Do the check nightly
-            "H H(0-5) * * *"
 
 - job-template:
     name: '{prefix}-outoftree-tests-{project}'
@@ -325,6 +373,7 @@
         - workspace-cleanup
     builders:
         - clean-up-environment
+        - clean-user-configuration
         - install-built-rpms:
             prefix: "{prefix}"
             project: "{project}"
@@ -334,6 +383,7 @@
             options-dns-setup: "{options-dns-setup}"
             options-ca-setup: "{options-ca-setup}"
         - setup-default-conf
+        - copy-pw-files
         - shell: |
             # Jenkins sets the PATH to its own default,
             # compensate so ipa-getkeytab can be found
@@ -341,6 +391,8 @@
 
             ipa-run-tests -v --with-xunit || :
         - uninstall
+        - clean-user-configuration
+        - clean-httpd-dir
     publishers:
         - nosetests-xunit
         - mail-on-fail:
@@ -372,7 +424,7 @@
             nodns: "{nodns}"
         - shell: |
             export DISPLAY=:99
-            /usr/bin/Xvfb $DISPLAY -ac -screen 0 1400x1200x8 > ~/xvfb-stdout 2> ~/xvfb-stderr &
+            /usr/bin/Xvfb $DISPLAY -ac -noreset -screen 0 1400x1200x8 > ~/xvfb-stdout 2> ~/xvfb-stderr &
             sleep 5
             ipa-run-tests -v --with-xunit --logging-level=INFO test_webui || :
             kill %1
@@ -398,11 +450,8 @@
             project: "{project}"
             os: "{os}"
             git-branch: "{git-branch}"
+        - prepare-controller
         - shell: |
-            sudo yum install -y PyYAML python-requests python-paramiko
-            wget -O ./prepare-hosts $FREEIPACI_PREPARE_HOSTS_URL
-            cat ./prepare-hosts
-            chmod +x ./prepare-hosts
             ./prepare-hosts <<END_YAML_FILE > test-config.yaml
             _os: {os}
             {config_template}
@@ -412,11 +461,7 @@
             export IPATEST_YAML_CONFIG=$(realpath ./test-config.yaml)
             ipa-test-config --yaml
             ipa-run-tests --with-xunit {suite} --logging-level=DEBUG || :
-        - shell: |
-            wget -O ./shutdown-hosts $FREEIPACI_SHUTDOWN_HOSTS_URL
-            cat ./shutdown-hosts
-            chmod +x ./shutdown-hosts
-            ./shutdown-hosts < test-config.yaml
+        - destroy-hosts
         - uninstall
     publishers:
         - nosetests-xunit
@@ -580,19 +625,17 @@
                         role: ad_subdomain
                     name: ad.test
                     type: AD
-
-- job-group:
-    name: ipa-4-1-additions
-    jobs:
         - '{prefix}-integration-{project}-{pretty_name}':
-            pretty_name: service_permissions
-            suite: test_integration/test_service_permissions.py
+            pretty_name: dnssec
+            suite: test_integration/test_dnssec.py
             controller_suffix: ''
             config_template: |
                 domains:
                   - hosts:
                       - name: master.ipa.test
                         role: master
+                      - name: replica.ipa.test
+                        role: replica
                     name: ipa.test
                     type: IPA
         - '{prefix}-integration-{project}-{pretty_name}':
@@ -606,6 +649,33 @@
                         role: master
                     name: ipa.test
                     type: IPA
+        - '{prefix}-integration-{project}-{pretty_name}':
+            pretty_name: service_permissions
+            suite: test_integration/test_service_permissions.py
+            controller_suffix: ''
+            config_template: |
+                domains:
+                  - hosts:
+                      - name: master.ipa.test
+                        role: master
+                    name: ipa.test
+                    type: IPA
+        - '{prefix}-integration-{project}-{pretty_name}':
+            pretty_name: topology
+            suite: test_integration/test_topology.py
+            controller_suffix: ''
+            config_template: |
+                domains:
+                  - hosts:
+                      - name: master.ipa.test
+                        role: master
+                      - name: replica.ipa.test
+                        role: replica
+                      - name: replica.ipa.test
+                        role: replica
+                    name: ipa.test
+                    type: IPA
+
 
 - job-template:
     name: '{prefix}-stats-{project}'
@@ -651,21 +721,21 @@
             charset: UTF-8
 
 ######### Meta-tests; use these for experimenting
-
-- job-template:
-    name: test1
-    node: master
-    builders:
-        shell: "echo 1"
-
-- job-template:
-    name: test2
-    node: master
-    builders:
-        shell: "echo 1"
-
-- project:
-    name: test
-    jobs:
-        - test1
-        - test2
+#
+# - job-template:
+#     name: test1
+#     node: master
+#     builders:
+#         shell: "echo 1"
+#
+# - job-template:
+#     name: test2
+#     node: master
+#     builders:
+#         shell: "echo 1"
+#
+# - project:
+#     name: test
+#     jobs:
+#         - test1
+#         - test2
