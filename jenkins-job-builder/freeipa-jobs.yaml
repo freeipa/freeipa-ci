@@ -724,6 +724,7 @@
     name: released-bits
     jobs:
         - '{prefix}-released-bits-{os}'
+        - '{prefix}-koji-bits-{os}'
 
 - job-template:
     name: '{prefix}-released-bits-{os}'
@@ -743,6 +744,48 @@
             sudo dnf clean all || :
             sudo dnf distro-sync -y --enablerepo '*updates-testing'
             sudo dnf install -y 'freeipa-*' || :
+        - install:
+            options-dns-setup: "{options-dns-setup}"
+            options-ca-setup: "{options-ca-setup}"
+        - setup-default-conf
+        - copy-pw-files
+        - shell: |
+            # Jenkins sets the PATH to its own default,
+            # compensate so ipa-getkeytab can be found
+            export PATH=$PATH:/usr/sbin
+
+            ipa-run-tests -v --with-xunit || :
+        - uninstall
+        - clean-user-configuration
+        - clean-httpd-dir
+    publishers:
+        - nosetests-xunit
+        - mail-on-fail:
+            report-mail-address: '{report-mail-address}'
+
+- job-template:
+    name: '{prefix}-koji-bits-{os}'
+    node: 'freeipa-runner-{os}'
+    defaults: global
+    description: |
+        Run acceptance tests on latest freeipa build in koji.
+        This job has to be triggered manually. Feel free to
+        change the build number as needed.
+    wrappers:
+        - workspace-cleanup
+    builders:
+        - clean-up-environment
+        - clean-user-configuration
+        - shell: |
+            sudo dnf copr disable -y mkosek/freeipa-master || :
+            sudo dnf clean all || :
+            sudo dnf distro-sync -y --enablerepo '*updates-testing'
+        - shell: |
+            mkdir koji
+            pushd koji
+            koji download-build --latestfrom="{os}-updates-testing" freeipa --arch=$(uname -i)
+            popd
+            sudo dnf install -y koji/freeipa-*.rpm
         - install:
             options-dns-setup: "{options-dns-setup}"
             options-ca-setup: "{options-ca-setup}"
