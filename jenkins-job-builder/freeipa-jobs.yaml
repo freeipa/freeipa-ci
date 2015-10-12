@@ -309,6 +309,8 @@
             project: '{prefix}-integration-{project}-backup_and_restore'
         - trigger:
             project: '{prefix}-integration-{project}-topology'
+        - trigger:
+            project: '{prefix}-integration-{project}-vault'
 
 - job-template:
     name: '{prefix}-intree-tests-{project}'
@@ -671,6 +673,19 @@
                         role: master
                       - name: replica.ipa.test
                         role: replica
+                      - name: replica.ipa.test
+                        role: replica
+                    name: ipa.test
+                    type: IPA
+        - '{prefix}-integration-{project}-{pretty_name}':
+            pretty_name: vault
+            suite: test_integration/test_vault.py
+            controller_suffix: ''
+            config_template: |
+                domains:
+                  - hosts:
+                      - name: master.ipa.test
+                        role: master
                       - name: replica.ipa.test
                         role: replica
                     name: ipa.test
