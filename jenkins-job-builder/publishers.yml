@@ -1,0 +1,12 @@
+- publisher:
+    name: mail-on-fail
+    publishers:
+        - email:
+            recipients: '{report-mail-address}'
+
+- publisher:
+    name: nosetests-xunit
+    publishers:
+        - junit:
+            results: nosetests.xml
+            keep-long-stdio: false

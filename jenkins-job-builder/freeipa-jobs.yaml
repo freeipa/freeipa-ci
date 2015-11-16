@@ -1,217 +1,3 @@
-- defaults:
-    name: global
-    description: |
-      This job is managed by jenkins-job-builder and will be overwritten.
-
-      Do not edit this job through the web.
-    project-type: freestyle
-    concurrent: true
-    disabled: false
-    quiet-period: 5
-    wrappers:
-      - timeout:
-          timeout: 30
-          fail: true
-      - timestamps
-    logrotate:
-        daysToKeep: 60
-        numToKeep: 100
-
-- publisher:
-    name: mail-on-fail
-    publishers:
-        - email:
-            recipients: '{report-mail-address}'
-
-- publisher:
-    name: nosetests-xunit
-    publishers:
-        - junit:
-            results: nosetests.xml
-            keep-long-stdio: false
-
-- scm:
-    name: freeipa-fedorahosted
-    scm:
-        - git:
-            branches:
-                - "{git-branch}"
-            url: "{git-url}"
-            shallow-clone: true
-            use-author: true
-            browser: gitweb
-            browser-url: "{git-browser-url}"
-
-# for build and run deps on both development branches
-- builder:
-    name: setup-repos
-    builders:
-        - shell: |
-            sudo dnf install -y dnf-plugins-core
-            sudo dnf copr enable -y mkosek/freeipa-master
-
-- builder:
-    name: install-builddeps
-    builders:
-        - setup-repos:
-            prefix: "{prefix}"
-            project: "{project}"
-            os: "{os}"
-            git-branch: "{git-branch}"
-        - shell: |
-            # FreeIPA requires:
-            DEPS=$(awk '/^BuildRequires/ {{ print $2 }}' freeipa.spec.in)
-            # Fedora min build env (https://fedoraproject.org/wiki/Packaging:Guidelines#Exceptions_2)
-            DEPS="$DEPS bash bzip2 coreutils cpio diffutils fedora-release"
-            DEPS="$DEPS findutils gawk gcc gcc-c++ grep gzip info make patch"
-            DEPS="$DEPS redhat-rpm-config rpm-build sed shadow-utils tar unzip"
-            DEPS="$DEPS util-linux which xz"
-            # install all the RPMs
-            sudo dnf erase -y 'freeipa-*' || :
-            sudo dnf clean metadata
-            sudo dnf --refresh distro-sync -y --enablerepo '*updates-testing'
-            sudo dnf --refresh install -y rpm-build $DEPS --enablerepo '*updates-testing'
-        - shell: "rpm -qa | sort"
-
-- builder:
-    name: install-built-rpms
-    builders:
-        - setup-repos:
-            prefix: "{prefix}"
-            project: "{project}"
-            os: "{os}"
-            git-branch: "{git-branch}"
-        - copyartifact:
-            project: "{prefix}-build-{project}"
-            which-build: upstream-build
-            fallback-to-last-successful: true
-        - shell: "sudo dnf remove -y 'freeipa-*' || :"
-        - shell: "more /etc/yum.repos.d/* | cat"
-        - shell: |
-            sudo dnf clean all
-            sudo dnf distro-sync -y --enablerepo '*updates-testing'
-            sudo dnf install -y dist/rpms/freeipa-*.rpm bind-dyndb-ldap --enablerepo '*updates-testing'
-        - shell: "rpm -qa | sort"
-
-- builder:
-    name: build-rpms
-    builders:
-        - shell: |
-            git clean -fxd
-            echo $(date -u +%Y%m%d%H%M%SZ)jenkins${BUILD_NUMBER}git$(git rev-parse --short HEAD) > RELEASE
-            echo IPA_VERSION_IS_GIT_SNAPSHOT=yes >> VERSION
-            make rpms
-
-- builder:
-    name: uninstall
-    builders:
-        - shell: |
-            sudo ipa-server-install --uninstall -U || :
-
-- builder:
-    name: clean-up-environment
-    builders:
-        - uninstall
-        - shell: |
-            sudo dnf remove -y 'freeipa-*' || :
-            sudo setenforce 1 || :
-            sudo iptables -F || :
-            sudo systemctl stop dirsrv.target || :
-            sudo pkidestroy -s CA -i pki-tomcat || :
-            sudo systemctl reset-failed pki-tomcatd@pki-tomcat.service || :
-
-- builder:
-    name: download-certificate
-    builders:
-        - shell: |
-            # download certificates for CA less files
-            wget -O star-cert.p12 $FREEIPACI_STAR_CERT
-            wget -O star-cert-ca.crt $FREEIPACI_CA_CERT
-
-- builder:
-    name: install
-    builders:
-        - shell: |
-            # install
-            sudo ipa-server-install \
-                {options-dns-setup} \
-                {options-ca-setup} \
-                -p $FREEIPACI_PASSWORD -a $FREEIPACI_PASSWORD \
-                -r $FREEIPACI_REALM -n $FREEIPACI_DOMAIN \
-                -U
-
-            echo $FREEIPACI_PASSWORD | kinit admin
-
-- builder:
-    name: setup-default-conf
-    builders:
-        - shell: |
-            mkdir -p ~/.ipa/
-            echo """
-            [global]
-            basedn = $FREEIPACI_BASEDN
-            realm = $FREEIPACI_REALM
-            domain = $FREEIPACI_DOMAIN
-            xmlrpc_uri = https://$(hostname)/ipa/xml
-            ldap_uri = ldap://$(hostname)
-            enable_ra = True
-            ra_plugin = dogtag
-            in_tree=True
-            wait_for_attr=True
-            wait_for_dns=5
-            """ > ~/.ipa/default.conf
-
-- builder:
-    name: copy-pw-files
-    builders:
-        - shell: |
-            mkdir -p $HOME/.ipa/alias
-            echo $FREEIPACI_PASSWORD > $HOME/.ipa/.dmpw
-            sudo cp /etc/httpd/alias/*.db $HOME/.ipa/alias
-            sudo cp /etc/httpd/alias/pwdfile.txt $HOME/.ipa/alias/.pwd
-            sudo chown -R jenkins:jenkins $HOME/.ipa
-
-- builder:
-    name: createrepo
-    builders:
-        - shell: "sudo dnf install -y createrepo"
-        - shell: (cd dist/rpms; createrepo .)
-
-- builder:
-    name: clean-user-configuration
-    builders:
-        - shell: |
-            rm -fr $HOME/.ipa || :
-
-- builder:
-    name: clean-httpd-dir
-    builders:
-        - shell: |
-            sudo rm -fr /etc/httpd/alias
-            sudo rm -fr /etc/httpd/conf/ipa.keytab
-            sudo rm -fr /etc/httpd/conf/password.conf*
-
-- builder:
-    name: prepare-controller
-    builders:
-        - shell: |
-            sudo dnf install -y PyYAML python-requests python-paramiko # TODO: move to ansible role
-            wget -O ./prepare-hosts $FREEIPACI_PREPARE_HOSTS_URL
-            cat ./prepare-hosts
-            chmod +x ./prepare-hosts
-            wget $FREEIPACI_HOSTS_DOMAINS
-            wget $FREEIPACI_HOSTS_STATIC
-            wget $FREEIPACI_COBBLER_FIX
-
-- builder:
-    name: destroy-hosts
-    builders:
-        - shell: |
-            wget -O ./shutdown-hosts $FREEIPACI_SHUTDOWN_HOSTS_URL
-            cat ./shutdown-hosts
-            chmod +x ./shutdown-hosts
-            ./shutdown-hosts < test-config.yaml
-
 - job-template:
     name: '{prefix}-build-{project}'
     node: freeipa-builder-{os}
@@ -250,67 +36,6 @@
         - trigger:
             project: '{prefix}-check-deps-{project}'
             threshold: UNSTABLE
-
-- job-template:
-    name: '{prefix}-check-deps-{project}'
-    node: freeipa-builder-{os}
-    defaults: global
-    description: |
-        Check that the built RPMs are actually installable.
-
-        (Managed by jenkins-job-builder. Do not edit this job directly.)
-    wrappers:
-        - workspace-cleanup
-    builders:
-        - install-built-rpms:
-            prefix: "{prefix}"
-            project: "{project}"
-            os: "{os}"
-            git-branch: "{git-branch}"
-        - shell: "sudo dnf check-update --disablerepo='mkosek-freeipa*' -x 'freeipa-*'"
-        - shell: "rpm -qa | sort"
-    publishers:
-        - mail-on-fail:
-            report-mail-address: '{report-mail-address}'
-    publishers:
-        - trigger:
-            project: '{prefix}-intree-tests-{project}'
-        - trigger:
-            project: '{prefix}-outoftree-tests-{project}'
-        - trigger:
-            project: '{prefix}-webui-firefox-{project}-with-dns-with-ca'
-        - trigger:
-            project: '{prefix}-webui-firefox-{project}-no-dns-no-ca'
-        - trigger:
-            project: '{prefix}-integration-{project}-simple_replication'
-        - trigger:
-            project: '{prefix}-integration-{project}-caless'
-        - trigger:
-            project: '{prefix}-integration-{project}-basic_trust'
-        - trigger:
-            project: '{prefix}-integration-{project}-external_ca'
-        - trigger:
-            project: '{prefix}-integration-{project}-forced_client_reenrollment'
-        - trigger:
-            project: '{prefix}-integration-{project}-kerberos_flags'
-        - trigger:
-            project: '{prefix}-integration-{project}-sudo'
-        - trigger:
-            project: '{prefix}-integration-{project}-legacy_clients'
-        - trigger:
-            project: '{prefix}-integration-{project}-service_permissions'
-        - trigger:
-            project: '{prefix}-integration-{project}-backup_and_restore'
-        - trigger:
-            project: '{prefix}-integration-{project}-dnssec'
-        - trigger:
-            project: '{prefix}-integration-{project}-advise'
-        - trigger:
-            project: '{prefix}-integration-{project}-backup_and_restore'
-        - trigger:
-            project: '{prefix}-integration-{project}-topology'
-        - trigger:
-            project: '{prefix}-integration-{project}-vault'
 
 - job-template:
     name: '{prefix}-intree-tests-{project}'
@@ -470,228 +195,6 @@
         - mail-on-fail:
             report-mail-address: '{report-mail-address}'
 
-- job-group:
-    name: build-and-check
-    jobs:
-        - '{prefix}-stats-{project}'
-        - '{prefix}-build-{project}'
-        - '{prefix}-check-deps-{project}'
-        - '{prefix}-intree-tests-{project}'
-        - '{prefix}-outoftree-tests-{project}'
-        - '{prefix}-webui-{browser}-{project}-{prettyname}':
-            prettyname: with-dns-with-ca
-            noca: False
-            nodns: False
-            browser: firefox
-        - '{prefix}-webui-{browser}-{project}-{prettyname}':
-            prettyname: no-dns-no-ca
-            noca: True
-            nodns: True
-            browser: firefox
-            options-dns-setup: ""
-            options-ca-setup: >
-                --http_pkcs12 star-cert.p12 \
-                --dirsrv_pkcs12 star-cert.p12 \
-                --http_pin $FREEIPACI_STAR_CERT_PIN --dirsrv_pin $FREEIPACI_STAR_CERT_PIN \
-                --root-ca-file star-cert-ca.crt
-        - '{prefix}-integration-{project}-{pretty_name}':
-            pretty_name: caless
-            suite: test_integration/test_caless.py
-            controller_suffix: ''
-            config_template: |
-                domains:
-                  - hosts:
-                      - name: master.ipa.test
-                        role: master
-                      - name: replica.ipa.test
-                        role: replica
-                      - name: client.ipa.test
-                        role: client
-                    name: ipa.test
-                    type: IPA
-        - '{prefix}-integration-{project}-{pretty_name}':
-            pretty_name: simple_replication
-            suite: test_integration/test_simple_replication.py
-            controller_suffix: ''
-            config_template: |
-                domains:
-                  - hosts:
-                      - name: master.ipa.test
-                        role: master
-                      - name: replica.ipa.test
-                        role: replica
-                    name: ipa.test
-                    type: IPA
-        - '{prefix}-integration-{project}-{pretty_name}':
-            pretty_name: external_ca
-            suite: test_integration/test_external_ca.py
-            controller_suffix: ''
-            config_template: |
-                domains:
-                  - hosts:
-                      - name: master.ipa.test
-                        role: master
-                    name: ipa.test
-                    type: IPA
-        - '{prefix}-integration-{project}-{pretty_name}':
-            pretty_name: forced_client_reenrollment
-            suite: test_integration/test_forced_client_reenrollment.py
-            controller_suffix: ''
-            config_template: |
-                domains:
-                  - hosts:
-                      - name: master.ipa.test
-                        role: master
-                      - name: replica.ipa.test
-                        role: replica
-                      - name: client.ipa.test
-                        role: client
-                    name: ipa.test
-                    type: IPA
-        - '{prefix}-integration-{project}-{pretty_name}':
-            pretty_name: kerberos_flags
-            suite: test_integration/test_kerberos_flags.py
-            controller_suffix: ''
-            config_template: |
-                domains:
-                  - hosts:
-                      - name: master.ipa.test
-                        role: master
-                      - name: client.ipa.test
-                        role: client
-                    name: ipa.test
-                    type: IPA
-        - '{prefix}-integration-{project}-{pretty_name}':
-            pretty_name: sudo
-            suite: test_integration/test_sudo.py
-            controller_suffix: ''
-            config_template: |
-                domains:
-                  - hosts:
-                      - name: master.ipa.test
-                        role: master
-                      - name: client.ipa.test
-                        role: client
-                    name: ipa.test
-                    type: IPA
-        - '{prefix}-integration-{project}-{pretty_name}':
-            pretty_name: advise
-            suite: test_integration/test_advise.py
-            controller_suffix: ''
-            config_template: |
-                domains:
-                  - hosts:
-                      - name: master.ipa.test
-                        role: master
-                    name: ipa.test
-                    type: IPA
-        - '{prefix}-integration-{project}-{pretty_name}':
-            pretty_name: basic_trust
-            suite: test_integration/test_trust.py
-            controller_suffix: '-trusts'
-            config_template: |
-                domains:
-                  - hosts:
-                      - name: master.ipa.test
-                        role: trust_master
-                    name: ipa.test
-                    type: TRUST_IPA
-                  - hosts:
-                      - name: ad.ad.test
-                        role: ad
-                      - name: child.child.ad.test
-                        role: ad_subdomain
-                    name: ad.test
-                    type: AD
-        - '{prefix}-integration-{project}-{pretty_name}':
-            pretty_name: legacy_clients
-            suite: test_integration/test_legacy_clients.py
-            controller_suffix: '-trusts'
-            config_template: |
-                domains:
-                  - hosts:
-                      - name: master.ipa.test
-                        role: trust_master
-                      - name: legacy_client_sssd_redhat.ipa.test
-                        role: legacy_client_sssd_redhat
-                      - name: legacy_client_nss_ldap_redhat.ipa.test
-                        role: legacy_client_nss_ldap_redhat
-                      - name: legacy_client_nss_pam_ldapd_redhat.ipa.test
-                        role: legacy_client_nss_pam_ldapd_redhat
-                    name: ipa.test
-                    type: TRUST_IPA
-                  - hosts:
-                      - name: ad.ad.test
-                        role: ad
-                      - name: child.child.ad.test
-                        role: ad_subdomain
-                    name: ad.test
-                    type: AD
-        - '{prefix}-integration-{project}-{pretty_name}':
-            pretty_name: dnssec
-            suite: test_integration/test_dnssec.py
-            controller_suffix: ''
-            config_template: |
-                domains:
-                  - hosts:
-                      - name: master.ipa.test
-                        role: master
-                      - name: replica.ipa.test
-                        role: replica
-                    name: ipa.test
-                    type: IPA
-        - '{prefix}-integration-{project}-{pretty_name}':
-            pretty_name: backup_and_restore
-            suite: test_integration/test_backup_and_restore.py
-            controller_suffix: ''
-            config_template: |
-                domains:
-                  - hosts:
-                      - name: master.ipa.test
-                        role: master
-                    name: ipa.test
-                    type: IPA
-        - '{prefix}-integration-{project}-{pretty_name}':
-            pretty_name: service_permissions
-            suite: test_integration/test_service_permissions.py
-            controller_suffix: ''
-            config_template: |
-                domains:
-                  - hosts:
-                      - name: master.ipa.test
-                        role: master
-                    name: ipa.test
-                    type: IPA
-        - '{prefix}-integration-{project}-{pretty_name}':
-            pretty_name: topology
-            suite: test_integration/test_topology.py
-            controller_suffix: ''
-            config_template: |
-                domains:
-                  - hosts:
-                      - name: master.ipa.test
-                        role: master
-                      - name: replica.ipa.test
-                        role: replica
-                      - name: replica.ipa.test
-                        role: replica
-                    name: ipa.test
-                    type: IPA
-        - '{prefix}-integration-{project}-{pretty_name}':
-            pretty_name: vault
-            suite: test_integration/test_vault.py
-            controller_suffix: ''
-            config_template: |
-                domains:
-                  - hosts:
-                      - name: master.ipa.test
-                        role: master
-                      - name: replica.ipa.test
-                        role: replica
-                    name: ipa.test
-                    type: IPA
-
-
 - job-template:
     name: '{prefix}-stats-{project}'
     node: master
@@ -735,107 +238,65 @@
             report-files: sloccount.sc
             charset: UTF-8
 
-- job-group:
-    name: released-bits
-    jobs:
-        - '{prefix}-released-bits-{os}'
-        - '{prefix}-koji-bits-{os}'
-
 - job-template:
-    name: '{prefix}-released-bits-{os}'
-    node: 'freeipa-runner-{os}'
+    name: '{prefix}-check-deps-{project}'
+    node: freeipa-builder-{os}
     defaults: global
     description: |
-        Run acceptance tests on released bits
-    triggers:
-        - timed: "@midnight"
+        Check that the built RPMs are actually installable.
+
+        (Managed by jenkins-job-builder. Do not edit this job directly.)
     wrappers:
         - workspace-cleanup
     builders:
-        - clean-up-environment
-        - clean-user-configuration
-        - shell: |
-            sudo dnf copr disable -y mkosek/freeipa-master || :
-            sudo dnf clean all || :
-            sudo dnf distro-sync -y --enablerepo '*updates-testing'
-            sudo dnf install -y 'freeipa-*' || :
-        - install:
-            options-dns-setup: "{options-dns-setup}"
-            options-ca-setup: "{options-ca-setup}"
-        - setup-default-conf
-        - copy-pw-files
-        - shell: |
-            # Jenkins sets the PATH to its own default,
-            # compensate so ipa-getkeytab can be found
-            export PATH=$PATH:/usr/sbin
-
-            ipa-run-tests -v --with-xunit || :
-        - uninstall
-        - clean-user-configuration
-        - clean-httpd-dir
+        - install-built-rpms:
+            prefix: "{prefix}"
+            project: "{project}"
+            os: "{os}"
+            git-branch: "{git-branch}"
+        - shell: "sudo dnf check-update --disablerepo='mkosek-freeipa*' -x 'freeipa-*'"
+        - shell: "rpm -qa | sort"
     publishers:
-        - nosetests-xunit
         - mail-on-fail:
             report-mail-address: '{report-mail-address}'
-
-- job-template:
-    name: '{prefix}-koji-bits-{os}'
-    node: 'freeipa-runner-{os}'
-    defaults: global
-    description: |
-        Run acceptance tests on latest freeipa build in koji.
-        This job has to be triggered manually. Feel free to
-        change the build number as needed.
-    wrappers:
-        - workspace-cleanup
-    builders:
-        - clean-up-environment
-        - clean-user-configuration
-        - shell: |
-            sudo dnf copr disable -y mkosek/freeipa-master || :
-            sudo dnf clean all || :
-            sudo dnf distro-sync -y --enablerepo '*updates-testing'
-        - shell: |
-            mkdir koji
-            pushd koji
-            koji download-build --latestfrom="{os}-updates-testing" freeipa --arch=$(uname -i)
-            popd
-            sudo dnf install -y koji/freeipa-*.rpm
-        - install:
-            options-dns-setup: "{options-dns-setup}"
-            options-ca-setup: "{options-ca-setup}"
-        - setup-default-conf
-        - copy-pw-files
-        - shell: |
-            # Jenkins sets the PATH to its own default,
-            # compensate so ipa-getkeytab can be found
-            export PATH=$PATH:/usr/sbin
-
-            ipa-run-tests -v --with-xunit || :
-        - uninstall
-        - clean-user-configuration
-        - clean-httpd-dir
     publishers:
-        - nosetests-xunit
-        - mail-on-fail:
-            report-mail-address: '{report-mail-address}'
-
-######### Meta-tests; use these for experimenting
-#
-# - job-template:
-#     name: test1
-#     node: master
-#     builders:
-#         shell: "echo 1"
-#
-# - job-template:
-#     name: test2
-#     node: master
-#     builders:
-#         shell: "echo 1"
-#
-# - project:
-#     name: test
-#     jobs:
-#         - test1
-#         - test2
+        - trigger:
+            project: '{prefix}-intree-tests-{project}'
+        - trigger:
+            project: '{prefix}-outoftree-tests-{project}'
+        - trigger:
+            project: '{prefix}-webui-firefox-{project}-with-dns-with-ca'
+        - trigger:
+            project: '{prefix}-webui-firefox-{project}-no-dns-no-ca'
+        - trigger:
+            project: '{prefix}-integration-{project}-simple_replication'
+        - trigger:
+            project: '{prefix}-integration-{project}-caless'
+        - trigger:
+            project: '{prefix}-integration-{project}-basic_trust'
+        - trigger:
+            project: '{prefix}-integration-{project}-external_ca'
+        - trigger:
+            project: '{prefix}-integration-{project}-forced_client_reenrollment'
+        - trigger:
+            project: '{prefix}-integration-{project}-kerberos_flags'
+        - trigger:
+            project: '{prefix}-integration-{project}-sudo'
+        - trigger:
+            project: '{prefix}-integration-{project}-legacy_clients'
+        - trigger:
+            project: '{prefix}-integration-{project}-service_permissions'
+        - trigger:
+            project: '{prefix}-integration-{project}-backup_and_restore'
+        - trigger:
+            project: '{prefix}-integration-{project}-dnssec'
+        - trigger:
+            project: '{prefix}-integration-{project}-advise'
+        - trigger:
+            project: '{prefix}-integration-{project}-backup_and_restore'
+        - trigger:
+            project: '{prefix}-integration-{project}-topology'
+        - trigger:
+            project: '{prefix}-integration-{project}-vault'
+        - trigger:
+            project: '{prefix}-integration-{project}-customized_ds_config_install'

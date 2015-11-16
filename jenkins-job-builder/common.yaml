@@ -1,0 +1,30 @@
+- defaults:
+    name: global
+    description: |
+      This job is managed by jenkins-job-builder and will be overwritten.
+
+      Do not edit this job through the web.
+    project-type: freestyle
+    concurrent: true
+    disabled: false
+    quiet-period: 5
+    wrappers:
+      - timeout:
+          timeout: 30
+          fail: true
+      - timestamps
+    logrotate:
+        daysToKeep: 60
+        numToKeep: 100
+
+- scm:
+    name: freeipa-fedorahosted
+    scm:
+        - git:
+            branches:
+                - "{git-branch}"
+            url: "{git-url}"
+            shallow-clone: true
+            use-author: true
+            browser: gitweb
+            browser-url: "{git-browser-url}"

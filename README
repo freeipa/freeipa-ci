@@ -21,9 +21,9 @@ Sample usage:
         password=PASSWORD
         url=JENKINS_URL
     project configuration file:
-        Copy 'project.yaml.example' to 'project.yaml' and customize it to your needs
+        Copy 'project.yaml.example' to <my-project>.yaml and customize it to your needs
     commit to Jenkins:
-        jenkins-jobs update ./jenkins-job-builder/
+        jenkins-jobs update -r ./jenkins-job-builder/:PATH/TO/<my-project>.yaml
 
 Please change the recipient in the "mail-on-fail" publisher.
 
