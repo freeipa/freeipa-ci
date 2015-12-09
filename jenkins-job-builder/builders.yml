@@ -156,7 +156,6 @@
             chmod +x ./prepare-hosts
             wget $FREEIPACI_HOSTS_DOMAINS
             wget $FREEIPACI_HOSTS_STATIC
-            wget $FREEIPACI_COBBLER_FIX
 
 - builder:
     name: destroy-hosts
