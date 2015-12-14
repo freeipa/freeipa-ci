@@ -45,6 +45,7 @@
         - shell: |
             sudo dnf clean all
             sudo dnf distro-sync -y --enablerepo '*updates-testing'
+            sudo dnf install -y dist/rpms/python2-ipa*
             sudo dnf install -y dist/rpms/freeipa-*.rpm bind-dyndb-ldap --enablerepo '*updates-testing'
         - shell: "rpm -qa | sort"
 
