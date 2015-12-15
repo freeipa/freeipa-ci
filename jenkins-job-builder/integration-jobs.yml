@@ -254,8 +254,8 @@
             pretty_name: replication_layouts_dom0
             suite: test_integration/test_replication_layouts.py
             controller_suffix: ''
-            domain_level: 0
             config_template: |
+                domain_level: 0
                 domains:
                   - hosts:
                       - name: master.ipa.test
@@ -272,8 +272,8 @@
             pretty_name: replication_layouts_dom1
             suite: test_integration/test_replication_layouts.py
             controller_suffix: ''
-            domain_level: 1
             config_template: |
+                domain_level: 1
                 domains:
                   - hosts:
                       - name: master.ipa.test
