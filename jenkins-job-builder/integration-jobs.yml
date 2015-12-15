@@ -234,10 +234,29 @@
                     name: ipa.test
                     type: IPA
         - '{prefix}-integration-{project}-{pretty_name}':
-            pretty_name: installation
+            pretty_name: installation_dom0
             suite: test_integration/test_installation.py
             controller_suffix: ''
             config_template: |
+                domain_level: 0
+                domains:
+                  - hosts:
+                      - name: master.ipa.test
+                        role: master
+                      - name: replica.ipa.test
+                        role: replica
+                      - name: replica.ipa.test
+                        role: replica
+                      - name: replica.ipa.test
+                        role: replica
+                    name: ipa.test
+                    type: IPA
+        - '{prefix}-integration-{project}-{pretty_name}':
+            pretty_name: installation_dom1
+            suite: test_integration/test_installation.py
+            controller_suffix: ''
+            config_template: |
+                domain_level: 1
                 domains:
                   - hosts:
                       - name: master.ipa.test
@@ -285,38 +304,3 @@
                       - name: replica.ipa.test
                         role: replica
                     name: ipa.test
-                    type: IPA
-        - '{prefix}-integration-{project}-{pretty_name}':
-            pretty_name: installation
-            suite: test_integration/test_installation.py
-            controller_suffix: ''
-            config_template: |
-                domains:
-                  - hosts:
-                      - name: master.ipa.test
-                        role: master
-                      - name: replica.ipa.test
-                        role: replica
-                      - name: replica.ipa.test
-                        role: replica
-                      - name: replica.ipa.test
-                        role: replica
-                    name: ipa.test
-                    type: IPA
-        - '{prefix}-integration-{project}-{pretty_name}':
-            pretty_name: replication_layouts
-            suite: test_integration/test_replication_layouts.py
-            controller_suffix: ''
-            config_template: |
-                domains:
-                  - hosts:
-                      - name: master.ipa.test
-                        role: master
-                      - name: replica.ipa.test
-                        role: replica
-                      - name: replica.ipa.test
-                        role: replica
-                      - name: replica.ipa.test
-                        role: replica
-                    name: ipa.test
-                    type: IPA
