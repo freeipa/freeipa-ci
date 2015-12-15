@@ -40,13 +40,14 @@
             project: "{prefix}-build-{project}"
             which-build: upstream-build
             fallback-to-last-successful: true
+        - createrepo
         - shell: "sudo dnf remove -y 'freeipa-*' || :"
         - shell: "more /etc/yum.repos.d/* | cat"
         - shell: |
             sudo dnf clean all
             sudo dnf distro-sync -y --enablerepo '*updates-testing'
-            sudo dnf install -y dist/rpms/python2-ipa*
-            sudo dnf install -y dist/rpms/freeipa-*.rpm bind-dyndb-ldap --enablerepo '*updates-testing'
+            sudo dnf install -y python2-ipa* || :
+            sudo dnf install -y freeipa-* bind-dyndb-ldap --enablerepo '*updates-testing'
         - shell: "rpm -qa | sort"
 
 - builder:
@@ -131,7 +132,22 @@
     name: createrepo
     builders:
         - shell: "sudo dnf install -y createrepo"
-        - shell: (cd dist/rpms; createrepo .)
+        - shell: |
+            rm -fr /tmp/freeipa-build || :
+            mkdir -p /tmp/freeipa-build
+            cp dist/rpms/* /tmp/freeipa-build
+            createrepo /tmp/freeipa-build
+        - shell: |
+            cat > /tmp/freeipa-local.repo <<EOF
+            [freeipa-local]
+            name=freeipa-local
+            baseurl=file:///tmp/freeipa-build/
+            enabled=1
+            gpgcheck=0
+            metadata_expire=360
+            EOF
+            sudo mv /tmp/freeipa-local.repo /etc/yum.repos.d/
+
 
 - builder:
     name: clean-user-configuration
