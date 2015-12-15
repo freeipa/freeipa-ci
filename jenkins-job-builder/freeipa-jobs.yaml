@@ -162,7 +162,7 @@
             report-mail-address: '{report-mail-address}'
 
 - job-template:
-    name: '{prefix}-integration-{project}-{pretty_name}'
+    name: '{prefix}-integration-{project}-{pretty_name}-domlevel-{domain_level}'
     node: freeipa-controller-{os}{controller_suffix}
     defaults: global
     concurrent: false
@@ -194,6 +194,7 @@
         - nosetests-xunit
         - mail-on-fail:
             report-mail-address: '{report-mail-address}'
+
 
 - job-template:
     name: '{prefix}-stats-{project}'
