@@ -82,3 +82,47 @@
         - nosetests-xunit
         - mail-on-fail:
             report-mail-address: '{report-mail-address}'
+
+- job-group:
+    name: copr-build
+    jobs:
+        - '{prefix}-copr-bits-{os}'
+
+- job-template:
+    name: '{prefix}-copr-bits-{os}'
+    node: freeipa-runner-{os}
+    defaults: global
+    description: |
+        Run acceptance tests on released bits
+        The job has to be triggered manually.
+    wrappers:
+        - workspace-cleanup
+    builders:
+        - clean-up-environment
+        - clean-user-configuration
+        - shell: |
+            sudo dnf copr disable -y mkosek/freeipa-master || :
+            sudo dnf clean all || :
+            sudo dnf distro-sync -y --enablerepo '*updates-testing'
+            sudo dnf copr enable -y '{test-copr-repo}'
+            sudo dnf install -y 'freeipa-server*' python2-ipatests --enablerepo '*updates-testing'|| :
+        - install:
+            options-dns-setup: "{options-dns-setup}"
+            options-ca-setup: "{options-ca-setup}"
+        - setup-default-conf
+        - copy-pw-files
+        - shell: |
+            # Jenkins sets the PATH to its own default,
+            # compensate so ipa-getkeytab can be found
+            export PATH=$PATH:/usr/sbin
+
+            ipa-run-tests -v --with-xunit || :
+        - uninstall
+        - clean-user-configuration
+        - clean-httpd-dir
+        - shell: |
+            sudo dnf copr disable -y '{test-copr-repo}'
+    publishers:
+        - nosetests-xunit
+        - mail-on-fail:
+            report-mail-address: '{report-mail-address}'
