@@ -162,7 +162,7 @@
             report-mail-address: '{report-mail-address}'
 
 - job-template:
-    name: '{prefix}-integration-{project}-{pretty_name}'
+    name: '{prefix}-integration-{project}-{pretty_name}-domlevel-{domain_level}'
     node: freeipa-controller-{os}{controller_suffix}
     defaults: global
     concurrent: false
@@ -194,6 +194,7 @@
         - nosetests-xunit
         - mail-on-fail:
             report-mail-address: '{report-mail-address}'
+
 
 - job-template:
     name: '{prefix}-stats-{project}'
@@ -269,34 +270,64 @@
         - trigger:
             project: '{prefix}-webui-firefox-{project}-no-dns-no-ca'
         - trigger:
-            project: '{prefix}-integration-{project}-simple_replication'
+            project: '{prefix}-integration-{project}-simple_replication-domlevel-0'
         - trigger:
-            project: '{prefix}-integration-{project}-caless'
+            project: '{prefix}-integration-{project}-caless-domlevel-0'
         - trigger:
-            project: '{prefix}-integration-{project}-basic_trust'
+            project: '{prefix}-integration-{project}-basic_trust-domlevel-0'
         - trigger:
-            project: '{prefix}-integration-{project}-external_ca'
+            project: '{prefix}-integration-{project}-external_ca-domlevel-0'
         - trigger:
-            project: '{prefix}-integration-{project}-forced_client_reenrollment'
+            project: '{prefix}-integration-{project}-forced_client_reenrollment-domlevel-0'
         - trigger:
-            project: '{prefix}-integration-{project}-kerberos_flags'
+            project: '{prefix}-integration-{project}-kerberos_flags-domlevel-0'
         - trigger:
-            project: '{prefix}-integration-{project}-sudo'
+            project: '{prefix}-integration-{project}-sudo-domlevel-0'
         - trigger:
-            project: '{prefix}-integration-{project}-legacy_clients'
+            project: '{prefix}-integration-{project}-legacy_clients-domlevel-0'
         - trigger:
-            project: '{prefix}-integration-{project}-service_permissions'
+            project: '{prefix}-integration-{project}-service_permissions-domlevel-0'
         - trigger:
-            project: '{prefix}-integration-{project}-backup_and_restore'
+            project: '{prefix}-integration-{project}-backup_and_restore-domlevel-0'
         - trigger:
-            project: '{prefix}-integration-{project}-dnssec'
+            project: '{prefix}-integration-{project}-dnssec-domlevel-0'
         - trigger:
-            project: '{prefix}-integration-{project}-advise'
+            project: '{prefix}-integration-{project}-advise-domlevel-0'
         - trigger:
-            project: '{prefix}-integration-{project}-backup_and_restore'
+            project: '{prefix}-integration-{project}-backup_and_restore-domlevel-0'
         - trigger:
-            project: '{prefix}-integration-{project}-topology'
+            project: '{prefix}-integration-{project}-vault-domlevel-0'
         - trigger:
-            project: '{prefix}-integration-{project}-vault'
+            project: '{prefix}-integration-{project}-customized_ds_config_install-domlevel-0'
         - trigger:
-            project: '{prefix}-integration-{project}-customized_ds_config_install'
+            project: '{prefix}-integration-{project}-simple_replication-domlevel-1'
+        - trigger:
+            project: '{prefix}-integration-{project}-caless-domlevel-1'
+        - trigger:
+            project: '{prefix}-integration-{project}-basic_trust-domlevel-1'
+        - trigger:
+            project: '{prefix}-integration-{project}-external_ca-domlevel-1'
+        - trigger:
+            project: '{prefix}-integration-{project}-forced_client_reenrollment-domlevel-1'
+        - trigger:
+            project: '{prefix}-integration-{project}-kerberos_flags-domlevel-1'
+        - trigger:
+            project: '{prefix}-integration-{project}-sudo-domlevel-1'
+        - trigger:
+            project: '{prefix}-integration-{project}-legacy_clients-domlevel-1'
+        - trigger:
+            project: '{prefix}-integration-{project}-service_permissions-domlevel-1'
+        - trigger:
+            project: '{prefix}-integration-{project}-backup_and_restore-domlevel-1'
+        - trigger:
+            project: '{prefix}-integration-{project}-dnssec-domlevel-1'
+        - trigger:
+            project: '{prefix}-integration-{project}-advise-domlevel-1'
+        - trigger:
+            project: '{prefix}-integration-{project}-backup_and_restore-domlevel-1'
+        - trigger:
+            project: '{prefix}-integration-{project}-topology-domlevel-1'
+        - trigger:
+            project: '{prefix}-integration-{project}-vault-domlevel-1'
+        - trigger:
+            project: '{prefix}-integration-{project}-customized_ds_config_install-domlevel-1'
