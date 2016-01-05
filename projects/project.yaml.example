@@ -1,8 +1,7 @@
-
 - project:
-    name: f20master
-    project: f20master
-    os: f20
+    name: f23master
+    project: f23master
+    os: f23
     prefix: freeipa
     git-branch: master
     git-url: git://git.fedorahosted.org/git/freeipa.git
@@ -10,10 +9,8 @@
     options-dns-setup: >
         --setup-dns
         --forwarder=$FREEIPACI_DNS_FORWARDER
-        --reverse-zone=$FREEIPACI_DNS_REVERSE_ZONE
     options-ca-setup: ""
     report-mail-address: your.email@example
     jobs:
         - build-and-check
-        - ipa-4-1-additions
         - docs
