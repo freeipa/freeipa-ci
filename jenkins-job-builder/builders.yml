@@ -89,11 +89,13 @@
     builders:
         - shell: |
             # install
+            export DOMAIN=$(hostname -f | sed -e 's/^vm/dom/')
+            REALM=$(echo $DOMAIN | tr '[:lower:]' '[:upper:]')
             sudo ipa-server-install \
                 {options-dns-setup} \
                 {options-ca-setup} \
-                -p $FREEIPACI_PASSWORD -a $FREEIPACI_PASSWORD \
-                -r $FREEIPACI_REALM -n $FREEIPACI_DOMAIN \
+                -p "$FREEIPACI_PASSWORD" -a "$FREEIPACI_PASSWORD" \
+                -r "$REALM" -n "$DOMAIN" \
                 -U
 
             echo $FREEIPACI_PASSWORD | kinit admin
@@ -102,12 +104,16 @@
     name: setup-default-conf
     builders:
         - shell: |
+            export DOMAIN=$(hostname -f | sed -e 's/^vm/dom/')
+            REALM=$(echo $DOMAIN | tr '[:lower:]' '[:upper:]')
+            BASEDN=$(echo $DOMAIN | sed -e 's/\./,dc=/g' -e 's/^/dc=/')
+
             mkdir -p ~/.ipa/
             echo """
             [global]
-            basedn = $FREEIPACI_BASEDN
-            realm = $FREEIPACI_REALM
-            domain = $FREEIPACI_DOMAIN
+            basedn = $BASEDN
+            realm = $REALM
+            domain = $DOMAIN
             xmlrpc_uri = https://$(hostname)/ipa/xml
             ldap_uri = ldap://$(hostname)
             enable_ra = True
@@ -166,7 +172,7 @@
     name: prepare-controller
     builders:
         - shell: |
-            sudo dnf install -y PyYAML python-requests python-paramiko # TODO: move to ansible role
+            sudo dnf install -y PyYAML python-requests python-paramiko wget # TODO: move to ansible role
             wget -O ./prepare-hosts $FREEIPACI_PREPARE_HOSTS_URL
             cat ./prepare-hosts
             chmod +x ./prepare-hosts
