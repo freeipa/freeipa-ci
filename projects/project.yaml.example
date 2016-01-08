@@ -10,6 +10,9 @@
         --setup-dns
         --forwarder=$FREEIPACI_DNS_FORWARDER
     options-ca-setup: ""
+    domain_level:
+        - 0
+        - 1
     report-mail-address: your.email@example
     jobs:
         - build-and-check

@@ -22,11 +22,12 @@
                 --dirsrv_pkcs12 star-cert.p12 \
                 --http_pin $FREEIPACI_STAR_CERT_PIN --dirsrv_pin $FREEIPACI_STAR_CERT_PIN \
                 --root-ca-file star-cert-ca.crt
-        - '{prefix}-integration-{project}-{pretty_name}':
+        - '{prefix}-integration-{project}-{pretty_name}-domlevel-{domain_level}':
             pretty_name: caless
             suite: test_integration/test_caless.py
             controller_suffix: ''
             config_template: |
+                domain_level: {domain_level}
                 domains:
                   - hosts:
                       - name: master.ipa.test
@@ -37,11 +38,12 @@
                         role: client
                     name: ipa.test
                     type: IPA
-        - '{prefix}-integration-{project}-{pretty_name}':
+        - '{prefix}-integration-{project}-{pretty_name}-domlevel-{domain_level}':
             pretty_name: simple_replication
             suite: test_integration/test_simple_replication.py
             controller_suffix: ''
             config_template: |
+                domain_level: {domain_level}
                 domains:
                   - hosts:
                       - name: master.ipa.test
@@ -50,22 +52,24 @@
                         role: replica
                     name: ipa.test
                     type: IPA
-        - '{prefix}-integration-{project}-{pretty_name}':
+        - '{prefix}-integration-{project}-{pretty_name}-domlevel-{domain_level}':
             pretty_name: external_ca
             suite: test_integration/test_external_ca.py
             controller_suffix: ''
             config_template: |
+                domain_level: {domain_level}
                 domains:
                   - hosts:
                       - name: master.ipa.test
                         role: master
                     name: ipa.test
                     type: IPA
-        - '{prefix}-integration-{project}-{pretty_name}':
+        - '{prefix}-integration-{project}-{pretty_name}-domlevel-{domain_level}':
             pretty_name: forced_client_reenrollment
             suite: test_integration/test_forced_client_reenrollment.py
             controller_suffix: ''
             config_template: |
+                domain_level: {domain_level}
                 domains:
                   - hosts:
                       - name: master.ipa.test
@@ -76,11 +80,13 @@
                         role: client
                     name: ipa.test
                     type: IPA
-        - '{prefix}-integration-{project}-{pretty_name}':
+
+        - '{prefix}-integration-{project}-{pretty_name}-domlevel-{domain_level}':
             pretty_name: kerberos_flags
             suite: test_integration/test_kerberos_flags.py
             controller_suffix: ''
             config_template: |
+                domain_level: {domain_level}
                 domains:
                   - hosts:
                       - name: master.ipa.test
@@ -89,11 +95,13 @@
                         role: client
                     name: ipa.test
                     type: IPA
-        - '{prefix}-integration-{project}-{pretty_name}':
+
+        - '{prefix}-integration-{project}-{pretty_name}-domlevel-{domain_level}':
             pretty_name: sudo
             suite: test_integration/test_sudo.py
             controller_suffix: ''
             config_template: |
+                domain_level: {domain_level}
                 domains:
                   - hosts:
                       - name: master.ipa.test
@@ -102,22 +110,26 @@
                         role: client
                     name: ipa.test
                     type: IPA
-        - '{prefix}-integration-{project}-{pretty_name}':
+
+        - '{prefix}-integration-{project}-{pretty_name}-domlevel-{domain_level}':
             pretty_name: advise
             suite: test_integration/test_advise.py
             controller_suffix: ''
             config_template: |
+                domain_level: {domain_level}
                 domains:
                   - hosts:
                       - name: master.ipa.test
                         role: master
                     name: ipa.test
                     type: IPA
-        - '{prefix}-integration-{project}-{pretty_name}':
+
+        - '{prefix}-integration-{project}-{pretty_name}-domlevel-{domain_level}':
             pretty_name: basic_trust
             suite: test_integration/test_trust.py
             controller_suffix: '-trusts'
             config_template: |
+                domain_level: {domain_level}
                 domains:
                   - hosts:
                       - name: master.ipa.test
@@ -131,11 +143,13 @@
                         role: ad_subdomain
                     name: ad.test
                     type: AD
-        - '{prefix}-integration-{project}-{pretty_name}':
+
+        - '{prefix}-integration-{project}-{pretty_name}-domlevel-{domain_level}':
             pretty_name: legacy_clients
             suite: test_integration/test_legacy_clients.py
             controller_suffix: '-trusts'
             config_template: |
+                domain_level: {domain_level}
                 domains:
                   - hosts:
                       - name: master.ipa.test
@@ -155,11 +169,14 @@
                         role: ad_subdomain
                     name: ad.test
                     type: AD
-        - '{prefix}-integration-{project}-{pretty_name}':
+
+
+        - '{prefix}-integration-{project}-{pretty_name}-domlevel-{domain_level}':
             pretty_name: dnssec
             suite: test_integration/test_dnssec.py
             controller_suffix: ''
             config_template: |
+                domain_level: {domain_level}
                 domains:
                   - hosts:
                       - name: master.ipa.test
@@ -170,33 +187,39 @@
                         role: replica
                     name: ipa.test
                     type: IPA
-        - '{prefix}-integration-{project}-{pretty_name}':
+
+        - '{prefix}-integration-{project}-{pretty_name}-domlevel-{domain_level}':
             pretty_name: backup_and_restore
             suite: test_integration/test_backup_and_restore.py
             controller_suffix: ''
             config_template: |
+                domain_level: {domain_level}
                 domains:
                   - hosts:
                       - name: master.ipa.test
                         role: master
                     name: ipa.test
                     type: IPA
-        - '{prefix}-integration-{project}-{pretty_name}':
+
+        - '{prefix}-integration-{project}-{pretty_name}-domlevel-{domain_level}':
             pretty_name: service_permissions
             suite: test_integration/test_service_permissions.py
             controller_suffix: ''
             config_template: |
+                domain_level: {domain_level}
                 domains:
                   - hosts:
                       - name: master.ipa.test
                         role: master
                     name: ipa.test
                     type: IPA
-        - '{prefix}-integration-{project}-{pretty_name}':
+
+        - '{prefix}-integration-{project}-{pretty_name}-domlevel-{domain_level}':
             pretty_name: topology
             suite: test_integration/test_topology.py
+            domain_level: 1
             controller_suffix: ''
-            config_template: |
+            config_template: |  
                 domains:
                   - hosts:
                       - name: master.ipa.test
@@ -207,11 +230,13 @@
                         role: replica
                     name: ipa.test
                     type: IPA
-        - '{prefix}-integration-{project}-{pretty_name}':
+
+        - '{prefix}-integration-{project}-{pretty_name}-domlevel-{domain_level}':
             pretty_name: vault
             suite: test_integration/test_vault.py
             controller_suffix: ''
             config_template: |
+                domain_level: {domain_level}
                 domains:
                   - hosts:
                       - name: master.ipa.test
@@ -220,11 +245,13 @@
                         role: replica
                     name: ipa.test
                     type: IPA
-        - '{prefix}-integration-{project}-{pretty_name}':
+
+        - '{prefix}-integration-{project}-{pretty_name}-domlevel-{domain_level}':
             pretty_name: customized_ds_config_install
             suite: test_integration/test_customized_ds_config_install.py
             controller_suffix: ''
             config_template: |
+                domain_level: {domain_level}
                 domains:
                   - hosts:
                       - name: master.ipa.test
@@ -233,12 +260,13 @@
                         role: replica
                     name: ipa.test
                     type: IPA
-        - '{prefix}-integration-{project}-{pretty_name}':
-            pretty_name: installation_dom0
+
+        - '{prefix}-integration-{project}-{pretty_name}-domlevel-{domain_level}':
+            pretty_name: installation
             suite: test_integration/test_installation.py
             controller_suffix: ''
             config_template: |
-                domain_level: 0
+                domain_level: {domain_level}
                 domains:
                   - hosts:
                       - name: master.ipa.test
@@ -251,48 +279,13 @@
                         role: replica
                     name: ipa.test
                     type: IPA
-        - '{prefix}-integration-{project}-{pretty_name}':
-            pretty_name: installation_dom1
-            suite: test_integration/test_installation.py
-            controller_suffix: ''
-            config_template: |
-                domain_level: 1
-                domains:
-                  - hosts:
-                      - name: master.ipa.test
-                        role: master
-                      - name: replica.ipa.test
-                        role: replica
-                      - name: replica.ipa.test
-                        role: replica
-                      - name: replica.ipa.test
-                        role: replica
-                    name: ipa.test
-                    type: IPA
-        - '{prefix}-integration-{project}-{pretty_name}':
-            pretty_name: replication_layouts_dom0
-            suite: test_integration/test_replication_layouts.py
-            controller_suffix: ''
-            config_template: |
-                domain_level: 0
-                domains:
-                  - hosts:
-                      - name: master.ipa.test
-                        role: master
-                      - name: replica.ipa.test
-                        role: replica
-                      - name: replica.ipa.test
-                        role: replica
-                      - name: replica.ipa.test
-                        role: replica
-                    name: ipa.test
-                    type: IPA
-        - '{prefix}-integration-{project}-{pretty_name}':
+
+        - '{prefix}-integration-{project}-{pretty_name}-domlevel-{domain_level}':
             pretty_name: replication_layouts_dom1
             suite: test_integration/test_replication_layouts.py
             controller_suffix: ''
             config_template: |
-                domain_level: 1
+                domain_level: {domain_level}
                 domains:
                   - hosts:
                       - name: master.ipa.test
@@ -304,3 +297,4 @@
                       - name: replica.ipa.test
                         role: replica
                     name: ipa.test
+                    type: IPA
