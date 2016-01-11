@@ -23,7 +23,6 @@
             DEPS="$DEPS util-linux which xz"
             # install all the RPMs
             sudo dnf erase -y 'freeipa-*' || :
-            sudo dnf clean metadata
             sudo dnf --refresh distro-sync -y --enablerepo '*updates-testing'
             sudo dnf --refresh install -y rpm-build $DEPS --enablerepo '*updates-testing'
         - shell: "rpm -qa | sort"
@@ -44,7 +43,7 @@
         - shell: "sudo dnf remove -y 'freeipa-*' || :"
         - shell: "more /etc/yum.repos.d/* | cat"
         - shell: |
-            sudo dnf clean all
+            sudo dnf clean all --enablerepo '*'
             sudo dnf distro-sync -y --enablerepo '*updates-testing'
             sudo dnf install -y freeipa-server* python2-ipatests bind-dyndb-ldap --enablerepo '*updates-testing'
         - shell: "rpm -qa | sort"
@@ -152,6 +151,8 @@
             metadata_expire=360
             EOF
             sudo mv /tmp/freeipa-local.repo /etc/yum.repos.d/
+        - shell: |
+            sudo dnf makecache fast
 
 
 - builder:
