@@ -301,6 +301,10 @@
             project: '{prefix}-integration-{project}-vault-domlevel-0'
         - trigger:
             project: '{prefix}-integration-{project}-customized_ds_config_install-domlevel-0'
+        - trigger:
+            project: '{prefix}-integration-{project}-installation-domlevel-0'
+        - trigger:
+            project: '{prefix}-integration-{project}-replication_layouts-domlevel-0'
 
         - trigger:
             project: '{prefix}-integration-{project}-simple_replication-domlevel-1'
@@ -332,5 +336,9 @@
             project: '{prefix}-integration-{project}-vault-domlevel-1'
         - trigger:
             project: '{prefix}-integration-{project}-customized_ds_config_install-domlevel-1'
-
-
+        - trigger:
+            project: '{prefix}-integration-{project}-topology-domlevel-1'
+        - trigger:
+            project: '{prefix}-integration-{project}-installation-domlevel-1'
+        - trigger:
+            project: '{prefix}-integration-{project}-replication_layouts-domlevel-1'

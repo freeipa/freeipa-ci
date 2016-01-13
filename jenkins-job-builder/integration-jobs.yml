@@ -281,7 +281,7 @@
                     type: IPA
 
         - '{prefix}-integration-{project}-{pretty_name}-domlevel-{domain_level}':
-            pretty_name: replication_layouts_dom1
+            pretty_name: replication_layouts
             suite: test_integration/test_replication_layouts.py
             controller_suffix: ''
             config_template: |
