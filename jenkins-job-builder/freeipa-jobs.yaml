@@ -17,6 +17,7 @@
             project: "{project}"
             os: "{os}"
             git-branch: "{git-branch}"
+            copr-repos: "{copr-repos}"
         - build-rpms
         - createrepo
     publishers:
@@ -58,6 +59,7 @@
             project: "{project}"
             os: "{os}"
             git-branch: "{git-branch}"
+            copr-repos: "{copr-repos}"
         - shell: |
             # We're running in-tree tests, but we get compiled files from RPMs
             cp /usr/lib/python2.7/site-packages/ipapython/version.py ipapython/version.py
@@ -106,6 +108,7 @@
             project: "{project}"
             os: "{os}"
             git-branch: "{git-branch}"
+            copr-repos: "{copr-repos}"
         - install:
             options-dns-setup: "{options-dns-setup}"
             options-ca-setup: "{options-ca-setup}"
@@ -140,6 +143,7 @@
             project: "{project}"
             os: "{os}"
             git-branch: "{git-branch}"
+            copr-repos: "{copr-repos}"
         - download-certificate
         - install:
             options-dns-setup: "{options-dns-setup}"
@@ -177,6 +181,7 @@
             project: "{project}"
             os: "{os}"
             git-branch: "{git-branch}"
+            copr-repos: "{copr-repos}"
         - prepare-controller
         - shell: |
             ./prepare-hosts <<END_YAML_FILE > test-config.yaml
@@ -254,6 +259,7 @@
             project: "{project}"
             os: "{os}"
             git-branch: "{git-branch}"
+            copr-repos: "{copr-repos}"
         - shell: "sudo dnf check-update --disablerepo='mkosek-freeipa*' -x 'freeipa-*'"
         - shell: "rpm -qa | sort"
     publishers:

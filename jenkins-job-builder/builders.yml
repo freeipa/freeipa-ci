@@ -3,7 +3,9 @@
     builders:
         - shell: |
             sudo dnf install -y dnf-plugins-core
-            sudo dnf copr enable -y mkosek/freeipa-master
+            for repo in {copr-repos}; do
+                sudo dnf copr enable -y "$repo"
+            done
 
 - builder:
     name: install-builddeps
@@ -13,6 +15,7 @@
             project: "{project}"
             os: "{os}"
             git-branch: "{git-branch}"
+            copr-repos: "{copr-repos}"
         - shell: |
             # FreeIPA requires:
             DEPS=$(awk '/^BuildRequires/ {{ print $2 }}' freeipa.spec.in)
@@ -35,6 +38,7 @@
             project: "{project}"
             os: "{os}"
             git-branch: "{git-branch}"
+            copr-repos: "{copr-repos}"
         - copyartifact:
             project: "{prefix}-build-{project}"
             which-build: upstream-build

@@ -14,6 +14,8 @@
         - 0
         - 1
     report-mail-address: your.email@example
+    copr-repos:
+        - mkosek/freeipa-master
     jobs:
         - build-and-check
         - docs
