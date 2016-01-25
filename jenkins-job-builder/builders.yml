@@ -139,12 +139,12 @@
 - builder:
     name: createrepo
     builders:
-        - shell: "sudo dnf install -y createrepo"
+        - shell: "sudo dnf install -y createrepo_c"
         - shell: |
             rm -fr /tmp/freeipa-build || :
             mkdir -p /tmp/freeipa-build
             cp dist/rpms/* /tmp/freeipa-build
-            createrepo /tmp/freeipa-build
+            createrepo_c /tmp/freeipa-build
         - shell: |
             cat > /tmp/freeipa-local.repo <<EOF
             [freeipa-local]
@@ -152,7 +152,6 @@
             baseurl=file:///tmp/freeipa-build/
             enabled=1
             gpgcheck=0
-            metadata_expire=360
             EOF
             sudo mv /tmp/freeipa-local.repo /etc/yum.repos.d/
         - shell: |
