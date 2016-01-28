@@ -194,7 +194,6 @@
             ipa-test-config --yaml
             ipa-run-tests --with-xunit {suite} --logging-level=DEBUG || :
         - destroy-hosts
-        - uninstall
     publishers:
         - nosetests-xunit
         - mail-on-fail:
