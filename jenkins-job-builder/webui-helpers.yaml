@@ -8,8 +8,11 @@
             SELENIUM_TMP_DIR=~/selenium
             SELENIUM_SERVER_DIR=/opt/selenium
 
-            # this must match exact filename in http://selenium.googlecode.com/files
-            SELENIUM_JAR=selenium-server-standalone-2.37.0.jar
+            # Retrieve the latest available selenium server
+            URL="https://selenium-release.storage.googleapis.com"
+            SRC="$(curl $URL)"
+            SELENIUM_VERSION=$(echo "$SRC" | grep -oP '[\.0-9]*(?=/selenium-server-standalone)' | awk '{max=$1;if($1>max) {max=$1};} END {print max}')
+            SELENIUM_JAR=selenium-server-standalone-${SELENIUM_VERSION}.0.jar 
 
             sudo yum install -y wget unzip xorg-x11-server-Xvfb
 
