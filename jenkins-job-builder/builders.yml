@@ -26,8 +26,8 @@
             DEPS="$DEPS util-linux which xz"
             # install all the RPMs
             sudo dnf erase -y 'freeipa-*' || :
-            sudo dnf --refresh distro-sync -y --enablerepo '*updates-testing'
-            sudo dnf --refresh install -y rpm-build $DEPS --enablerepo '*updates-testing'
+            sudo dnf --refresh update -y
+            sudo dnf install -y rpm-build $DEPS
         - shell: "rpm -qa | sort"
 
 - builder:
@@ -47,9 +47,8 @@
         - shell: "sudo dnf remove -y 'freeipa-*' || :"
         - shell: "more /etc/yum.repos.d/* | cat"
         - shell: |
-            sudo dnf clean all --enablerepo '*'
-            sudo dnf distro-sync -y --enablerepo '*updates-testing'
-            sudo dnf install -y freeipa-server* python2-ipatests bind-dyndb-ldap --enablerepo '*updates-testing'
+            sudo dnf --refresh update -y
+            sudo dnf install -y freeipa-server* python-ipatests bind-dyndb-ldap
         - shell: "rpm -qa | sort"
 
 - builder:
@@ -141,10 +140,13 @@
     builders:
         - shell: "sudo dnf install -y createrepo_c"
         - shell: |
-            rm -fr /tmp/freeipa-build || :
-            mkdir -p /tmp/freeipa-build
-            cp dist/rpms/* /tmp/freeipa-build
-            createrepo_c /tmp/freeipa-build
+            export REPO_DEST="/tmp/freeipa-build"
+            export RPM_DIR="dist/rpms"
+            rm -fr "$REPO_DEST" || :
+            mkdir -p "$REPO_DEST"
+            find "$RPM_DIR" -type f -name 'freeipa-debuginfo-*.rpm' -execdir cp -t "${REPO_DEST}/debug" {} +
+            find "$RPM_DIR" -type f ! -name '*debuginfo*.rpm' -execdir cp -t "${REPO_DEST}" {} +
+            find "$RPM_DIR" -type d -execdir createrepo_c {} +
         - shell: |
             cat > /tmp/freeipa-local.repo <<EOF
             [freeipa-local]
@@ -152,11 +154,14 @@
             baseurl=file:///tmp/freeipa-build/
             enabled=1
             gpgcheck=0
+
+            [freeipa-local-debug]
+            name=freeipa-local-debug
+            baseurl=file:///tmp/freeipa-build/debug/
+            enabled=0
+            gpgcheck=0
             EOF
             sudo mv /tmp/freeipa-local.repo /etc/yum.repos.d/
-        - shell: |
-            sudo dnf makecache fast
-
 
 - builder:
     name: clean-user-configuration
@@ -189,3 +194,13 @@
             wget -O ./shutdown-hosts $FREEIPACI_SHUTDOWN_HOSTS_URL
             chmod +x ./shutdown-hosts
             ./shutdown-hosts < test-config.yaml
+
+- builder:
+    name: disable-updates-testing
+    builders:
+        - shell: sudo dnf config-manager --set-disabled updates-testing
+
+- builder:
+    name: enable-updates-testing
+    builders:
+        - shell: sudo dnf config-manager --set-enabled updates-testing
