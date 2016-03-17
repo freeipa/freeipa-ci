@@ -4,6 +4,11 @@
         - '{prefix}-released-bits-{os}'
         - '{prefix}-koji-bits-{os}'
 
+- job-group:
+    name: koji-build
+    jobs:
+        - '{prefix}-koji-bits-{os}'
+
 - job-template:
     name: '{prefix}-released-bits-{os}'
     node: 'freeipa-runner-{os}'
@@ -18,9 +23,10 @@
         - clean-up-environment
         - clean-user-configuration
         - shell: |
-            sudo dnf copr disable -y mkosek/freeipa-master || :
-            sudo dnf clean all || :
-            sudo dnf distro-sync -y --enablerepo '*updates-testing'
+            for repo in "{copr-repos}" ; do
+                sudo dnf copr disable -y "$repo" || :
+            done
+            sudo dnf --refresh update -y --enablerepo '*updates-testing'
             sudo dnf install -y 'freeipa-*' || :
         - install:
             options-dns-setup: "{options-dns-setup}"
@@ -55,15 +61,12 @@
         - clean-up-environment
         - clean-user-configuration
         - shell: |
-            sudo dnf copr disable -y mkosek/freeipa-master || :
-            sudo dnf clean all || :
-            sudo dnf distro-sync -y --enablerepo '*updates-testing'
-        - shell: |
-            mkdir koji
-            pushd koji
-            koji download-build --latestfrom="{os}-updates-testing" freeipa --arch=$(uname -i)
-            popd
-            sudo dnf install -y koji/freeipa-*.rpm
+            for repo in "{copr-repos}" ; do
+                sudo dnf copr disable -y "$repo" || :
+            done
+            sudo dnf --refresh update -y --enablerepo '*updates-testing'
+        - download-koji-packages:
+            koji-builds: "{koji-builds}"
         - install:
             options-dns-setup: "{options-dns-setup}"
             options-ca-setup: "{options-ca-setup}"
@@ -101,9 +104,10 @@
         - clean-up-environment
         - clean-user-configuration
         - shell: |
-            sudo dnf copr disable -y mkosek/freeipa-master || :
-            sudo dnf clean all || :
-            sudo dnf distro-sync -y --enablerepo '*updates-testing'
+            for repo in "{copr-repos}" ; do
+                sudo dnf copr disable -y "$repo" || :
+            done
+            sudo dnf --refresh update -y --enablerepo '*updates-testing'
             sudo dnf copr enable -y '{test-copr-repo}'
             sudo dnf install -y 'freeipa-server*' python2-ipatests --enablerepo '*updates-testing'|| :
         - install:
