@@ -143,12 +143,12 @@
             export REPO_DEST="/tmp/freeipa-build"
             export RPM_DIR="dist/rpms"
             rm -fr "$REPO_DEST" || :
-            mkdir -p "$REPO_DEST"
-            find "$RPM_DIR" -type f -name 'freeipa-debuginfo-*.rpm' -execdir cp -t "${REPO_DEST}/debug" {} +
-            find "$RPM_DIR" -type f ! -name '*debuginfo*.rpm' -execdir cp -t "${REPO_DEST}" {} +
+            mkdir -p "$REPO_DEST/debug"
+            find "$RPM_DIR" -type f -name 'freeipa-debuginfo-*.rpm' -execdir cp -t "$REPO_DEST/debug" {} +
+            find "$RPM_DIR" -type f ! -name '*debuginfo*.rpm' -execdir cp -t "$REPO_DEST" {} +
             find "$RPM_DIR" -type d -execdir createrepo_c {} +
         - shell: |
-            cat > /tmp/freeipa-local.repo <<EOF
+            cat > /tmp/freeipa-build.repo <<EOF
             [freeipa-local]
             name=freeipa-local
             baseurl=file:///tmp/freeipa-build/
@@ -161,7 +161,7 @@
             enabled=0
             gpgcheck=0
             EOF
-            sudo mv /tmp/freeipa-local.repo /etc/yum.repos.d/
+            sudo mv /tmp/freeipa-build.repo /etc/yum.repos.d/
 
 - builder:
     name: clean-user-configuration
@@ -204,3 +204,39 @@
     name: enable-updates-testing
     builders:
         - shell: sudo dnf config-manager --set-enabled updates-testing
+
+- builder:
+    name: download-koji-packages
+    builders:
+        - shell: |
+            mkdir koji-download
+            pushd koji-download
+            for BUILD in {koji-builds}; do
+                koji download-build --arch $(uname -i) $BUILD
+            done
+            popd
+        - shell: |
+            export REPO_DEST="/tmp/local-koji-repo"
+            export RPM_DIR="koji-download"
+            rm -fr "$REPO_DEST" || :
+            mkdir -p "$REPO_DEST/debug"
+            find "$RPM_DIR" -type f -name 'freeipa-debuginfo-*.rpm' -execdir cp -t "$REPO_DEST/debug" {} +
+            find "$RPM_DIR" -type f ! -name '*debuginfo*.rpm' -execdir cp -t "$REPO_DEST" {} +
+            find "$RPM_DIR" -type d -execdir createrepo_c {} +
+        - shell: |
+            cat > /tmp/local-koji.repo <<EOF
+            [koji-local]
+            name=koji-local
+            baseurl=file:///tmp/local-koji-repo/
+            enabled=1
+            gpgcheck=0
+
+            [koji-local-debug]
+            name=koji-local-debug
+            baseurl=file:///tmp/local-koji-repo/debug/
+            enabled=0
+            gpgcheck=0
+            EOF
+            sudo mv /tmp/local-koji.repo /etc/yum.repos.d/
+        - shell: |
+            rm -fr koji-download

@@ -19,7 +19,6 @@
             git-branch: "{git-branch}"
             copr-repos: "{copr-repos}"
         - build-rpms
-        - createrepo
     publishers:
         - mail-on-fail:
             report-mail-address: '{report-mail-address}'
