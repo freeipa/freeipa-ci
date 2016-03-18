@@ -12,12 +12,15 @@
     wrappers:
         - workspace-cleanup
     builders:
+        - configure-updates-testing:
+            enable-updates-testing: "{enable-updates-testing}"
         - install-builddeps:
             prefix: "{prefix}"
             project: "{project}"
             os: "{os}"
             git-branch: "{git-branch}"
             copr-repos: "{copr-repos}"
+        - disable-updates-testing
         - build-rpms
     publishers:
         - mail-on-fail:
@@ -53,12 +56,15 @@
     builders:
         - clean-up-environment
         - clean-user-configuration
+        - configure-updates-testing:
+            enable-updates-testing: "{enable-updates-testing}"
         - install-built-rpms:
             prefix: "{prefix}"
             project: "{project}"
             os: "{os}"
             git-branch: "{git-branch}"
             copr-repos: "{copr-repos}"
+        - disable-updates-testing
         - shell: |
             # We're running in-tree tests, but we get compiled files from RPMs
             cp /usr/lib/python2.7/site-packages/ipapython/version.py ipapython/version.py
@@ -102,12 +108,15 @@
     builders:
         - clean-up-environment
         - clean-user-configuration
+        - configure-updates-testing:
+            enable-updates-testing: "{enable-updates-testing}"
         - install-built-rpms:
             prefix: "{prefix}"
             project: "{project}"
             os: "{os}"
             git-branch: "{git-branch}"
             copr-repos: "{copr-repos}"
+        - disable-updates-testing
         - install:
             options-dns-setup: "{options-dns-setup}"
             options-ca-setup: "{options-ca-setup}"
@@ -137,12 +146,15 @@
         - workspace-cleanup
     builders:
         - clean-up-environment
+        - configure-updates-testing:
+            enable-updates-testing: "{enable-updates-testing}"
         - install-built-rpms:
             prefix: "{prefix}"
             project: "{project}"
             os: "{os}"
             git-branch: "{git-branch}"
             copr-repos: "{copr-repos}"
+        - disable-updates-testing
         - download-certificate
         - install:
             options-dns-setup: "{options-dns-setup}"
@@ -175,15 +187,18 @@
         - workspace-cleanup
     builders:
         - clean-up-environment
+        - configure-updates-testing:
+            enable-updates-testing: "{enable-updates-testing}"
         - install-built-rpms:
             prefix: "{prefix}"
             project: "{project}"
             os: "{os}"
             git-branch: "{git-branch}"
             copr-repos: "{copr-repos}"
+        - disable-updates-testing
         - prepare-controller
         - shell: |
-            ./prepare-hosts <<END_YAML_FILE > test-config.yaml
+            ENABLE_UPDATES_TESTING={enable-updates-testing} IPABRANCH={git-branch} ./prepare-hosts <<END_YAML_FILE > test-config.yaml
             _os: {os}
             {config_template}
             END_YAML_FILE
@@ -258,12 +273,15 @@
     wrappers:
         - workspace-cleanup
     builders:
+        - configure-updates-testing:
+            enable-updates-testing: "{enable-updates-testing}"
         - install-built-rpms:
             prefix: "{prefix}"
             project: "{project}"
             os: "{os}"
             git-branch: "{git-branch}"
             copr-repos: "{copr-repos}"
+        - disable-updates-testing
         - shell: "sudo dnf check-update --disablerepo='mkosek-freeipa*' -x 'freeipa-*'"
         - shell: "rpm -qa | sort"
     publishers:

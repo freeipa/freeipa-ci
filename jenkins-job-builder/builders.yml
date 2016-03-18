@@ -164,6 +164,19 @@
             sudo mv /tmp/freeipa-build.repo /etc/yum.repos.d/
 
 - builder:
+    name: configure-updates-testing
+    builders:
+        - shell: |
+            [ "{enable-updates-testing}" == "True" ] && sudo dnf config-manager --set-enabled updates-testing
+
+- builder:
+    name: disable-updates-testing
+    builders:
+        - shell: |
+            sudo dnf config-manager --set-disabled updates-testing
+
+
+- builder:
     name: clean-user-configuration
     builders:
         - shell: |
@@ -195,15 +208,6 @@
             chmod +x ./shutdown-hosts
             ./shutdown-hosts < test-config.yaml
 
-- builder:
-    name: disable-updates-testing
-    builders:
-        - shell: sudo dnf config-manager --set-disabled updates-testing
-
-- builder:
-    name: enable-updates-testing
-    builders:
-        - shell: sudo dnf config-manager --set-enabled updates-testing
 
 - builder:
     name: download-koji-packages

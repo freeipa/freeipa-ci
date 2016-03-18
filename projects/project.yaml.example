@@ -16,6 +16,9 @@
     report-mail-address: your.email@example
     copr-repos:
         - mkosek/freeipa-master
+    enable-updates-testing: true
     jobs:
         - build-and-check
         - docs
+
+# vi: set ft=yaml :
