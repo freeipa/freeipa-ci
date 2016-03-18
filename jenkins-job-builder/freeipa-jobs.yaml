@@ -189,12 +189,18 @@
             END_YAML_FILE
             cat test-config.yaml
         - shell: |
+            rm -fr test_logs || :
+            mkdir test_logs
+        - shell: |
             export IPATEST_YAML_CONFIG=$(realpath ./test-config.yaml)
             ipa-test-config --yaml
-            ipa-run-tests --with-xunit {suite} --logging-level=DEBUG || :
+            ipa-run-tests --with-xunit {suite} --logging-level=DEBUG --logfile-dir=test_logs || :
         - destroy-hosts
     publishers:
         - nosetests-xunit
+        - archive:
+            artifacts: 'test_logs/**'
+            allow-empty: true
         - mail-on-fail:
             report-mail-address: '{report-mail-address}'
 
