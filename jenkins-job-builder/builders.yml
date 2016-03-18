@@ -244,3 +244,24 @@
             sudo mv /tmp/local-koji.repo /etc/yum.repos.d/
         - shell: |
             rm -fr koji-download
+
+- builder:
+    # This builder downloads all non-source packages into
+    # dist/rpms directory
+    # It is a hack around the provisioning scripts that expect
+    # built rpms on some location
+    name: download-copr-repo-content
+    builders:
+        - shell: |
+            set -x
+
+            COPR_URL="{copr-base-url}"
+            BUILD_ID="{copr-build-id}"
+            DEST_PATH="dist/rpms"
+
+            BASE_URL="${COPR_URL}/${BUILD_ID}-freeipa/"
+            BUILD_LOG_URL="${BASE_URL}/build-${BUILD_ID}.rsync.log"
+
+            rm -fr $DEST_PATH || :
+            mkdir -p $DEST_PATH
+            curl $BUILD_LOG_URL | grep "rpm$" | grep -v src | xargs -n 1 -I "rpmname" curl -o $DEST_PATH/rpmname "$BASE_URL/"rpmname

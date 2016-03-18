@@ -10,6 +10,40 @@
         - '{prefix}-koji-bits-{os}'
 
 - job-template:
+    name: '{prefix}-copr-build-{project}'
+    node: freeipa-builder-{os}
+    defaults: global
+    description: |
+        Copy copr repo for use with integration tests.
+        This job is a workaround for the provisioning scripts.
+    wrappers:
+        - workspace-cleanup
+    builders:
+        - configure-updates-testing:
+            enable-updates-testing: "{enable-updates-testing}"
+        - download-copr-repo-content:
+            copr-base-url: "{copr-base-url}"
+            copr-build-id: "{copr-build-id}"
+        - install-builddeps:
+            prefix: "{prefix}"
+            project: "{project}"
+            os: "{os}"
+            git-branch: "{git-branch}"
+            copr-repos: "{copr-repos}"
+        - disable-updates-testing
+        - build-rpms
+    publishers:
+        - mail-on-fail:
+            report-mail-address: '{report-mail-address}'
+        - archive:
+            artifacts: 'dist/rpms/**'
+        - fingerprint:
+            record-artifacts: true
+        - trigger:
+            project: '{prefix}-check-deps-{project}'
+            threshold: SUCCESS
+
+- job-template:
     name: '{prefix}-released-bits-{os}'
     node: 'freeipa-runner-{os}'
     defaults: global
