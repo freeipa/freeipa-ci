@@ -25,7 +25,7 @@
                 if [ ! -f $SELENIUM_JAR ]
                 then
                     echo "Downloading Selenium server"
-                    wget http://selenium.googlecode.com/files/$SELENIUM_JAR
+                    curl -O  http://selenium-release.storage.googleapis.com/$SELENIUM_VERSION/$SELENIUM_JAR
                 fi
 
                 if [ ! -f $SELENIUM_SERVER_DIR/selenium-server.jar ]
