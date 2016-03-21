@@ -148,7 +148,7 @@
             find "$RPM_DIR" -type f ! -name '*debuginfo*.rpm' -execdir cp -t "$REPO_DEST" {} +
             find "$REPO_DEST" -type d -execdir createrepo_c {} +
         - shell: |
-            cat > /tmp/freeipa-build.repo <<EOF
+            cat > /tmp/freeipa-local.repo <<EOF
             [freeipa-local]
             name=freeipa-local
             baseurl=file:///tmp/freeipa-build/
@@ -161,7 +161,13 @@
             enabled=0
             gpgcheck=0
             EOF
-            sudo mv /tmp/freeipa-build.repo /etc/yum.repos.d/
+            sudo mv /tmp/freeipa-local.repo /etc/yum.repos.d/
+
+- builder:
+    name: cleanup-repo
+    builders:
+        - shell: |
+            sudo rm -f /etc/yum.repos.d/freeipa-local.repo || echo "Could not delete the repo file."
 
 - builder:
     name: configure-updates-testing
