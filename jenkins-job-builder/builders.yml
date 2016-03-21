@@ -167,7 +167,7 @@
     name: configure-updates-testing
     builders:
         - shell: |
-            [ "{enable-updates-testing}" == "True" ] && sudo dnf config-manager --set-enabled updates-testing
+            [ "{enable-updates-testing}" = "True" ] && sudo dnf config-manager --set-enabled updates-testing
 
 - builder:
     name: disable-updates-testing
