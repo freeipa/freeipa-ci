@@ -88,7 +88,7 @@
             # compensate so ipa-getkeytab can be found
             export PATH=$PATH:/usr/sbin
 
-            ./make-test -v --with-xunit || :
+            ./make-test -v --with-xunit ipatests || :
         - uninstall
         - clean-user-configuration
         - clean-httpd-dir
