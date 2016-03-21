@@ -31,7 +31,7 @@
             only-use-stable-builds-as-reference: true
             total-thresholds:
                 unstable:
-                    total-all: 0
+                    total-all: 17
         - archive:
             artifacts: 'dist/rpms/**'
         - fingerprint:
