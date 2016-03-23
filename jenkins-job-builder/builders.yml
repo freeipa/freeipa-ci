@@ -44,7 +44,7 @@
             project: "{prefix}-build-{project}"
             which-build: upstream-build
             fallback-to-last-successful: true
-        - createrepo
+        - create-local-repo
         - shell: "sudo dnf remove -y 'freeipa-*' || :"
         - shell: "more /etc/yum.repos.d/* | cat"
         - shell: |
@@ -139,7 +139,7 @@
             sudo chown -R jenkins:jenkins $HOME/.ipa
 
 - builder:
-    name: createrepo
+    name: create-local-repo
     builders:
         - shell: "sudo dnf install -y createrepo_c"
         - shell: |
@@ -167,10 +167,11 @@
             sudo mv /tmp/freeipa-local.repo /etc/yum.repos.d/
 
 - builder:
-    name: cleanup-repo
+    name: cleanup-local-repo
     builders:
         - shell: |
             sudo rm -f /etc/yum.repos.d/freeipa-local.repo || echo "Could not delete the repo file."
+            sudo rm -rf /tmp/freeipa-build || echo "Could not delete the repository folder."
 
 - builder:
     name: configure-updates-testing
