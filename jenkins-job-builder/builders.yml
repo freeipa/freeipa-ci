@@ -48,7 +48,7 @@
         - shell: "more /etc/yum.repos.d/* | cat"
         - shell: |
             sudo dnf --refresh update -y
-            sudo dnf install -y freeipa-server* python-ipatests bind-dyndb-ldap
+            sudo dnf install --refresh -y freeipa-server-dns freeipa-server-trust-ad python-ipatests
         - shell: "rpm -qa | sort"
 
 - builder:
@@ -265,8 +265,8 @@
             BUILD_ID="{copr-build-id}"
             DEST_PATH="dist/rpms"
 
-            BASE_URL="${COPR_URL}/${BUILD_ID}-freeipa/"
-            BUILD_LOG_URL="${BASE_URL}/build-${BUILD_ID}.rsync.log"
+            BASE_URL="${{COPR_URL}}/${{BUILD_ID}}-freeipa/"
+            BUILD_LOG_URL="${{BASE_URL}}/build-${{BUILD_ID}}.rsync.log"
 
             rm -fr $DEST_PATH || :
             mkdir -p $DEST_PATH
