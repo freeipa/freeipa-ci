@@ -11,6 +11,7 @@
             noca: False
             nodns: False
             browser: firefox
+
         - '{prefix}-webui-{browser}-{project}-{prettyname}':
             prettyname: no-dns-no-ca
             noca: True
@@ -22,6 +23,7 @@
                 --dirsrv_pkcs12 star-cert.p12 \
                 --http_pin $FREEIPACI_STAR_CERT_PIN --dirsrv_pin $FREEIPACI_STAR_CERT_PIN \
                 --root-ca-file star-cert-ca.crt
+
         - '{prefix}-integration-{project}-{pretty_name}-domlevel-{domain_level}':
             pretty_name: caless
             suite: test_integration/test_caless.py
@@ -38,6 +40,7 @@
                         role: client
                     name: ipa.test
                     type: IPA
+
         - '{prefix}-integration-{project}-{pretty_name}-domlevel-{domain_level}':
             pretty_name: simple_replication
             suite: test_integration/test_simple_replication.py
@@ -52,6 +55,7 @@
                         role: replica
                     name: ipa.test
                     type: IPA
+
         - '{prefix}-integration-{project}-{pretty_name}-domlevel-{domain_level}':
             pretty_name: external_ca
             suite: test_integration/test_external_ca.py
@@ -64,6 +68,7 @@
                         role: master
                     name: ipa.test
                     type: IPA
+
         - '{prefix}-integration-{project}-{pretty_name}-domlevel-{domain_level}':
             pretty_name: forced_client_reenrollment
             suite: test_integration/test_forced_client_reenrollment.py
@@ -169,7 +174,6 @@
                         role: ad_subdomain
                     name: ad.test
                     type: AD
-
 
         - '{prefix}-integration-{project}-{pretty_name}-domlevel-{domain_level}':
             pretty_name: dnssec
@@ -292,6 +296,23 @@
                         role: master
                       - name: replica.ipa.test
                         role: replica
+                      - name: replica.ipa.test
+                        role: replica
+                      - name: replica.ipa.test
+                        role: replica
+                    name: ipa.test
+                    type: IPA
+
+        - '{prefix}-integration-{project}-{pretty_name}-domlevel-{domain_level}':
+            pretty_name: replica_promotion
+            suite: test_integration/test_replica_promotion.py
+            controller_suffix: ''
+            config_template: |
+                domain_level: {domain_level}
+                domains:
+                  - hosts:
+                      - name: master.ipa.test
+                        role: master
                       - name: replica.ipa.test
                         role: replica
                       - name: replica.ipa.test

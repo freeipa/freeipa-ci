@@ -339,6 +339,8 @@
             project: '{prefix}-integration-{project}-installation-domlevel-0'
         - trigger:
             project: '{prefix}-integration-{project}-replication_layouts-domlevel-0'
+        - trigger:
+            project: '{prefix}-integration-{project}-replica_promotion-domlevel-0'
 
         - trigger:
             project: '{prefix}-integration-{project}-simple_replication-domlevel-1'
@@ -376,3 +378,5 @@
             project: '{prefix}-integration-{project}-installation-domlevel-1'
         - trigger:
             project: '{prefix}-integration-{project}-replication_layouts-domlevel-1'
+        - trigger:
+            project: '{prefix}-integration-{project}-replica_promotion-domlevel-1'
