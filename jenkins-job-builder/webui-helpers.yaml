@@ -3,6 +3,7 @@
     builders:
         # See: http://www.freeipa.org/page/Web_UI_Integration_Tests
         - shell: |
+            sudo yum install -y wget unzip xorg-x11-server-Xvfb
             sudo pip install -U selenium
 
             SELENIUM_TMP_DIR=~/selenium
@@ -10,11 +11,9 @@
 
             # Retrieve the latest available selenium server
             URL="https://selenium-release.storage.googleapis.com"
-            SRC="$(curl $URL)"
-            SELENIUM_VERSION=$(echo "$SRC" | grep -oP '[\.0-9]*(?=/selenium-server-standalone)' | awk '{max=$1;if($1>max) {max=$1};} END {print max}')
+            SELENIUM_VERSION=$(curl "$URL" | grep -oP '[\.0-9]*(?=/selenium-server-standalone)' | awk '{max=$1;if($1>max) {max=$1};} END {print max}')
             SELENIUM_JAR=selenium-server-standalone-${SELENIUM_VERSION}.0.jar 
 
-            sudo yum install -y wget unzip xorg-x11-server-Xvfb
 
             mkdir -p $SELENIUM_TMP_DIR
             sudo mkdir -p $SELENIUM_SERVER_DIR
@@ -25,7 +24,7 @@
                 if [ ! -f $SELENIUM_JAR ]
                 then
                     echo "Downloading Selenium server"
-                    curl -O  http://selenium-release.storage.googleapis.com/$SELENIUM_VERSION/$SELENIUM_JAR
+                    curl -O http://selenium-release.storage.googleapis.com/$SELENIUM_VERSION/$SELENIUM_JAR
                 fi
 
                 if [ ! -f $SELENIUM_SERVER_DIR/selenium-server.jar ]
