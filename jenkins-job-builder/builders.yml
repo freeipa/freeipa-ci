@@ -1,20 +1,23 @@
 - builder:
-    name: setup-repos
+    name: setup-copr-repos
     builders:
         - shell: |
-            sudo dnf install -y dnf-plugins-core
             for repo in {copr-repos}; do
                 sudo dnf copr enable -y "$repo"
             done
 
 - builder:
+    name: remove-copr-repos
+    builders:
+        - shell: |
+            for repo in {copr-repos}; do
+                sudo dnf copr remove -y "$repo"
+            done
+
+- builder:
     name: install-builddeps
     builders:
-        - setup-repos:
-            prefix: "{prefix}"
-            project: "{project}"
-            os: "{os}"
-            git-branch: "{git-branch}"
+        - setup-copr-repos:
             copr-repos: "{copr-repos}"
         - shell: |
             # FreeIPA requires:
@@ -28,16 +31,14 @@
             sudo dnf erase -y 'freeipa-*' || :
             sudo dnf --refresh update -y
             sudo dnf install -y rpm-build $DEPS
+        - remove-copr-repos:
+            copr-repos: "{copr-repos}"
         - shell: "rpm -qa | sort"
 
 - builder:
     name: install-built-rpms
     builders:
-        - setup-repos:
-            prefix: "{prefix}"
-            project: "{project}"
-            os: "{os}"
-            git-branch: "{git-branch}"
+        - setup-copr-repos:
             copr-repos: "{copr-repos}"
         - copyartifact:
             project: "{prefix}-build-{project}"
@@ -49,6 +50,8 @@
         - shell: |
             sudo dnf --refresh update -y
             sudo dnf install --refresh -y freeipa-server-dns freeipa-server-trust-ad python-ipatests
+        - remove-copr-repos:
+            copr-repos: "{copr-repos}"
         - shell: "rpm -qa | sort"
 
 - builder:
