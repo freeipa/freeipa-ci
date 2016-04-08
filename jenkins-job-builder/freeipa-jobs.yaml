@@ -189,6 +189,8 @@
     builders:
         - configure-updates-testing:
             enable-updates-testing: "{enable-updates-testing}"
+        - shell: |
+            sudo dnf distro-sync --allowerasing -y
         - install-built-rpms:
             prefix: "{prefix}"
             project: "{project}"
