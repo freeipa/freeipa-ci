@@ -14,8 +14,8 @@
           fail: true
       - timestamps
     logrotate:
-        daysToKeep: 60
-        numToKeep: 100
+        daysToKeep: 14
+        numToKeep: 50
 
 - scm:
     name: freeipa-fedorahosted
