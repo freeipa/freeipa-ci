@@ -55,6 +55,18 @@
         - shell: "rpm -qa | sort"
 
 - builder:
+    name: uninstall-freeipa-packages
+    builders:
+        - shell: |
+            sudo dnf erase -y freeipa-server-* python-ipatests
+
+- builder:
+    name: uninstall-freeipa-packages-soft
+    builders:
+        - shell: |
+            sudo dnf erase -y freeipa-server-* python-ipatests || :
+
+- builder:
     name: build-rpms
     builders:
         - shell: |

@@ -55,15 +55,17 @@
         - workspace-cleanup
     builders:
         - clean-up-environment
+        - uninstall-freeipa-packages-soft
         - clean-user-configuration
         - configure-updates-testing:
             enable-updates-testing: "{enable-updates-testing}"
+        - shell: |
+            sudo dnf distro-sync --allowerasing -y
         - install-built-rpms:
             prefix: "{prefix}"
             project: "{project}"
             copr-repos: "{copr-repos}"
         - disable-updates-testing
-        - cleanup-local-repo
         - shell: |
             # We're running in-tree tests, but we get compiled files from RPMs
             cp /usr/lib/python2.7/site-packages/ipapython/version.py ipapython/version.py
@@ -91,6 +93,8 @@
         - uninstall
         - clean-user-configuration
         - clean-httpd-dir
+        - uninstall-freeipa-packages
+        - cleanup-local-repo
     publishers:
         - nosetests-xunit
         - mail-on-fail:
@@ -106,9 +110,12 @@
         - workspace-cleanup
     builders:
         - clean-up-environment
+        - uninstall-freeipa-packages-soft
         - clean-user-configuration
         - configure-updates-testing:
             enable-updates-testing: "{enable-updates-testing}"
+        - shell: |
+            sudo dnf distro-sync --allowerasing -y
         - install-built-rpms:
             prefix: "{prefix}"
             project: "{project}"
@@ -116,7 +123,6 @@
             git-branch: "{git-branch}"
             copr-repos: "{copr-repos}"
         - disable-updates-testing
-        - cleanup-local-repo
         - install:
             options-dns-setup: "{options-dns-setup}"
             options-ca-setup: "{options-ca-setup}"
@@ -131,6 +137,8 @@
         - uninstall
         - clean-user-configuration
         - clean-httpd-dir
+        - uninstall-freeipa-packages
+        - cleanup-local-repo
     publishers:
         - nosetests-xunit
         - mail-on-fail:
@@ -146,6 +154,7 @@
         - workspace-cleanup
     builders:
         - clean-up-environment
+        - uninstall-freeipa-packages-soft
         - configure-updates-testing:
             enable-updates-testing: "{enable-updates-testing}"
         - install-built-rpms:
@@ -155,7 +164,6 @@
             git-branch: "{git-branch}"
             copr-repos: "{copr-repos}"
         - disable-updates-testing
-        - cleanup-local-repo
         - download-certificate
         - install:
             options-dns-setup: "{options-dns-setup}"
@@ -172,6 +180,8 @@
             ipa-run-tests -v --with-xunit --logging-level=INFO test_webui || :
             kill %1
         - uninstall
+        - uninstall-freeipa-packages
+        - cleanup-local-repo
     publishers:
         - nosetests-xunit
         - mail-on-fail:
@@ -187,6 +197,7 @@
     wrappers:
         - workspace-cleanup
     builders:
+        - uninstall-freeipa-packages-soft
         - configure-updates-testing:
             enable-updates-testing: "{enable-updates-testing}"
         - shell: |
@@ -196,7 +207,6 @@
             project: "{project}"
             copr-repos: "{copr-repos}"
         - disable-updates-testing
-        - cleanup-local-repo
         - prepare-controller
         - shell: |
             ENABLE_UPDATES_TESTING={enable-updates-testing} IPABRANCH={git-branch} ./prepare-hosts <<END_YAML_FILE > test-config.yaml
@@ -212,6 +222,8 @@
             ipa-test-config --yaml
             ipa-run-tests --with-xunit {suite} --logging-level=DEBUG --logfile-dir=$(realpath test_logs) || :
         - destroy-hosts
+        - uninstall-freeipa-packages
+        - cleanup-local-repo
     publishers:
         - nosetests-xunit
         - archive:
@@ -274,6 +286,7 @@
     wrappers:
         - workspace-cleanup
     builders:
+        - uninstall-freeipa-packages-soft
         - configure-updates-testing:
             enable-updates-testing: "{enable-updates-testing}"
         - install-built-rpms:
@@ -284,7 +297,7 @@
             copr-repos: "{copr-repos}"
         - disable-updates-testing
         - cleanup-local-repo
-        - shell: "sudo dnf check-update --disablerepo='mkosek-freeipa*' -x 'freeipa-*'"
+        - shell: "sudo dnf check-update  -x 'freeipa-*'"
         - shell: "rpm -qa | sort"
     publishers:
         - mail-on-fail:
