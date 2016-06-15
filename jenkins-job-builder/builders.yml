@@ -126,19 +126,7 @@
             BASEDN=$(echo $DOMAIN | sed -e 's/\./,dc=/g' -e 's/^/dc=/')
 
             mkdir -p ~/.ipa/
-            echo """
-            [global]
-            basedn = $BASEDN
-            realm = $REALM
-            domain = $DOMAIN
-            xmlrpc_uri = https://$(hostname)/ipa/xml
-            ldap_uri = ldap://$(hostname)
-            enable_ra = True
-            ra_plugin = dogtag
-            in_tree=True
-            wait_for_attr=True
-            wait_for_dns=5
-            """ > ~/.ipa/default.conf
+            cp /etc/ipa/default.conf ~/.ipa/default.conf
 
 - builder:
     name: copy-pw-files
@@ -216,7 +204,6 @@
     name: prepare-controller
     builders:
         - shell: |
-            sudo dnf install -y PyYAML python-requests python-paramiko wget # TODO: move to ansible role
             wget -O ./prepare-hosts $FREEIPACI_PREPARE_HOSTS_URL
             chmod +x ./prepare-hosts
             wget $FREEIPACI_HOSTS_DOMAINS
