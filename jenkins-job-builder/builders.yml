@@ -227,7 +227,7 @@
         - shell: |
             wget -O ./shutdown-hosts $FREEIPACI_SHUTDOWN_HOSTS_URL
             chmod +x ./shutdown-hosts
-            ./shutdown-hosts < test-config.yaml
+            ./shutdown-hosts < test-config.yaml || :
 
 
 - builder:
