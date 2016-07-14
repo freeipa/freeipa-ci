@@ -75,6 +75,7 @@
         - install:
             options-dns-setup: "{options-dns-setup}"
             options-ca-setup: "{options-ca-setup}"
+        - kra-install
         - setup-default-conf
           # - copy-pw-files
         - shell: |
@@ -90,6 +91,7 @@
             export PATH=$PATH:/usr/sbin
 
             ./make-test -v --with-xunit ipatests || :
+        - kra-uninstall
         - uninstall
         - clean-user-configuration
         - clean-httpd-dir
@@ -126,6 +128,7 @@
         - install:
             options-dns-setup: "{options-dns-setup}"
             options-ca-setup: "{options-ca-setup}"
+        - kra-install
         - setup-default-conf
         - copy-pw-files
         - shell: |
@@ -134,6 +137,7 @@
             export PATH=$PATH:/usr/sbin
 
             ipa-run-tests -v --with-xunit || :
+        - kra-uninstall
         - uninstall
         - clean-user-configuration
         - clean-httpd-dir

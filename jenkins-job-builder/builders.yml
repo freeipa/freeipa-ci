@@ -75,6 +75,12 @@
             make rpms
 
 - builder:
+    name: kra-uninstall
+    builders:
+        - shell: |
+            sudo ipa-kra-install --uninstall -U || :
+
+- builder:
     name: uninstall
     builders:
         - shell: |
@@ -115,6 +121,13 @@
                 -U
 
             echo $FREEIPACI_PASSWORD | kinit admin
+
+- builder:
+    name: kra-install
+    builders:
+        - shell: |
+            # kra installation
+            sudo ipa-kra-install -U --password="${FREEIPACI_PASSWORD}"
 
 - builder:
     name: setup-default-conf
