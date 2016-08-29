@@ -90,7 +90,7 @@
             # compensate so ipa-getkeytab can be found
             export PATH=$PATH:/usr/sbin
 
-            ./make-test -v --with-xunit ipatests || :
+            ./make-test -v --with-xunit --ignore ipatests/test_integration --ignore ipatests/test_webui ipatests || :
         - kra-uninstall
         - uninstall
         - clean-user-configuration
@@ -136,7 +136,7 @@
             # compensate so ipa-getkeytab can be found
             export PATH=$PATH:/usr/sbin
 
-            ipa-run-tests -v --with-xunit || :
+            ipa-run-tests -v --with-xunit --ignore test_integration --ignore test_webui || :
         - kra-uninstall
         - uninstall
         - clean-user-configuration
