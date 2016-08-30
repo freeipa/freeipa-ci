@@ -77,14 +77,7 @@
             options-ca-setup: "{options-ca-setup}"
         - kra-install
         - setup-default-conf
-          # - copy-pw-files
-        - shell: |
-            # set up cert
-            rm -rvf ~/.ipa/alias
-            sudo cp -R /etc/httpd/alias ~/.ipa/alias
-            sudo cp  /etc/httpd/alias/pwdfile.txt ~/.ipa/alias/.pwd
-            sudo chown -R jenkins:jenkins ~/.ipa/alias/
-            rm tests/test_xmlrpc/service.crt || :
+        - copy-pw-files
         - shell: |
             # Jenkins sets the PATH to its own default,
             # compensate so ipa-getkeytab can be found

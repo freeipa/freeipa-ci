@@ -144,9 +144,10 @@
     name: copy-pw-files
     builders:
         - shell: |
-            mkdir -p $HOME/.ipa/alias
+            rm -rvf $HOME/.ipa
+            mkdir $HOME/.ipa
             echo $FREEIPACI_PASSWORD > $HOME/.ipa/.dmpw
-            sudo cp /etc/httpd/alias/*.db $HOME/.ipa/alias
+            sudo cp -R /etc/httpd/alias $HOME/.ipa/alias
             sudo cp /etc/httpd/alias/pwdfile.txt $HOME/.ipa/alias/.pwd
             sudo chown -R jenkins:jenkins $HOME/.ipa
 
