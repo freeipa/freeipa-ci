@@ -317,6 +317,8 @@
                         role: replica
                       - name: replica.ipa.test
                         role: replica
+                      - name: client.ipa.test
+                        role: client
                     name: ipa.test
                     type: IPA
 
