@@ -90,8 +90,65 @@
             # compensate so ipa-getkeytab can be found
             export PATH=$PATH:/usr/sbin
 
-            ./make-test -v --with-xunit --ignore ipatests/test_integration --ignore ipatests/test_webui ipatests || :
+            ./make-test -v --with-xunit --ignore ipatests/test_integration --ignore ipatests/test_webui \
+                --ignore ipatests/test_xmlrpc/test_trust_plugin.py \
+                --ignore ipatest/test_xmlrpc/test_external_members.py ipatests || :
         - kra-uninstall
+        - uninstall
+        - clean-user-configuration
+        - clean-httpd-dir
+        - uninstall-freeipa-packages
+        - cleanup-local-repo
+    publishers:
+        - nosetests-xunit
+        - mail-on-fail:
+            report-mail-address: '{report-mail-address}'
+
+- job-template:
+    name: '{prefix}-intree-tests-with-trust-{project}'
+    node: freeipa-runner-{os}
+    defaults: global
+    description: |
+        Run the FreeIPA test suite (sans WebUI & Integration), in-tree.
+    scm:
+        - freeipa-fedorahosted:
+            git-branch: "{git-branch}"
+            git-url: "{git-url}"
+            git-browser-url: "{git-browser-url}"
+    wrappers:
+        - workspace-cleanup
+    builders:
+        - clean-up-environment
+        - uninstall-freeipa-packages-soft
+        - clean-user-configuration
+        - configure-updates-testing:
+            enable-updates-testing: "{enable-updates-testing}"
+        - shell: |
+            sudo dnf distro-sync --allowerasing -y
+        - install-built-rpms:
+            prefix: "{prefix}"
+            project: "{project}"
+            copr-repos: "{copr-repos}"
+        - disable-updates-testing
+        - shell: |
+            # We're running in-tree tests, but we get compiled files from RPMs
+            cp /usr/lib/python2.7/site-packages/ipapython/version.py ipapython/version.py
+            cp /usr/lib/python2.7/site-packages/ipaplatform/services.py ipaplatform/services.py
+            cp /usr/lib/python2.7/site-packages/ipaplatform/paths.py ipaplatform/paths.py
+            cp /usr/lib/python2.7/site-packages/ipaplatform/tasks.py ipaplatform/tasks.py
+        - install:
+            options-dns-setup: "{options-dns-setup}"
+            options-ca-setup: "{options-ca-setup}"
+        - trust-setup
+        - setup-default-conf
+        - copy-pw-files
+        - shell: |
+            # Jenkins sets the PATH to its own default,
+            # compensate so ipa-getkeytab can be found
+            export PATH=$PATH:/usr/sbin
+
+            ./make-test -v --with-xunit ipatests/test_xmlrpc/test_trust_plugin.py \
+                ipatests/test_xmlrpc/test_external_members.py || :
         - uninstall
         - clean-user-configuration
         - clean-httpd-dir
@@ -136,8 +193,56 @@
             # compensate so ipa-getkeytab can be found
             export PATH=$PATH:/usr/sbin
 
-            ipa-run-tests -v --with-xunit --ignore test_integration --ignore test_webui || :
+            ipa-run-tests -v --with-xunit --ignore test_integration --ignore test_webui \
+                --ignore test_xmlrpc/test_trust_plugin.py \
+                --ignore test_xmlrpc/test_external_members.py || :
         - kra-uninstall
+        - uninstall
+        - clean-user-configuration
+        - clean-httpd-dir
+        - uninstall-freeipa-packages
+        - cleanup-local-repo
+    publishers:
+        - nosetests-xunit
+        - mail-on-fail:
+            report-mail-address: '{report-mail-address}'
+
+- job-template:
+    name: '{prefix}-outoftree-tests-with-trust-{project}'
+    node: freeipa-runner-{os}
+    defaults: global
+    description: |
+        Run the FreeIPA test suite (sans WebUI & Integration), out-of-tree.
+    wrappers:
+        - workspace-cleanup
+    builders:
+        - clean-up-environment
+        - uninstall-freeipa-packages-soft
+        - clean-user-configuration
+        - configure-updates-testing:
+            enable-updates-testing: "{enable-updates-testing}"
+        - shell: |
+            sudo dnf distro-sync --allowerasing -y
+        - install-built-rpms:
+            prefix: "{prefix}"
+            project: "{project}"
+            os: "{os}"
+            git-branch: "{git-branch}"
+            copr-repos: "{copr-repos}"
+        - disable-updates-testing
+        - install:
+            options-dns-setup: "{options-dns-setup}"
+            options-ca-setup: "{options-ca-setup}"
+        - trust-setup
+        - setup-default-conf
+        - copy-pw-files
+        - shell: |
+            # Jenkins sets the PATH to its own default,
+            # compensate so ipa-getkeytab can be found
+            export PATH=$PATH:/usr/sbin
+
+            ipa-run-tests -v --with-xunit test_xmlrpc/test_trust_plugin.py \
+                test_xmlrpc/test_external_members.py || :
         - uninstall
         - clean-user-configuration
         - clean-httpd-dir

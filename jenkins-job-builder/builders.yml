@@ -130,6 +130,17 @@
             sudo ipa-kra-install -U --password="${FREEIPACI_PASSWORD}"
 
 - builder:
+    name: trust-setup
+    builders:
+        -shell: |
+           # install trust utility, establish trust
+           sudo ipa-adtrust-install -U --enable-compat --add-sids \
+               -a $FREEIPACI_PASSWORD
+           echo "$FREEIPACI_TRUSTPASS" | ipa trust-add --type ad \
+               $FREEIPACI_TRUSTDOMAIN \
+               --admin Administrator --password --range-type ipa-ad-trust
+
+- builder:
     name: setup-default-conf
     builders:
         - shell: |
