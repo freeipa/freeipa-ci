@@ -85,7 +85,7 @@
 
             ./make-test -v --with-xunit --ignore ipatests/test_integration --ignore ipatests/test_webui \
                 --ignore ipatests/test_xmlrpc/test_trust_plugin.py \
-                --ignore ipatest/test_xmlrpc/test_external_members.py ipatests || :
+                --ignore ipatests/test_xmlrpc/test_external_members.py ipatests || :
         - kra-uninstall
         - uninstall
         - clean-user-configuration
