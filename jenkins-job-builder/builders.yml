@@ -132,7 +132,7 @@
 - builder:
     name: trust-setup
     builders:
-        -shell: |
+        - shell: |
            # install trust utility, establish trust
            sudo ipa-adtrust-install -U --enable-compat --add-sids \
                -a $FREEIPACI_PASSWORD
