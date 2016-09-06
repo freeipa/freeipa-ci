@@ -647,13 +647,13 @@
         - '{prefix}-outoftree-tests-{project}'
         - '{prefix}-intree-tests-with-trust-{project}'
         - '{prefix}-outoftree-tests-with-trust-{project}'
-        - '{prefix}-webui-{browser}-{project}-{prettyname}':
+        - '{prefix}-webui-{browser}-{prettyname}-{project}':
             prettyname: with-dns-with-ca
             noca: False
             nodns: False
             browser: firefox
 
-        - '{prefix}-webui-{browser}-{project}-{prettyname}':
+        - '{prefix}-webui-{browser}-{prettyname}-{project}':
             prettyname: no-dns-no-ca
             noca: True
             nodns: True

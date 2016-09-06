@@ -247,7 +247,7 @@
             report-mail-address: '{report-mail-address}'
 
 - job-template:
-    name: '{prefix}-webui-{browser}-{project}-{prettyname}'
+    name: '{prefix}-webui-{browser}-{prettyname}-{project}'
     node: freeipa-webui-{os}
     defaults: global
     description: |
@@ -457,6 +457,6 @@
         - trigger:
             project: '{prefix}-outoftree-tests-{project}'
         - trigger:
-            project: '{prefix}-webui-firefox-{project}-with-dns-with-ca'
+            project: '{prefix}-webui-firefox-with-dns-with-ca-{project}'
         - trigger:
-            project: '{prefix}-webui-firefox-{project}-no-dns-no-ca'
+            project: '{prefix}-webui-firefox-no-dns-no-ca-{project}'
