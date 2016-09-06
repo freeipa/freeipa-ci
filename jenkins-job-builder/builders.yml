@@ -21,9 +21,9 @@
             copr-repos: "{copr-repos}"
         - shell: |
             # FreeIPA requires:
-            DEPS=$(awk '/^BuildRequires/ {{ print $2 }}' freeipa.spec.in)
+            sudo dnf builddep -y --spec freeipa.spec.in
             # Fedora min build env (https://fedoraproject.org/wiki/Packaging:Guidelines#Exceptions_2)
-            DEPS="$DEPS bash bzip2 coreutils cpio diffutils fedora-release"
+            DEPS="bash bzip2 coreutils cpio diffutils fedora-release"
             DEPS="$DEPS findutils gawk gcc gcc-c++ grep gzip info make patch"
             DEPS="$DEPS redhat-rpm-config rpm-build sed shadow-utils tar unzip"
             DEPS="$DEPS util-linux which xz"
