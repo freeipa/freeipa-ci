@@ -457,6 +457,10 @@
         - trigger:
             project: '{prefix}-outoftree-tests-{project}'
         - trigger:
+            project: '{prefix}-intree-tests-with-trust-{project}'
+        - trigger:
+            project: '{prefix}-outoftree-tests-with-trust-{project}'
+        - trigger:
             project: '{prefix}-webui-firefox-with-dns-with-ca-{project}'
         - trigger:
             project: '{prefix}-webui-firefox-no-dns-no-ca-{project}'
