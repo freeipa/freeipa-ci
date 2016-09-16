@@ -42,6 +42,7 @@
         - trigger:
             project: '{prefix}-check-deps-{project}'
             threshold: SUCCESS
+        - workspace-cleanup
 
 - job-template:
     name: '{prefix}-released-bits-{os}'
@@ -80,6 +81,7 @@
         - nosetests-xunit
         - mail-on-fail:
             report-mail-address: '{report-mail-address}'
+        - workspace-cleanup
 
 - job-template:
     name: '{prefix}-koji-bits-{os}'
@@ -119,6 +121,7 @@
         - nosetests-xunit
         - mail-on-fail:
             report-mail-address: '{report-mail-address}'
+        - workspace-cleanup
 
 - job-group:
     name: copr-build
@@ -164,3 +167,4 @@
         - nosetests-xunit
         - mail-on-fail:
             report-mail-address: '{report-mail-address}'
+        - workspace-cleanup

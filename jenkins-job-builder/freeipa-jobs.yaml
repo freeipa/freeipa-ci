@@ -39,6 +39,7 @@
         - trigger:
             project: '{prefix}-check-deps-{project}'
             threshold: UNSTABLE
+        - workspace-cleanup
 
 - job-template:
     name: '{prefix}-intree-tests-{project}'
@@ -96,6 +97,7 @@
         - nosetests-xunit
         - mail-on-fail:
             report-mail-address: '{report-mail-address}'
+        - workspace-cleanup
 
 - job-template:
     name: '{prefix}-intree-tests-with-trust-{project}'
@@ -151,6 +153,7 @@
         - nosetests-xunit
         - mail-on-fail:
             report-mail-address: '{report-mail-address}'
+        - workspace-cleanup
 
 - job-template:
     name: '{prefix}-outoftree-tests-{project}'
@@ -199,6 +202,7 @@
         - nosetests-xunit
         - mail-on-fail:
             report-mail-address: '{report-mail-address}'
+        - workspace-cleanup
 
 - job-template:
     name: '{prefix}-outoftree-tests-with-trust-{project}'
@@ -245,6 +249,7 @@
         - nosetests-xunit
         - mail-on-fail:
             report-mail-address: '{report-mail-address}'
+        - workspace-cleanup
 
 - job-template:
     name: '{prefix}-webui-{browser}-{prettyname}-{project}'
@@ -288,6 +293,7 @@
         - nosetests-xunit
         - mail-on-fail:
             report-mail-address: '{report-mail-address}'
+        - workspace-cleanup
 
 - job-template:
     name: '{prefix}-integration-{project}-{pretty_name}-domlevel-{domain_level}'
@@ -333,6 +339,7 @@
             allow-empty: true
         - mail-on-fail:
             report-mail-address: '{report-mail-address}'
+        - workspace-cleanup
 
 - job-template:
     name: '{prefix}-timed-integration-{project}-{pretty_name}-domlevel-{domain_level}'
@@ -380,6 +387,7 @@
             allow-empty: true
         - mail-on-fail:
             report-mail-address: '{report-mail-address}'
+        - workspace-cleanup
 
 - job-template:
     name: '{prefix}-stats-{project}'
@@ -423,6 +431,7 @@
         - sloccount:
             report-files: sloccount.sc
             charset: UTF-8
+        - workspace-cleanup
 
 - job-template:
     name: '{prefix}-check-deps-{project}'
@@ -451,7 +460,7 @@
     publishers:
         - mail-on-fail:
             report-mail-address: '{report-mail-address}'
-    publishers:
+        - workspace-cleanup
         - trigger:
             project: '{prefix}-intree-tests-{project}'
         - trigger:
