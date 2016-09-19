@@ -343,6 +343,8 @@
         Run FreeIPA integration tests under {suite}.
     wrappers:
         - workspace-cleanup
+    logrotate:
+        numToKeep: 2
     triggers:
         - timed: "{timed-schedule}"
     builders:
