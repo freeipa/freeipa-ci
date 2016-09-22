@@ -433,7 +433,6 @@
         - sloccount:
             report-files: sloccount.sc
             charset: UTF-8
-        - workspace-cleanup
 
 - job-template:
     name: '{prefix}-check-deps-{project}'
