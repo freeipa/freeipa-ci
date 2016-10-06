@@ -432,8 +432,8 @@
             pretty_name: basic_trust
             suite: test_integration/test_trust.py
             controller_suffix: '-trusts'
+            domain_level: 1
             config_template: |
-                domain_level: {domain_level}
                 domains:
                   - hosts:
                       - name: master.ipa.test
@@ -452,8 +452,8 @@
             pretty_name: legacy_clients
             suite: test_integration/test_legacy_clients.py
             controller_suffix: '-trusts'
+            domain_level: 1
             config_template: |
-                domain_level: {domain_level}
                 domains:
                   - hosts:
                       - name: master.ipa.test
