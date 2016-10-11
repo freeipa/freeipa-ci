@@ -1,0 +1,34 @@
+# integration-test-controllers
+#
+# This file contains builders related to a controller role
+#
+# TODO: describe prerequisites and setup
+
+- builder:
+    # The builer uses the prepare-hosts script
+    # to provision virtual machines to use for the test
+    name: prepare-controller
+    builders:
+        - shell: |
+            wget -O ./prepare-hosts $FREEIPACI_PREPARE_HOSTS_URL
+            chmod +x ./prepare-hosts
+            wget $FREEIPACI_HOSTS_DOMAINS
+            wget $FREEIPACI_HOSTS_STATIC
+
+- builder:
+    # The builder stops and deletes the virtual machines
+    # that were used in the test
+    name: destroy-hosts
+    builders:
+        - shell: |
+            wget -O ./shutdown-hosts $FREEIPACI_SHUTDOWN_HOSTS_URL
+            chmod +x ./shutdown-hosts
+            ./shutdown-hosts || :
+
+- builder:
+    name: download-certificate
+    builders:
+        - shell: |
+            # download certificates for CA less files
+            wget -O star-cert.p12 $FREEIPACI_STAR_CERT
+            wget -O star-cert-ca.crt $FREEIPACI_CA_CERT

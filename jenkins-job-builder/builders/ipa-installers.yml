@@ -1,0 +1,67 @@
+# ipa-installers
+#
+# The file contains builders responsible for installation
+# of individual freeipa components
+
+
+- builder:
+    # Installs the basic freeipa server and acquires admin
+    # kerberos ticket.
+    #
+    # Optionally installs DNS and CA
+    name: install
+    builders:
+        - shell: |
+            # install
+            export DOMAIN=$(hostname -f | sed -e 's/^vm/dom/')
+            REALM=$(echo $DOMAIN | tr '[:lower:]' '[:upper:]')
+            sudo ipa-server-install \
+                {options-dns-setup} \
+                {options-ca-setup} \
+                -p "$FREEIPACI_PASSWORD" -a "$FREEIPACI_PASSWORD" \
+                -r "$REALM" -n "$DOMAIN" \
+                -U
+
+            echo $FREEIPACI_PASSWORD | kinit admin
+
+- builder:
+    name: kra-install
+    builders:
+        - shell: |
+            # kra installation
+            sudo ipa-kra-install -U --password="${FREEIPACI_PASSWORD}"
+
+- builder:
+    name: trust-setup
+    builders:
+        - shell: |
+           # install trust utility, establish trust
+           sudo ipa-adtrust-install -U --enable-compat --add-sids \
+               -a $FREEIPACI_PASSWORD
+           echo "$FREEIPACI_TRUSTPASS" | ipa trust-add --type ad \
+               $FREEIPACI_TRUSTDOMAIN \
+               --admin Administrator --password --range-type ipa-ad-trust
+
+- builder:
+    name: uninstall-freeipa-packages
+    builders:
+        - shell: |
+            sudo dnf erase -y freeipa-server python-ipatests
+
+- builder:
+    name: uninstall-freeipa-packages-soft
+    builders:
+        - shell: |
+            sudo dnf erase -y freeipa-server python-ipatests || :
+
+- builder:
+    name: kra-uninstall
+    builders:
+        - shell: |
+            sudo ipa-kra-install --uninstall -U || :
+
+- builder:
+    name: uninstall
+    builders:
+        - shell: |
+            sudo ipa-server-install --uninstall -U || :

@@ -1,0 +1,85 @@
+# repositories
+#
+# The file contains builders responsible for manipulation
+# of various repositories.
+
+
+- builder:
+    # builder enables a list of COPR repositories
+    # on the node that executes the builder
+    name: setup-copr-repos
+    builders:
+        - shell: |
+            for repo in {copr-repos}; do
+                sudo dnf copr enable -y "$repo"
+            done
+
+- builder:
+    # a pair builder for setup-copr-repos
+    # the builder removes the enabled COPR
+    # repositories during the cleanup.
+    name: remove-copr-repos
+    builders:
+        - shell: |
+            for repo in {copr-repos}; do
+                sudo dnf copr remove -y "$repo"
+            done
+
+- builder:
+    # The builder sets up a local rpm repository on the node
+    # that is executing the builder.
+    #
+    # The builder expects the RPMs to be put to the repository
+    # on a relative path 'dist/rpms'.
+    # All rpms in this directory are used to create a local
+    # repository in /tmp and corresponding repo file is added
+    # to /etc/yum.repos.d/
+    name: create-local-repo
+    builders:
+        - shell: "sudo dnf install -y createrepo_c"
+        - shell: |
+            export REPO_DEST="/tmp/freeipa-build"
+            export RPM_DIR="dist/rpms"
+            rm -fr "$REPO_DEST" || :
+            mkdir -p "$REPO_DEST/debug"
+            find "$RPM_DIR" -type f -name 'freeipa-debuginfo-*.rpm' -execdir cp -t "$REPO_DEST/debug" {} +
+            find "$RPM_DIR" -type f ! -name '*debuginfo*.rpm' -execdir cp -t "$REPO_DEST" {} +
+            find "$REPO_DEST" -type d ! -name 'repodata' -execdir createrepo_c {} +
+        - shell: |
+            cat > /tmp/freeipa-local.repo <<EOF
+            [freeipa-local]
+            name=freeipa-local
+            baseurl=file:///tmp/freeipa-build/
+            enabled=1
+            gpgcheck=0
+
+            [freeipa-local-debug]
+            name=freeipa-local-debug
+            baseurl=file:///tmp/freeipa-build/debug/
+            enabled=0
+            gpgcheck=0
+            EOF
+            sudo mv /tmp/freeipa-local.repo /etc/yum.repos.d/
+
+- builder:
+    # A cleanup builder fir create-local-repo
+    name: cleanup-local-repo
+    builders:
+        - shell: |
+            sudo rm -f /etc/yum.repos.d/freeipa-local.repo || echo "Could not delete the repo file."
+            sudo rm -rf /tmp/freeipa-build || echo "Could not delete the repository folder."
+
+- builder:
+    # Enables updates-testing repository if enable-updates-testing
+    # variable is set to 'True'
+    name: configure-updates-testing
+    builders:
+        - shell: |
+            [ "{enable-updates-testing}" = "True" ] && sudo dnf config-manager --set-enabled updates-testing || :
+
+- builder:
+    # Disables updates testing on the executing node
+    name: disable-updates-testing
+    builders:
+        - shell: |
+            sudo dnf config-manager --set-disabled updates-testing
