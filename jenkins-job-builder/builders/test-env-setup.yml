@@ -1,0 +1,106 @@
+# test-env-setup
+#
+# This file contains builders used to prepare
+# the test environment on the executing node.
+
+
+- builder:
+    # Cleans up the ~/.ipa directory and
+    # recreates it with current global ipa
+    # configuration
+    name: setup-default-conf
+    builders:
+        - shell: |
+            rm -rvf $HOME/.ipa
+            mkdir -p ~/.ipa/
+            cp /etc/ipa/default.conf ~/.ipa/default.conf
+
+- builder:
+    # Prepares the password files for the certificate store
+    # and directory manager account in LDAP
+    name: copy-pw-files
+    builders:
+        - shell: |
+            echo $FREEIPACI_PASSWORD > $HOME/.ipa/.dmpw
+            sudo cp -R /etc/httpd/alias $HOME/.ipa/alias
+            sudo cp /etc/httpd/alias/pwdfile.txt $HOME/.ipa/alias/.pwd
+            sudo chown -R jenkins:jenkins $HOME/.ipa
+
+
+
+
+### Cleaning up the environment
+
+- builder:
+    name: clean-user-configuration
+    builders:
+        - shell: |
+            rm -fr $HOME/.ipa || :
+
+- builder:
+    name: clean-httpd-dir
+    builders:
+        - shell: |
+            sudo rm -fr /etc/httpd/alias
+            sudo rm -fr /etc/httpd/conf/ipa.keytab
+            sudo rm -fr /etc/httpd/conf/password.conf*
+
+- builder:
+    name: clean-up-environment
+    builders:
+        - uninstall
+        - shell: |
+            sudo dnf remove -y 'freeipa-*' || :
+            sudo setenforce 1 || :
+            sudo iptables -F || :
+            sudo systemctl stop dirsrv.target || :
+            sudo pkidestroy -s CA -i pki-tomcat || :
+            sudo systemctl reset-failed pki-tomcatd@pki-tomcat.service || :
+
+### RPM installation
+
+- builder:
+    # Copies the RPMS from an archive on master node
+    name: get-rpms-from-master
+    builders:
+        - copyartifact:
+            project: "{prefix}-build-{project}"
+            which-build: upstream-build
+            fallback-to-last-successful: true
+
+- builder:
+    name: print-repository-info
+    builders:
+        - shell: "more /etc/yum.repos.d/* | cat"
+
+
+- builder:
+    name: install-freeipa-packages
+    builders:
+        - shell: |
+            sudo dnf --refresh update -y
+            sudo dnf install --refresh -y freeipa-server-dns freeipa-server-trust-ad python-ipatests
+
+- builder:
+    # Installs the built RPMS
+    #
+    # The builder is deprecated and will be replaced
+    name: install-built-rpms
+    builders:
+        - setup-copr-repos:
+            copr-repos: "{copr-repos}"
+        - copyartifact:
+            project: "{prefix}-build-{project}"
+            which-build: upstream-build
+            fallback-to-last-successful: true
+        - create-local-repo
+        - shell: "sudo dnf remove -y 'freeipa-*' || :"
+        - shell: "more /etc/yum.repos.d/* | cat"
+        - shell: |
+            sudo dnf --refresh update -y
+            sudo dnf install --refresh -y freeipa-server-dns freeipa-server-trust-ad python-ipatests
+        - remove-copr-repos:
+            copr-repos: "{copr-repos}"
+        - shell: "rpm -qa | sort"
+
+

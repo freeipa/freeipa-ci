@@ -1,0 +1,52 @@
+# ipa-build
+#
+# The file contains builders used to build the
+# freeipa packages from the git source repository
+
+- builder:
+    # The builder installs all build dependencies as
+    # listed in the spec file and basic build tools required
+    #
+    # The builder is deprecated
+    name: install-builddeps
+    builders:
+        - setup-copr-repos:
+            copr-repos: "{copr-repos}"
+        - shell: |
+            # FreeIPA requires:
+            sudo dnf builddep -y --spec freeipa.spec.in
+            # Fedora min build env (https://fedoraproject.org/wiki/Packaging:Guidelines#Exceptions_2)
+            DEPS="bash bzip2 coreutils cpio diffutils fedora-release"
+            DEPS="$DEPS findutils gawk gcc gcc-c++ grep gzip info make patch"
+            DEPS="$DEPS redhat-rpm-config rpm-build sed shadow-utils tar unzip"
+            DEPS="$DEPS util-linux which xz"
+            # install all the RPMs
+            sudo dnf erase -y 'freeipa-*' || :
+            sudo dnf --refresh update -y
+            sudo dnf install -y rpm-build $DEPS
+        - remove-copr-repos:
+            copr-repos: "{copr-repos}"
+        - shell: "rpm -qa | sort"
+
+
+- builder:
+    # The builder installs build requirements
+    # of freeipa project
+    #
+    # The builder does not set up its own required repositories.
+    name: install-freeipa-builddeps
+    builders:
+        - shell: |
+            # FreeIPA requires:
+            sudo dnf builddep -y --spec freeipa.spec.in
+
+- builder:
+    # The builder builds RPMs in the git tree with customized
+    # version value
+    name: build-rpms
+    builders:
+        - shell: |
+            git clean -fxd
+            echo $(date -u +%Y%m%d%H%M%SZ)jenkins${BUILD_NUMBER}git$(git rev-parse --short HEAD) > RELEASE
+            make rpms
+

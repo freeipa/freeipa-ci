@@ -1,0 +1,64 @@
+# content-downloads
+#
+# The module contains builders that download rpms
+# from several types of repo hosting services
+#
+# The module is deprecated. New automation allows
+# to use external repositories directly.
+
+- builder:
+    name: download-koji-packages
+    builders:
+        - shell: |
+            mkdir koji-download
+            pushd koji-download
+            for BUILD in {koji-builds}; do
+                koji download-build --arch $(uname -i) $BUILD
+            done
+            popd
+        - shell: |
+            export REPO_DEST="/tmp/local-koji-repo"
+            export RPM_DIR="koji-download"
+            rm -fr "$REPO_DEST" || :
+            mkdir -p "$REPO_DEST/debug"
+            find "$RPM_DIR" -type f -name 'freeipa-debuginfo-*.rpm' -execdir cp -t "$REPO_DEST/debug" {} +
+            find "$RPM_DIR" -type f ! -name '*debuginfo*.rpm' -execdir cp -t "$REPO_DEST" {} +
+            find "$RPM_DIR" -type d ! -name repodata -execdir createrepo_c {} +
+        - shell: |
+            cat > /tmp/local-koji.repo <<EOF
+            [koji-local]
+            name=koji-local
+            baseurl=file:///tmp/local-koji-repo/
+            enabled=1
+            gpgcheck=0
+
+            [koji-local-debug]
+            name=koji-local-debug
+            baseurl=file:///tmp/local-koji-repo/debug/
+            enabled=0
+            gpgcheck=0
+            EOF
+            sudo mv /tmp/local-koji.repo /etc/yum.repos.d/
+        - shell: |
+            rm -fr koji-download
+
+- builder:
+    # This builder downloads all non-source packages into
+    # dist/rpms directory
+    # It is a hack around the provisioning scripts that expect
+    # built rpms on some location
+    name: download-copr-repo-content
+    builders:
+        - shell: |
+            set -x
+
+            COPR_URL="{copr-base-url}"
+            BUILD_ID="{copr-build-id}"
+            DEST_PATH="dist/rpms"
+
+            BASE_URL="${{COPR_URL}}/${{BUILD_ID}}-freeipa/"
+            BUILD_LOG_URL="${{BASE_URL}}/build-${{BUILD_ID}}.rsync.log"
+
+            rm -fr $DEST_PATH || :
+            mkdir -p $DEST_PATH
+            curl $BUILD_LOG_URL | grep "rpm$" | grep -v src | xargs -n 1 -I "rpmname" curl -o $DEST_PATH/rpmname "$BASE_URL/"rpmname
