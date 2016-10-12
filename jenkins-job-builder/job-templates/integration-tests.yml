@@ -81,6 +81,10 @@
             {config_template}
             END_YAML_FILE
             cat test-config.yaml
+        - prepare-inventory-config:
+            enable-updates-testing: "{enable-updates-testing}"
+            copr-repos: "{copr-repos}"
+        - install-packages-on-dynamic-hosts
         - shell: |
             rm -fr test_logs || :
             mkdir test_logs
