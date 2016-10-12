@@ -12,15 +12,18 @@
         - clean-user-configuration
         - configure-updates-testing:
             enable-updates-testing: "{enable-updates-testing}"
+        - setup-copr-repos:
+            copr-repos: "{copr-repos}"
         - shell: |
             sudo dnf distro-sync --allowerasing -y
-        - install-built-rpms:
+        - prepare-local-repo:
             prefix: "{prefix}"
             project: "{project}"
-            os: "{os}"
-            git-branch: "{git-branch}"
-            copr-repos: "{copr-repos}"
+        - install-freeipa-packages
+        # repositories cleanup
         - disable-updates-testing
+        - remove-copr-repos:
+            copr-repos: "{copr-repos}"
         - install:
             options-dns-setup: "{options-dns-setup}"
             options-ca-setup: "{options-ca-setup}"
@@ -61,15 +64,18 @@
         - clean-user-configuration
         - configure-updates-testing:
             enable-updates-testing: "{enable-updates-testing}"
+        - setup-copr-repos:
+            copr-repos: "{copr-repos}"
         - shell: |
             sudo dnf distro-sync --allowerasing -y
-        - install-built-rpms:
+        - prepare-local-repo:
             prefix: "{prefix}"
             project: "{project}"
-            os: "{os}"
-            git-branch: "{git-branch}"
-            copr-repos: "{copr-repos}"
+        - install-freeipa-packages
+        # repositories cleanup
         - disable-updates-testing
+        - remove-copr-repos:
+            copr-repos: "{copr-repos}"
         - install:
             options-dns-setup: "{options-dns-setup}"
             options-ca-setup: "{options-ca-setup}"

@@ -11,13 +11,16 @@
         - uninstall-freeipa-packages-soft
         - configure-updates-testing:
             enable-updates-testing: "{enable-updates-testing}"
-        - install-built-rpms:
+        - setup-copr-repos:
+            copr-repos: "{copr-repos}"
+        - prepare-local-repo:
             prefix: "{prefix}"
             project: "{project}"
-            os: "{os}"
-            git-branch: "{git-branch}"
-            copr-repos: "{copr-repos}"
+        - install-freeipa-packages
+        # repositories cleanup
         - disable-updates-testing
+        - remove-copr-repos:
+            copr-repos: "{copr-repos}"
         - download-certificate
         - install:
             options-dns-setup: "{options-dns-setup}"

@@ -27,8 +27,6 @@
             sudo chown -R jenkins:jenkins $HOME/.ipa
 
 
-
-
 ### Cleaning up the environment
 
 - builder:
@@ -71,36 +69,30 @@
 - builder:
     name: print-repository-info
     builders:
-        - shell: "more /etc/yum.repos.d/* | cat"
+        - shell: "sudo dnf repolist"
 
+
+- builder:
+    name: list-installed-rpms
+    builders:
+        - shell: "rpm -qa | sort"
+
+
+- builder:
+    # Fetches RPMS from master node (artifacts)
+    # and prepares local repository
+    name: prepare-local-repo
+    builders:
+        - get-rpms-from-master:
+            prefix: "{prefix}"
+            project: "{project}"
+        - create-local-repo
 
 - builder:
     name: install-freeipa-packages
     builders:
+        - print-repository-info
         - shell: |
             sudo dnf --refresh update -y
             sudo dnf install --refresh -y freeipa-server-dns freeipa-server-trust-ad python-ipatests
-
-- builder:
-    # Installs the built RPMS
-    #
-    # The builder is deprecated and will be replaced
-    name: install-built-rpms
-    builders:
-        - setup-copr-repos:
-            copr-repos: "{copr-repos}"
-        - copyartifact:
-            project: "{prefix}-build-{project}"
-            which-build: upstream-build
-            fallback-to-last-successful: true
-        - create-local-repo
-        - shell: "sudo dnf remove -y 'freeipa-*' || :"
-        - shell: "more /etc/yum.repos.d/* | cat"
-        - shell: |
-            sudo dnf --refresh update -y
-            sudo dnf install --refresh -y freeipa-server-dns freeipa-server-trust-ad python-ipatests
-        - remove-copr-repos:
-            copr-repos: "{copr-repos}"
-        - shell: "rpm -qa | sort"
-
-
+        - list-installed-rpms

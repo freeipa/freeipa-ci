@@ -11,13 +11,16 @@
         - uninstall-freeipa-packages-soft
         - configure-updates-testing:
             enable-updates-testing: "{enable-updates-testing}"
+        - setup-copr-repos:
+            copr-repos: "{copr-repos}"
         - shell: |
             sudo dnf distro-sync --allowerasing -y
-        - install-built-rpms:
+        - prepare-local-repo:
             prefix: "{prefix}"
             project: "{project}"
-            copr-repos: "{copr-repos}"
         - disable-updates-testing
+        - remove-copr-repos:
+            copr-repos: "{copr-repos}"
         - prepare-controller
         - shell: |
             ENABLE_UPDATES_TESTING={enable-updates-testing} IPABRANCH={git-branch} ./prepare-hosts <<END_YAML_FILE > test-config.yaml
@@ -61,13 +64,16 @@
         - uninstall-freeipa-packages-soft
         - configure-updates-testing:
             enable-updates-testing: "{enable-updates-testing}"
+        - setup-copr-repos:
+            copr-repos: "{copr-repos}"
         - shell: |
             sudo dnf distro-sync --allowerasing -y
-        - install-built-rpms:
+        - prepare-local-repo:
             prefix: "{prefix}"
             project: "{project}"
-            copr-repos: "{copr-repos}"
         - disable-updates-testing
+        - remove-copr-repos:
+            copr-repos: "{copr-repos}"
         - prepare-controller
         - shell: |
             ENABLE_UPDATES_TESTING={enable-updates-testing} IPABRANCH={git-branch} ./prepare-hosts <<END_YAML_FILE > test-config.yaml
