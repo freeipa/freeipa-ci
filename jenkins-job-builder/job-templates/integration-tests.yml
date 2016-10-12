@@ -1,0 +1,96 @@
+- job-template:
+    name: '{prefix}-integration-{project}-{pretty_name}-domlevel-{domain_level}'
+    node: freeipa-controller-{os}{controller_suffix}
+    defaults: global
+    concurrent: false
+    description: |
+        Run FreeIPA integration tests under {suite}.
+    wrappers:
+        - workspace-cleanup
+    builders:
+        - uninstall-freeipa-packages-soft
+        - configure-updates-testing:
+            enable-updates-testing: "{enable-updates-testing}"
+        - shell: |
+            sudo dnf distro-sync --allowerasing -y
+        - install-built-rpms:
+            prefix: "{prefix}"
+            project: "{project}"
+            copr-repos: "{copr-repos}"
+        - disable-updates-testing
+        - prepare-controller
+        - shell: |
+            ENABLE_UPDATES_TESTING={enable-updates-testing} IPABRANCH={git-branch} ./prepare-hosts <<END_YAML_FILE > test-config.yaml
+            _os: {os}
+            {config_template}
+            END_YAML_FILE
+            cat test-config.yaml
+        - shell: |
+            rm -fr test_logs || :
+            mkdir test_logs
+        - shell: |
+            export IPATEST_YAML_CONFIG=$(realpath ./test-config.yaml)
+            ipa-test-config --yaml
+            ipa-run-tests -v -r a --with-xunit {suite} --logging-level=DEBUG --logfile-dir=$(realpath test_logs) || :
+        - destroy-hosts
+        - uninstall-freeipa-packages
+        - cleanup-local-repo
+    publishers:
+        - nosetests-xunit
+        - archive:
+            artifacts: 'test_logs/**'
+            allow-empty: true
+        - mail-on-fail:
+            report-mail-address: '{report-mail-address}'
+        - workspace-cleanup
+
+- job-template:
+    name: '{prefix}-timed-integration-{project}-{pretty_name}-domlevel-{domain_level}'
+    node: freeipa-controller-{os}{controller_suffix}
+    defaults: global
+    concurrent: false
+    description: |
+        Run FreeIPA integration tests under {suite}.
+    wrappers:
+        - workspace-cleanup
+    logrotate:
+        numToKeep: 2
+    triggers:
+        - timed: "{timed-schedule}"
+    builders:
+        - uninstall-freeipa-packages-soft
+        - configure-updates-testing:
+            enable-updates-testing: "{enable-updates-testing}"
+        - shell: |
+            sudo dnf distro-sync --allowerasing -y
+        - install-built-rpms:
+            prefix: "{prefix}"
+            project: "{project}"
+            copr-repos: "{copr-repos}"
+        - disable-updates-testing
+        - prepare-controller
+        - shell: |
+            ENABLE_UPDATES_TESTING={enable-updates-testing} IPABRANCH={git-branch} ./prepare-hosts <<END_YAML_FILE > test-config.yaml
+            _os: {os}
+            {config_template}
+            END_YAML_FILE
+            cat test-config.yaml
+        - shell: |
+            rm -fr test_logs || :
+            mkdir test_logs
+        - shell: |
+            export IPATEST_YAML_CONFIG=$(realpath ./test-config.yaml)
+            ipa-test-config --yaml
+            ipa-run-tests -v -r a --with-xunit {suite} --logging-level=DEBUG --logfile-dir=$(realpath test_logs) || :
+        - destroy-hosts
+        - uninstall-freeipa-packages
+        - cleanup-local-repo
+    publishers:
+        - nosetests-xunit
+        - archive:
+            artifacts: 'test_logs/**'
+            allow-empty: true
+        - mail-on-fail:
+            report-mail-address: '{report-mail-address}'
+        - workspace-cleanup
+

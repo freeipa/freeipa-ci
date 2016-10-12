@@ -1,0 +1,43 @@
+- job-template:
+    name: '{prefix}-webui-{browser}-{prettyname}-{project}'
+    node: freeipa-webui-{os}
+    defaults: global
+    description: |
+        Run the FreeIPA Web UI tests on {browser}.
+    wrappers:
+        - workspace-cleanup
+    builders:
+        - clean-up-environment
+        - uninstall-freeipa-packages-soft
+        - configure-updates-testing:
+            enable-updates-testing: "{enable-updates-testing}"
+        - install-built-rpms:
+            prefix: "{prefix}"
+            project: "{project}"
+            os: "{os}"
+            git-branch: "{git-branch}"
+            copr-repos: "{copr-repos}"
+        - disable-updates-testing
+        - download-certificate
+        - install:
+            options-dns-setup: "{options-dns-setup}"
+            options-ca-setup: "{options-ca-setup}"
+        - install-selenium
+        - install-browser-{browser}
+        - setup-webui-tests:
+            noca: "{noca}"
+            nodns: "{nodns}"
+        - shell: |
+            export DISPLAY=:99
+            /usr/bin/Xvfb $DISPLAY -ac -noreset -screen 0 1400x1200x8 > ~/xvfb-stdout 2> ~/xvfb-stderr &
+            sleep 5
+            ipa-run-tests -v --with-xunit --logging-level=INFO test_webui || :
+            kill %1
+        - uninstall
+        - uninstall-freeipa-packages
+        - cleanup-local-repo
+    publishers:
+        - nosetests-xunit
+        - mail-on-fail:
+            report-mail-address: '{report-mail-address}'
+        - workspace-cleanup

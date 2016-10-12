@@ -1,0 +1,126 @@
+- job-template:
+    name: '{prefix}-stats-{project}'
+    node: master
+    defaults: global
+    description: |
+        Collect some stats on the FreeIPA code
+    scm:
+        - freeipa-fedorahosted:
+            git-branch: "{git-branch}"
+            git-url: "{git-url}"
+            git-browser-url: "{git-browser-url}"
+    triggers:
+        - pollscm: "H/15 * * * *"
+    builders:
+        - shell: |
+            pip install --user flake8
+        - shell: |
+            git clean -ffxd
+            echo -n 'YVALUE=' > pep8.properties
+
+            ~/.local/bin/flake8 --version
+            ~/.local/bin/flake8 . --statistics --count 2>> pep8.properties || :
+        - shell: |
+            /usr/bin/sloccount --duplicates --wide --details . > sloccount.sc
+    publishers:
+        - trigger:
+            project: '{prefix}-build-{project}'
+        - mail-on-fail:
+            report-mail-address: '{report-mail-address}'
+        - plot:
+          - title: PEP8+pyflakes problems
+            yaxis: problems
+            group: stats
+            style: line
+            csv-file-name: flake8-plot.csv
+            series:
+              - file: pep8.properties
+                label: MyLabel
+                format: properties
+        - sloccount:
+            report-files: sloccount.sc
+            charset: UTF-8
+
+- job-template:
+    name: '{prefix}-build-{project}'
+    node: freeipa-builder-{os}
+    defaults: global
+    description: |
+        Build and archive FreeIPA RPMs.
+    scm:
+        - freeipa-fedorahosted:
+            git-branch: "{git-branch}"
+            git-url: "{git-url}"
+            git-browser-url: "{git-browser-url}"
+    wrappers:
+        - workspace-cleanup
+    builders:
+        - configure-updates-testing:
+            enable-updates-testing: "{enable-updates-testing}"
+        - install-builddeps:
+            prefix: "{prefix}"
+            project: "{project}"
+            os: "{os}"
+            git-branch: "{git-branch}"
+            copr-repos: "{copr-repos}"
+        - disable-updates-testing
+        - build-rpms
+    publishers:
+        - mail-on-fail:
+            report-mail-address: '{report-mail-address}'
+        - warnings:
+            console-log-parsers:
+                - GNU Compiler 4 (gcc)
+            only-use-stable-builds-as-reference: true
+            total-thresholds:
+                unstable:
+                    total-all: 17
+        - archive:
+            artifacts: 'dist/rpms/**'
+        - fingerprint:
+            record-artifacts: true
+        - trigger:
+            project: '{prefix}-check-deps-{project}'
+            threshold: UNSTABLE
+        - workspace-cleanup
+
+- job-template:
+    name: '{prefix}-check-deps-{project}'
+    node: freeipa-builder-{os}
+    defaults: global
+    description: |
+        Check that the built RPMs are actually installable.
+
+        (Managed by jenkins-job-builder. Do not edit this job directly.)
+    wrappers:
+        - workspace-cleanup
+    builders:
+        - uninstall-freeipa-packages-soft
+        - configure-updates-testing:
+            enable-updates-testing: "{enable-updates-testing}"
+        - install-built-rpms:
+            prefix: "{prefix}"
+            project: "{project}"
+            os: "{os}"
+            git-branch: "{git-branch}"
+            copr-repos: "{copr-repos}"
+        - disable-updates-testing
+        - cleanup-local-repo
+        - shell: "sudo dnf check-update  -x 'freeipa-*'"
+        - shell: "rpm -qa | sort"
+    publishers:
+        - mail-on-fail:
+            report-mail-address: '{report-mail-address}'
+        - workspace-cleanup
+        - trigger:
+            project: '{prefix}-intree-tests-{project}'
+        - trigger:
+            project: '{prefix}-outoftree-tests-{project}'
+        - trigger:
+            project: '{prefix}-intree-tests-with-trust-{project}'
+        - trigger:
+            project: '{prefix}-outoftree-tests-with-trust-{project}'
+        - trigger:
+            project: '{prefix}-webui-firefox-with-dns-with-ca-{project}'
+        - trigger:
+            project: '{prefix}-webui-firefox-no-dns-no-ca-{project}'
