@@ -32,3 +32,31 @@
             # download certificates for CA less files
             wget -O star-cert.p12 $FREEIPACI_STAR_CERT
             wget -O star-cert-ca.crt $FREEIPACI_CA_CERT
+
+
+- builder:
+    name: prepare-inventory-config
+    builders:
+        - shell: |  # The builder for dynamic inventory. Requires python3
+            echo 'updates-testing: {enable-updates-testing}' > dyndir.conf
+            echo -n 'copr: ' >> dyndir.conf
+            echo '{copr-repos}' | python3 -c 'print(str(input()).split())' >> dyndir.conf
+
+
+- builder:
+    # The builder must be run after the `prepare-hosts` script when the topology
+    # configuration file exists already and after the `prepare-inventory-config`
+    # builder that prepares configuration for the dynamic inventory
+    name: install-packages-on-dynamic-hosts
+    builders:
+        - shell: |
+            export IPATEST_YAML_CONFIG=$(realpath ./test-config.yaml)
+            export IPAQE_DYNDIR_CONFIG=$(realpath ./dyndir.conf)
+
+            if [ -d dist ] ; then
+                ansible-playbook -i $(which ipaqe-dyndir) /usr/share/idm-jenkins-ansible/prepare-integration-hosts.yml \
+                -e 'rpmdir=dist/rpms' --ssh-common-args '-o StrictHostKeyChecking=no' --private-key ~/.ssh/test_ssh_key
+            else
+                ansible-playbook -i $(which ipaqe-dyndir) /usr/share/idm-jenkins-ansible/prepare-integration-hosts.yml \
+                --ssh-common-args '-o StrictHostKeyChecking=no' --private-key ~/.ssh/test_ssh_key
+            fi
