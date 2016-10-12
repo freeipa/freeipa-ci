@@ -57,11 +57,10 @@
     builders:
         - configure-updates-testing:
             enable-updates-testing: "{enable-updates-testing}"
-        - install-builddeps:
-            prefix: "{prefix}"
-            project: "{project}"
-            os: "{os}"
-            git-branch: "{git-branch}"
+        - setup-copr-repos:
+            copr-repos: "{copr-repos}"
+        - install-freeipa-builddeps
+        - remove-copr-repos:
             copr-repos: "{copr-repos}"
         - disable-updates-testing
         - build-rpms
