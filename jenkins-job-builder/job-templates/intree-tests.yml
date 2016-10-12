@@ -17,13 +17,18 @@
         - clean-user-configuration
         - configure-updates-testing:
             enable-updates-testing: "{enable-updates-testing}"
+        - setup-copr-repos:
+            copr-repos: "{copr-repos}"
         - shell: |
             sudo dnf distro-sync --allowerasing -y
-        - install-built-rpms:
+        - prepare-local-repo:
             prefix: "{prefix}"
             project: "{project}"
-            copr-repos: "{copr-repos}"
+        - install-freeipa-packages
+        # repositories cleanup
         - disable-updates-testing
+        - remove-copr-repos:
+            copr-repos: "{copr-repos}"
         - shell: |
             # We're running in-tree tests, but we get compiled files from RPMs
             cp /usr/lib/python2.7/site-packages/ipapython/version.py ipapython/version.py
@@ -75,13 +80,18 @@
         - clean-user-configuration
         - configure-updates-testing:
             enable-updates-testing: "{enable-updates-testing}"
+        - setup-copr-repos:
+            copr-repos: "{copr-repos}"
         - shell: |
             sudo dnf distro-sync --allowerasing -y
-        - install-built-rpms:
+        - prepare-local-repo:
             prefix: "{prefix}"
             project: "{project}"
-            copr-repos: "{copr-repos}"
+        - install-freeipa-packages
+        # repositories cleanup
         - disable-updates-testing
+        - remove-copr-repos:
+            copr-repos: "{copr-repos}"
         - shell: |
             # We're running in-tree tests, but we get compiled files from RPMs
             cp /usr/lib/python2.7/site-packages/ipapython/version.py ipapython/version.py
