@@ -22,6 +22,5 @@
     builders:
         - shell: |
             git clean -fxd
-            echo $(date -u +%Y%m%d%H%M%SZ)jenkins${BUILD_NUMBER}git$(git rev-parse --short HEAD) > RELEASE
             make rpms
 
