@@ -49,7 +49,6 @@
         - uninstall
         - shell: |
             sudo dnf remove -y 'freeipa-*' || :
-            sudo setenforce 1 || :
             sudo iptables -F || :
             sudo systemctl stop dirsrv.target || :
             sudo pkidestroy -s CA -i pki-tomcat || :
