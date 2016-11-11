@@ -13,9 +13,10 @@
           timeout: 30
           fail: true
       - timestamps
-    logrotate:
-        daysToKeep: 14
-        numToKeep: 50
+    properties:
+        - build-discarder:
+              days-to-keep: 14
+              num-to-keep: 50
 
 - scm:
     name: freeipa-fedorahosted
