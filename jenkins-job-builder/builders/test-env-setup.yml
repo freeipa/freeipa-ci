@@ -94,5 +94,5 @@
         - print-repository-info
         - shell: |
             sudo dnf --refresh update -y
-            sudo dnf install --refresh -y freeipa-server-dns freeipa-server-trust-ad python-ipatests
+            sudo dnf install -y freeipa-server-dns freeipa-server-trust-ad python-ipatests
         - list-installed-rpms
