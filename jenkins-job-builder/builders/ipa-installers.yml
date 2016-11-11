@@ -64,4 +64,4 @@
     name: uninstall
     builders:
         - shell: |
-            sudo ipa-server-install --uninstall -U || :
+            sudo ipa-server-install --uninstall -U --ignore-last-of-role || :
