@@ -38,7 +38,9 @@
     name: prepare-inventory-config
     builders:
         - shell: |  # The builder for dynamic inventory. Requires python3
-            echo 'updates-testing: {enable-updates-testing}' > dyndir.conf
+            # Infer the updates-testing option from the current system
+            UPDATES_TESTING=$(dnf config-manager --dump updates-testing | sed -n 's/^enabled = \(.*\)$/\1/p')
+            echo 'updates-testing: $UPDATES_TESTING' > dyndir.conf
             echo -n 'copr: ' >> dyndir.conf
             echo '{copr-repos}' | python3 -c 'print(str(input()).split())' >> dyndir.conf
 

@@ -9,8 +9,6 @@
     builders:
         - clean-up-environment
         - uninstall-freeipa-packages-soft
-        - configure-updates-testing:
-            enable-updates-testing: "{enable-updates-testing}"
         - setup-copr-repos:
             copr-repos: "{copr-repos}"
         - prepare-local-repo:
@@ -18,7 +16,6 @@
             project: "{project}"
         - install-freeipa-packages
         # repositories cleanup
-        - disable-updates-testing
         - remove-copr-repos:
             copr-repos: "{copr-repos}"
         - download-certificate

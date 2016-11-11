@@ -55,14 +55,11 @@
     wrappers:
         - workspace-cleanup
     builders:
-        - configure-updates-testing:
-            enable-updates-testing: "{enable-updates-testing}"
         - setup-copr-repos:
             copr-repos: "{copr-repos}"
         - install-freeipa-builddeps
         - remove-copr-repos:
             copr-repos: "{copr-repos}"
-        - disable-updates-testing
         - build-rpms
     publishers:
         - mail-on-fail:
@@ -95,8 +92,6 @@
         - workspace-cleanup
     builders:
         - uninstall-freeipa-packages-soft
-        - configure-updates-testing:
-            enable-updates-testing: "{enable-updates-testing}"
         - setup-copr-repos:
             copr-repos: "{copr-repos}"
         - prepare-local-repo:
@@ -104,7 +99,6 @@
             project: "{project}"
         - install-freeipa-packages
         # repositories cleanup
-        - disable-updates-testing
         - remove-copr-repos:
             copr-repos: "{copr-repos}"
         - cleanup-local-repo
