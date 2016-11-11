@@ -1,53 +1,4 @@
 - job-template:
-    name: '{prefix}-integration-{project}-{pretty_name}-domlevel-{domain_level}'
-    node: freeipa-controller-{os}{controller_suffix}
-    defaults: global
-    concurrent: false
-    description: |
-        Run FreeIPA integration tests under {suite}.
-    wrappers:
-        - workspace-cleanup
-    builders:
-        - uninstall-freeipa-packages-soft
-        - configure-updates-testing:
-            enable-updates-testing: "{enable-updates-testing}"
-        - setup-copr-repos:
-            copr-repos: "{copr-repos}"
-        - shell: |
-            sudo dnf distro-sync --allowerasing -y
-        - prepare-local-repo:
-            prefix: "{prefix}"
-            project: "{project}"
-        - disable-updates-testing
-        - remove-copr-repos:
-            copr-repos: "{copr-repos}"
-        - prepare-controller
-        - shell: |
-            ENABLE_UPDATES_TESTING={enable-updates-testing} IPABRANCH={git-branch} ./prepare-hosts <<END_YAML_FILE > test-config.yaml
-            _os: {os}
-            {config_template}
-            END_YAML_FILE
-            cat test-config.yaml
-        - shell: |
-            rm -fr test_logs || :
-            mkdir test_logs
-        - shell: |
-            export IPATEST_YAML_CONFIG=$(realpath ./test-config.yaml)
-            ipa-test-config --yaml
-            ipa-run-tests -v -r a --with-xunit {suite} --logging-level=DEBUG --logfile-dir=$(realpath test_logs) || :
-        - destroy-hosts
-        - uninstall-freeipa-packages
-        - cleanup-local-repo
-    publishers:
-        - nosetests-xunit
-        - archive:
-            artifacts: 'test_logs/**'
-            allow-empty: true
-        - mail-on-fail:
-            report-mail-address: '{report-mail-address}'
-        - workspace-cleanup
-
-- job-template:
     name: '{prefix}-timed-integration-{project}-{pretty_name}-domlevel-{domain_level}'
     node: freeipa-controller-{os}{controller_suffix}
     defaults: global
@@ -71,6 +22,60 @@
         - prepare-local-repo:
             prefix: "{prefix}"
             project: "{project}"
+        - install-freeipa-packages
+        - disable-updates-testing
+        - remove-copr-repos:
+            copr-repos: "{copr-repos}"
+        - prepare-controller
+        - shell: |
+            ENABLE_UPDATES_TESTING={enable-updates-testing} IPABRANCH={git-branch} ./prepare-hosts <<END_YAML_FILE > test-config.yaml
+            _os: {os}
+            {config_template}
+            END_YAML_FILE
+            cat test-config.yaml
+        - prepare-inventory-config:
+            enable-updates-testing: "{enable-updates-testing}"
+            copr-repos: "{copr-repos}"
+        - install-packages-on-dynamic-hosts
+        - shell: |
+            rm -fr test_logs || :
+            mkdir test_logs
+        - shell: |
+            export IPATEST_YAML_CONFIG=$(realpath ./test-config.yaml)
+            ipa-test-config --yaml
+            ipa-run-tests -v -r a --with-xunit {suite} --logging-level=DEBUG --logfile-dir=$(realpath test_logs) || :
+        - destroy-hosts
+        - uninstall-freeipa-packages
+        - cleanup-local-repo
+    publishers:
+        - nosetests-xunit
+        - archive:
+            artifacts: 'test_logs/**'
+            allow-empty: true
+        - mail-on-fail:
+            report-mail-address: '{report-mail-address}'
+        - workspace-cleanup
+
+- job-template:
+    name: '{prefix}-nobuild-integration-{project}-{pretty_name}-domlevel-{domain_level}'
+    node: freeipa-controller-{os}{controller_suffix}
+    defaults: global
+    concurrent: false
+    description: |
+        Run FreeIPA integration tests under {suite}.
+    wrappers:
+        - workspace-cleanup
+    logrotate:
+        numToKeep: 2
+    builders:
+        - uninstall-freeipa-packages-soft
+        - configure-updates-testing:
+            enable-updates-testing: "{enable-updates-testing}"
+        - setup-copr-repos:
+            copr-repos: "{copr-repos}"
+        - shell: |
+            sudo dnf distro-sync --allowerasing -y
+        - install-freeipa-packages
         - disable-updates-testing
         - remove-copr-repos:
             copr-repos: "{copr-repos}"
