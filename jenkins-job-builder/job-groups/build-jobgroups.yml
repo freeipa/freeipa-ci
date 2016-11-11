@@ -664,9 +664,3 @@
                 --dirsrv_pkcs12 star-cert.p12 \
                 --http_pin $FREEIPACI_STAR_CERT_PIN --dirsrv_pin $FREEIPACI_STAR_CERT_PIN \
                 --root-ca-file star-cert-ca.crt
-
-- job-group:
-    name: build-and-check-fast-nobuild
-    jobs:
-        - '{prefix}-outoftree-tests-nobuild-{project}'
-        - '{prefix}-outoftree-tests-with-trust-nobuild-{project}'
