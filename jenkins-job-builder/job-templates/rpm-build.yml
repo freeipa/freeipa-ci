@@ -10,7 +10,8 @@
             git-url: "{git-url}"
             git-browser-url: "{git-browser-url}"
     triggers:
-        - pollscm: "H/15 * * * *"
+        - pollscm:
+            cron: "H/15 * * * *"
     builders:
         - shell: |
             pip install --user flake8
