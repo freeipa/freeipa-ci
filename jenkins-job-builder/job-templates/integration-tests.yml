@@ -7,8 +7,9 @@
         Run FreeIPA integration tests under {suite}.
     wrappers:
         - workspace-cleanup
-    logrotate:
-        numToKeep: 2
+    properties:
+        - build-discarder:
+              num-to-keep: 2
     triggers:
         - timed: "{timed-schedule}"
     builders:
@@ -61,8 +62,9 @@
         Run FreeIPA integration tests under {suite}.
     wrappers:
         - workspace-cleanup
-    logrotate:
-        numToKeep: 2
+    properties:
+        - build-discarder:
+             num-to-keep: 2
     builders:
         - uninstall-freeipa-packages-soft
         - setup-copr-repos:
