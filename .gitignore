@@ -1,1 +1,4 @@
 jenkins-job-builder/project.yaml
+
+local-only
+!local-only/README.md
