@@ -13,8 +13,6 @@
         - timed: "{timed-schedule}"
     builders:
         - uninstall-freeipa-packages-soft
-        - configure-updates-testing:
-            enable-updates-testing: "{enable-updates-testing}"
         - setup-copr-repos:
             copr-repos: "{copr-repos}"
         - shell: |
@@ -23,18 +21,16 @@
             prefix: "{prefix}"
             project: "{project}"
         - install-freeipa-packages
-        - disable-updates-testing
         - remove-copr-repos:
             copr-repos: "{copr-repos}"
         - prepare-controller
         - shell: |
-            ENABLE_UPDATES_TESTING={enable-updates-testing} IPABRANCH={git-branch} ./prepare-hosts <<END_YAML_FILE > test-config.yaml
+            ./prepare-hosts <<END_YAML_FILE > test-config.yaml
             _os: {os}
             {config_template}
             END_YAML_FILE
             cat test-config.yaml
         - prepare-inventory-config:
-            enable-updates-testing: "{enable-updates-testing}"
             copr-repos: "{copr-repos}"
         - install-packages-on-dynamic-hosts
         - shell: |
@@ -69,25 +65,21 @@
         numToKeep: 2
     builders:
         - uninstall-freeipa-packages-soft
-        - configure-updates-testing:
-            enable-updates-testing: "{enable-updates-testing}"
         - setup-copr-repos:
             copr-repos: "{copr-repos}"
         - shell: |
             sudo dnf distro-sync --allowerasing -y
         - install-freeipa-packages
-        - disable-updates-testing
         - remove-copr-repos:
             copr-repos: "{copr-repos}"
         - prepare-controller
         - shell: |
-            ENABLE_UPDATES_TESTING={enable-updates-testing} IPABRANCH={git-branch} ./prepare-hosts <<END_YAML_FILE > test-config.yaml
+            ./prepare-hosts <<END_YAML_FILE > test-config.yaml
             _os: {os}
             {config_template}
             END_YAML_FILE
             cat test-config.yaml
         - prepare-inventory-config:
-            enable-updates-testing: "{enable-updates-testing}"
             copr-repos: "{copr-repos}"
         - install-packages-on-dynamic-hosts
         - shell: |

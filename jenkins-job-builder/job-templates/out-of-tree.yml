@@ -10,8 +10,6 @@
         - clean-up-environment
         - uninstall-freeipa-packages-soft
         - clean-user-configuration
-        - configure-updates-testing:
-            enable-updates-testing: "{enable-updates-testing}"
         - setup-copr-repos:
             copr-repos: "{copr-repos}"
         - shell: |
@@ -21,7 +19,6 @@
             project: "{project}"
         - install-freeipa-packages
         # repositories cleanup
-        - disable-updates-testing
         - remove-copr-repos:
             copr-repos: "{copr-repos}"
         - install:
@@ -62,8 +59,6 @@
         - clean-up-environment
         - uninstall-freeipa-packages-soft
         - clean-user-configuration
-        - configure-updates-testing:
-            enable-updates-testing: "{enable-updates-testing}"
         - setup-copr-repos:
             copr-repos: "{copr-repos}"
         - shell: |
@@ -73,7 +68,6 @@
             project: "{project}"
         - install-freeipa-packages
         # repositories cleanup
-        - disable-updates-testing
         - remove-copr-repos:
             copr-repos: "{copr-repos}"
         - install:
@@ -112,15 +106,12 @@
         - clean-up-environment
         - uninstall-freeipa-packages-soft
         - clean-user-configuration
-        - configure-updates-testing:
-            enable-updates-testing: "{enable-updates-testing}"
         - setup-copr-repos:
             copr-repos: "{copr-repos}"
         - shell: |
             sudo dnf distro-sync --allowerasing -y
         - install-freeipa-packages
         # repositories cleanup
-        - disable-updates-testing
         - remove-copr-repos:
             copr-repos: "{copr-repos}"
         - install:
@@ -160,15 +151,12 @@
         - clean-up-environment
         - uninstall-freeipa-packages-soft
         - clean-user-configuration
-        - configure-updates-testing:
-            enable-updates-testing: "{enable-updates-testing}"
         - setup-copr-repos:
             copr-repos: "{copr-repos}"
         - shell: |
             sudo dnf distro-sync --allowerasing -y
         - install-freeipa-packages
         # repositories cleanup
-        - disable-updates-testing
         - remove-copr-repos:
             copr-repos: "{copr-repos}"
         - install:
