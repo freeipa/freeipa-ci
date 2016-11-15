@@ -16,14 +16,12 @@
 
 - builder:
     # a pair builder for setup-copr-repos
-    # the builder removes the enabled COPR
+    # the builder removes the installed COPR
     # repositories during the cleanup.
     name: remove-copr-repos
     builders:
         - shell: |
-            for repo in {copr-repos}; do
-                sudo dnf copr remove -y "$repo"
-            done
+            sudo find /etc/yum.repos.d -name '_copr_*' -exec rm -f {} +
 
 - builder:
     # The builder sets up a local rpm repository on the node
@@ -68,3 +66,18 @@
         - shell: |
             sudo rm -f /etc/yum.repos.d/freeipa-local.repo || echo "Could not delete the repo file."
             sudo rm -rf /tmp/freeipa-build || echo "Could not delete the repository folder."
+
+- builder:
+    # Enables updates-testing repository if enable-updates-testing
+    # variable is set to 'True'
+    name: configure-updates-testing
+    builders:
+        - shell: |
+            [ "{enable-updates-testing}" = "True" ] && sudo dnf config-manager --set-enabled updates-testing || :
+
+- builder:
+    # Disables updates testing on the executing node
+    name: disable-updates-testing
+    builders:
+        - shell: |
+            sudo dnf config-manager --set-disabled updates-testing

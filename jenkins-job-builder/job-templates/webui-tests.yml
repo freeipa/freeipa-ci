@@ -9,15 +9,17 @@
     builders:
         - clean-up-environment
         - uninstall-freeipa-packages-soft
+        # repositories cleanup
+        - disable-updates-testing
+        - remove-copr-repos
+        - configure-updates-testing:
+            enable-updates-testing: "{enable-updates-testing}"
         - setup-copr-repos:
             copr-repos: "{copr-repos}"
         - prepare-local-repo:
             prefix: "{prefix}"
             project: "{project}"
         - install-freeipa-packages
-        # repositories cleanup
-        - remove-copr-repos:
-            copr-repos: "{copr-repos}"
         - download-certificate
         - install:
             options-dns-setup: "{options-dns-setup}"

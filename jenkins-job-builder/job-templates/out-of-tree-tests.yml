@@ -10,6 +10,11 @@
         - clean-up-environment
         - uninstall-freeipa-packages-soft
         - clean-user-configuration
+        # prepare clean repos based on job config
+        - disable-updates-testing
+        - remove-copr-repos
+        - configure-updates-testing:
+            enable-updates-testing: "{enable-updates-testing}"
         - setup-copr-repos:
             copr-repos: "{copr-repos}"
         - shell: |
@@ -18,9 +23,6 @@
             prefix: "{prefix}"
             project: "{project}"
         - install-freeipa-packages
-        # repositories cleanup
-        - remove-copr-repos:
-            copr-repos: "{copr-repos}"
         - install:
             options-dns-setup: "{options-dns-setup}"
             options-ca-setup: "{options-ca-setup}"
@@ -59,6 +61,10 @@
         - clean-up-environment
         - uninstall-freeipa-packages-soft
         - clean-user-configuration
+        - disable-updates-testing
+        - remove-copr-repos
+        - configure-updates-testing:
+            enable-updates-testing: "{enable-updates-testing}"
         - setup-copr-repos:
             copr-repos: "{copr-repos}"
         - shell: |
@@ -68,8 +74,6 @@
             project: "{project}"
         - install-freeipa-packages
         # repositories cleanup
-        - remove-copr-repos:
-            copr-repos: "{copr-repos}"
         - install:
             options-dns-setup: "{options-dns-setup}"
             options-ca-setup: "{options-ca-setup}"
@@ -106,14 +110,17 @@
         - clean-up-environment
         - uninstall-freeipa-packages-soft
         - clean-user-configuration
+        # repositories cleanup
+        - disable-updates-testing
+        - remove-copr-repos:
+            copr-repos: "{copr-repos}"
+        - configure-updates-testing:
+            enable-updates-testing: "{enable-updates-testing}"
         - setup-copr-repos:
             copr-repos: "{copr-repos}"
         - shell: |
             sudo dnf distro-sync --allowerasing -y
         - install-freeipa-packages
-        # repositories cleanup
-        - remove-copr-repos:
-            copr-repos: "{copr-repos}"
         - install:
             options-dns-setup: "{options-dns-setup}"
             options-ca-setup: "{options-ca-setup}"
@@ -151,14 +158,17 @@
         - clean-up-environment
         - uninstall-freeipa-packages-soft
         - clean-user-configuration
+        # repositories cleanup
+        - disable-updates-testing
+        - remove-copr-repos
+        - configure-updates-testing:
+            enable-updates-testing: "{enable-updates-testing}"
         - setup-copr-repos:
             copr-repos: "{copr-repos}"
         - shell: |
             sudo dnf distro-sync --allowerasing -y
         - install-freeipa-packages
         # repositories cleanup
-        - remove-copr-repos:
-            copr-repos: "{copr-repos}"
         - install:
             options-dns-setup: "{options-dns-setup}"
             options-ca-setup: "{options-ca-setup}"

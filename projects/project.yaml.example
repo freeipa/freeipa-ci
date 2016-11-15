@@ -17,6 +17,7 @@
     report-mail-address: your.email@example
     copr-repos:
         - @freeipa/freeipa-master
+    enable-updates-testing: true
     # timed-schedule is used with timed-integration
     # - timed-schedule: 0 23 * * *
     jobs:
