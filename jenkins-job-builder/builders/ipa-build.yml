@@ -22,5 +22,15 @@
     builders:
         - shell: |
             git clean -fxd
-            make rpms
+
+            # Since future ipa-4-5 branch, the build
+            # system has changed.
+            #
+            # If the makerpms.sh script is available,
+            # use it
+            if [ -e makerpms.sh ] ; then
+                ./makerpms.sh
+            else
+                make rpms
+            fi
 
