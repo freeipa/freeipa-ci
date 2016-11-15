@@ -114,11 +114,7 @@
             report-mail-address: '{report-mail-address}'
         - workspace-cleanup
         - trigger:
-            project: '{prefix}-intree-tests-{project}'
-        - trigger:
             project: '{prefix}-outoftree-tests-{project}'
-        - trigger:
-            project: '{prefix}-intree-tests-with-trust-{project}'
         - trigger:
             project: '{prefix}-outoftree-tests-with-trust-{project}'
         - trigger:

@@ -4,7 +4,6 @@
         - '{prefix}-stats-{project}'
         - '{prefix}-build-{project}'
         - '{prefix}-check-deps-{project}'
-        - '{prefix}-intree-tests-{project}'
         - '{prefix}-outoftree-tests-{project}'
         - '{prefix}-webui-{browser}-{project}-{prettyname}':
             prettyname: with-dns-with-ca
@@ -643,9 +642,7 @@
         - '{prefix}-stats-{project}'
         - '{prefix}-build-{project}'
         - '{prefix}-check-deps-{project}'
-        - '{prefix}-intree-tests-{project}'
         - '{prefix}-outoftree-tests-{project}'
-        - '{prefix}-intree-tests-with-trust-{project}'
         - '{prefix}-outoftree-tests-with-trust-{project}'
         - '{prefix}-webui-{browser}-{prettyname}-{project}':
             prettyname: with-dns-with-ca
