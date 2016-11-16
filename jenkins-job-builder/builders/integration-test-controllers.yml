@@ -40,9 +40,9 @@
         - shell: |  # The builder for dynamic inventory. Requires python3
             # Infer the updates-testing option from the current system
             UPDATES_TESTING=$(dnf config-manager --dump updates-testing | sed -n 's/^enabled = \(.*\)$/\1/p')
-            echo 'updates-testing: $UPDATES_TESTING' > dyndir.conf
-            echo -n 'copr: ' >> dyndir.conf
-            echo '{copr-repos}' | python3 -c 'print(str(input()).split())' >> dyndir.conf
+            echo "updates-testing: $UPDATES_TESTING" > dyndir.conf
+            echo -n "copr: " >> dyndir.conf
+            echo "{copr-repos}" | python3 -c "print(str(input()).split())" >> dyndir.conf
 
 
 - builder:
@@ -57,7 +57,7 @@
 
             if [ -d dist ] ; then
                 ansible-playbook -i $(which ipaqe-dyndir) /usr/share/idm-jenkins-ansible/prepare-integration-hosts.yml \
-                -e 'rpmdir=dist/rpms' --ssh-common-args '-o StrictHostKeyChecking=no' --private-key ~/.ssh/test_ssh_key
+                -e "rpmdir=$(realpath dist/rpms)" --ssh-common-args '-o StrictHostKeyChecking=no' --private-key ~/.ssh/test_ssh_key
             else
                 ansible-playbook -i $(which ipaqe-dyndir) /usr/share/idm-jenkins-ansible/prepare-integration-hosts.yml \
                 --ssh-common-args '-o StrictHostKeyChecking=no' --private-key ~/.ssh/test_ssh_key
