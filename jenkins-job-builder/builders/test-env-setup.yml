@@ -22,8 +22,8 @@
     builders:
         - shell: |
             echo $FREEIPACI_PASSWORD > $HOME/.ipa/.dmpw
-            sudo cp -R /etc/httpd/alias $HOME/.ipa/alias
-            sudo cp /etc/httpd/alias/pwdfile.txt $HOME/.ipa/alias/.pwd
+            sudo cp -R /etc/httpd/alias $HOME/.ipa/nssdb
+            sudo cp /etc/httpd/alias/pwdfile.txt $HOME/.ipa/nssdb/.pwd
             sudo chown -R jenkins:jenkins $HOME/.ipa
 
 
@@ -53,6 +53,7 @@
             sudo systemctl stop dirsrv.target || :
             sudo pkidestroy -s CA -i pki-tomcat || :
             sudo systemctl reset-failed pki-tomcatd@pki-tomcat.service || :
+            sudo systemctl restart NetworkManager.service || :
 
 ### RPM installation
 
