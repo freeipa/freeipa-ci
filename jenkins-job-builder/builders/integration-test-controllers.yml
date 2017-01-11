@@ -69,4 +69,8 @@
         - shell: |
             export IPATEST_YAML_CONFIG=$(realpath ./test-config.yaml)
             ipa-test-config --yaml
-            ipa-run-tests -v -r a --with-xunit {suite} --logging-level=DEBUG --logfile-dir=$(realpath test_logs) || :
+            if [ -n "{test_filter}" ] ; then
+                ipa-run-tests -v -r a --with-xunit -k "{test_filter}" {suite} --logging-level=DEBUG --logfile-dir=$(realpath test_logs) || :
+            else
+                ipa-run-tests -v -r a --with-xunit {suite} --logging-level=DEBUG --logfile-dir=$(realpath test_logs) || :
+            fi

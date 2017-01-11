@@ -42,6 +42,7 @@
             mkdir test_logs
         - run-integration-test:
             suite: "{suite}"
+            test_filter: "{test_filter}"
         - destroy-hosts
         - uninstall-freeipa-packages
         - cleanup-local-repo
@@ -93,6 +94,7 @@
             mkdir test_logs
         - run-integration-test:
             suite: "{suite}"
+            test_filter: "{test_filter}"
         - destroy-hosts
         - uninstall-freeipa-packages
         - cleanup-local-repo

@@ -6,6 +6,8 @@
       Do not edit this job through the web.
     project-type: freestyle
     controller_suffix: ""
+    # for integration tests
+    test_filter: ""
     concurrent: true
     disabled: false
     quiet-period: 5
