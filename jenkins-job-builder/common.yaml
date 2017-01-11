@@ -5,6 +5,7 @@
 
       Do not edit this job through the web.
     project-type: freestyle
+    controller_suffix: ""
     concurrent: true
     disabled: false
     quiet-period: 5

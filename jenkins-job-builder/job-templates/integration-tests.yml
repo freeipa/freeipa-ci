@@ -40,10 +40,8 @@
         - shell: |
             rm -fr test_logs || :
             mkdir test_logs
-        - shell: |
-            export IPATEST_YAML_CONFIG=$(realpath ./test-config.yaml)
-            ipa-test-config --yaml
-            ipa-run-tests -v -r a --with-xunit {suite} --logging-level=DEBUG --logfile-dir=$(realpath test_logs) || :
+        - run-integration-test:
+            suite: "{suite}"
         - destroy-hosts
         - uninstall-freeipa-packages
         - cleanup-local-repo
@@ -93,10 +91,8 @@
         - shell: |
             rm -fr test_logs || :
             mkdir test_logs
-        - shell: |
-            export IPATEST_YAML_CONFIG=$(realpath ./test-config.yaml)
-            ipa-test-config --yaml
-            ipa-run-tests -v -r a --with-xunit {suite} --logging-level=DEBUG --logfile-dir=$(realpath test_logs) || :
+        - run-integration-test:
+            suite: "{suite}"
         - destroy-hosts
         - uninstall-freeipa-packages
         - cleanup-local-repo

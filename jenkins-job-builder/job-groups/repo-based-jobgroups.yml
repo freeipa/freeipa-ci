@@ -4,7 +4,6 @@
         - '{prefix}-nobuild-integration-{project}-{pretty_name}-domlevel-{domain_level}':
             pretty_name: caless
             suite: test_integration/test_caless.py
-            controller_suffix: ''
             domain_level: 1
             config_template: |
                 domains:
@@ -21,7 +20,6 @@
         - '{prefix}-nobuild-integration-{project}-{pretty_name}-domlevel-{domain_level}':
             pretty_name: simple_replication
             suite: test_integration/test_simple_replication.py
-            controller_suffix: ''
             config_template: |
                 domain_level: {domain_level}
                 domains:
@@ -36,7 +34,6 @@
         - '{prefix}-nobuild-integration-{project}-{pretty_name}-domlevel-{domain_level}':
             pretty_name: external_ca
             suite: test_integration/test_external_ca.py
-            controller_suffix: ''
             domain_level: 1
             config_template: |
                 domains:
@@ -49,7 +46,6 @@
         - '{prefix}-nobuild-integration-{project}-{pretty_name}-domlevel-{domain_level}':
             pretty_name: forced_client_reenrollment
             suite: test_integration/test_forced_client_reenrollment.py
-            controller_suffix: ''
             domain_level: 1
             config_template: |
                 domains:
@@ -66,7 +62,6 @@
         - '{prefix}-nobuild-integration-{project}-{pretty_name}-domlevel-{domain_level}':
             pretty_name: kerberos_flags
             suite: test_integration/test_kerberos_flags.py
-            controller_suffix: ''
             domain_level: 1
             config_template: |
                 domains:
@@ -81,7 +76,6 @@
         - '{prefix}-nobuild-integration-{project}-{pretty_name}-domlevel-{domain_level}':
             pretty_name: sudo
             suite: test_integration/test_sudo.py
-            controller_suffix: ''
             domain_level: 1
             config_template: |
                 domains:
@@ -96,7 +90,6 @@
         - '{prefix}-nobuild-integration-{project}-{pretty_name}-domlevel-{domain_level}':
             pretty_name: advise
             suite: test_integration/test_advise.py
-            controller_suffix: ''
             domain_level: 1
             config_template: |
                 domains:
@@ -155,7 +148,6 @@
         - '{prefix}-nobuild-integration-{project}-{pretty_name}-domlevel-{domain_level}':
             pretty_name: dnssec
             suite: test_integration/test_dnssec.py
-            controller_suffix: ''
             domain_level: 1
             config_template: |
                 domains:
@@ -172,7 +164,6 @@
         - '{prefix}-nobuild-integration-{project}-{pretty_name}-domlevel-{domain_level}':
             pretty_name: backup_and_restore
             suite: test_integration/test_backup_and_restore.py
-            controller_suffix: ''
             domain_level: 1
             config_template: |
                 domains:
@@ -185,7 +176,6 @@
         - '{prefix}-nobuild-integration-{project}-{pretty_name}-domlevel-{domain_level}':
             pretty_name: service_permissions
             suite: test_integration/test_service_permissions.py
-            controller_suffix: ''
             domain_level: 1
             config_template: |
                 domains:
@@ -199,7 +189,6 @@
             pretty_name: topology
             suite: test_integration/test_topology.py
             domain_level: 1
-            controller_suffix: ''
             config_template: |
                 domains:
                   - hosts:
@@ -215,7 +204,6 @@
         - '{prefix}-nobuild-integration-{project}-{pretty_name}-domlevel-{domain_level}':
             pretty_name: vault
             suite: test_integration/test_vault.py
-            controller_suffix: ''
             domain_level: 1
             config_template: |
                 domains:
@@ -230,7 +218,6 @@
         - '{prefix}-nobuild-integration-{project}-{pretty_name}-domlevel-{domain_level}':
             pretty_name: customized_ds_config_install
             suite: test_integration/test_customized_ds_config_install.py
-            controller_suffix: ''
             domain_level: 1
             config_template: |
                 domains:
@@ -245,7 +232,6 @@
         - '{prefix}-nobuild-integration-{project}-{pretty_name}-domlevel-{domain_level}':
             pretty_name: installation
             suite: test_integration/test_installation.py
-            controller_suffix: ''
             config_template: |
                 domain_level: {domain_level}
                 domains:
@@ -264,7 +250,6 @@
         - '{prefix}-nobuild-integration-{project}-{pretty_name}-domlevel-{domain_level}':
             pretty_name: replication_layouts
             suite: test_integration/test_replication_layouts.py
-            controller_suffix: ''
             domain_level: 1
             config_template: |
                 domains:
@@ -283,7 +268,6 @@
         - '{prefix}-nobuild-integration-{project}-{pretty_name}-domlevel-{domain_level}':
             pretty_name: replica_promotion
             suite: test_integration/test_replica_promotion.py
-            controller_suffix: ''
             config_template: |
                 domain_level: {domain_level}
                 domains:
@@ -300,7 +284,6 @@
         - '{prefix}-nobuild-integration-{project}-{pretty_name}-domlevel-{domain_level}':
             pretty_name: dns_locations
             suite: test_integration/test_dns_locations.py
-            controller_suffix: ''
             domain_level: 1
             config_template: |
                 domains:

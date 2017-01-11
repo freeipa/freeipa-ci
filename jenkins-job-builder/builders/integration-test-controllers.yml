@@ -62,3 +62,11 @@
                 ansible-playbook -i $(which ipaqe-dyndir) /usr/share/idm-jenkins-ansible/prepare-integration-hosts.yml \
                 --ssh-common-args '-o StrictHostKeyChecking=no' --private-key ~/.ssh/test_ssh_key
             fi
+
+- builder:
+    name: run-integration-test
+    builders:
+        - shell: |
+            export IPATEST_YAML_CONFIG=$(realpath ./test-config.yaml)
+            ipa-test-config --yaml
+            ipa-run-tests -v -r a --with-xunit {suite} --logging-level=DEBUG --logfile-dir=$(realpath test_logs) || :
