@@ -12,7 +12,7 @@
     builders:
         - shell: |
             # FreeIPA requires:
-            sudo dnf builddep -y -D "with_lint 1" --spec freeipa.spec.in
+            sudo dnf --allowerasing builddep -y -D "with_lint 1" --spec freeipa.spec.in
         - shell: "rpm -qa | sort"
 
 - builder:
