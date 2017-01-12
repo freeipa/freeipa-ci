@@ -12,7 +12,7 @@
             # Retrieve the latest available selenium server
             URL="https://selenium-release.storage.googleapis.com"
             SELENIUM_VERSION=$(curl "$URL" | grep -oP '[\.0-9]*(?=/selenium-server-standalone)' | awk '{max=$1;if($1>max) {max=$1};} END {print max}')
-            SELENIUM_JAR=selenium-server-standalone-${SELENIUM_VERSION}.0.jar 
+            SELENIUM_JAR=selenium-server-standalone-${SELENIUM_VERSION}.0.jar
 
 
             mkdir -p $SELENIUM_TMP_DIR
@@ -80,3 +80,23 @@
             # Allowed: ['chrome', 'chromium', 'firefox', 'ie']
             browser: firefox
             """ > ~/.ipa/ui_test.conf
+
+- builder:
+    name: generate-certificate
+    builders:
+        - shell: |
+            mkdir alias
+            head -c 20 /dev/urandom > noise.dat
+
+            # Prepare the NSS DB anc create the CA
+            certutil -N -d alias --empty-password
+            echo -e "y\n0\ny\n" | certutil -S -s "CN=WebUI Test CA Issuer" -n CACert -2 -x -t "CT,C,C" -v 120 -m 1234 -d alias/ -z noise.dat
+
+            # Create and sign request for server certificate
+            certutil -R -d alias -s "CN=$(hostname),CN=WebUI Test" -p Secret123 -o server-cert.req -n webui-test -z noise.dat
+            certutil -C -d alias -m 2345 -i server-cert.req -o server-cert.crt -c CACert -n webui-test --keyUsage keyEncipherment --nsCertType sslServer
+            certutil -A -d alias -i server-cert.crt -n webui-test -t u,u,u
+
+            # Export the server certificate and CA certificate
+            pk12util -o server-cert.p12 -d alias -K Secret123 -W Secret123 -n webui-test
+            certutil -L -d alias -n CACert -a > server-cert-ca.crt

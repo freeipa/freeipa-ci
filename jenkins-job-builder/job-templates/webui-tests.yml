@@ -20,7 +20,7 @@
             prefix: "{prefix}"
             project: "{project}"
         - install-freeipa-packages
-        - download-certificate
+        - generate-certificate
         - install:
             options-dns-setup: "{options-dns-setup}"
             options-ca-setup: "{options-ca-setup}"
