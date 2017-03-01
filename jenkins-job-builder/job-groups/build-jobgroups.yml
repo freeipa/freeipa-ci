@@ -320,6 +320,68 @@
                     name: ipa.test
                     type: IPA
 
+        - '{prefix}-timed-integration-{project}-{pretty_name}-domlevel-{domain_level}':
+            pretty_name: idviews
+            suite: test_integration/test_idviews.py
+            controller_suffix: '-trusts'
+            domain_level: 1
+            config_template: |
+                domains:
+                  - hosts:
+                      - name: master.ipa.test
+                        role: trust_master
+                    name: ipa.test
+                    type: TRUST_IPA
+                  - hosts:
+                      - name: ad.ad.test
+                        role: ad
+                    name: ad.test
+                    type: AD
+
+        - '{prefix}-timed-integration-{project}-{pretty_name}-domlevel-{domain_level}':
+            pretty_name: server_del
+            suite: test_integration/test_server_del.py
+            domain_level: 1
+            config_template: |
+                domains:
+                  - hosts:
+                      - name: master.ipa.test
+                        role: master
+                      - name: replica.ipa.test
+                        role: replica
+                      - name: replica.ipa.test
+                        role: replica
+                      - name: client.ipa.test
+                        role: client
+                    name: ipa.test
+                    type: IPA
+
+        - '{prefix}-timed-integration-{project}-{pretty_name}-domlevel-{domain_level}':
+            pretty_name: netgroup
+            suite: test_integration/test_netgroup.py
+            domain_level: 1
+            config_template: |
+                domains:
+                  - hosts:
+                      - name: master.ipa.test
+                        role: master
+                    name: ipa.test
+                    type: IPA
+
+        - '{prefix}-timed-integration-{project}-{pretty_name}-domlevel-{domain_level}':
+            pretty_name: http_kdc_proxy
+            suite: test_integration/test_http_kdc_proxy.py
+            domain_level: 1
+            config_template: |
+                domains:
+                  - hosts:
+                      - name: master.ipa.test
+                        role: master
+                      - name: client.ipa.test
+                        role: client
+                    name: ipa.test
+                    type: IPA
+
 
 - job-group:
     name: timed-integration
@@ -620,6 +682,67 @@
                     name: ipa.test
                     type: IPA
 
+        - '{prefix}-timed-integration-{project}-{pretty_name}-domlevel-{domain_level}':
+            pretty_name: idviews
+            suite: test_integration/test_idviews.py
+            controller_suffix: '-trusts'
+            domain_level: 1
+            config_template: |
+                domains:
+                  - hosts:
+                      - name: master.ipa.test
+                        role: trust_master
+                    name: ipa.test
+                    type: TRUST_IPA
+                  - hosts:
+                      - name: ad.ad.test
+                        role: ad
+                    name: ad.test
+                    type: AD
+
+        - '{prefix}-timed-integration-{project}-{pretty_name}-domlevel-{domain_level}':
+            pretty_name: server_del
+            suite: test_integration/test_server_del.py
+            domain_level: 1
+            config_template: |
+                domains:
+                  - hosts:
+                      - name: master.ipa.test
+                        role: master
+                      - name: replica.ipa.test
+                        role: replica
+                      - name: replica.ipa.test
+                        role: replica
+                      - name: client.ipa.test
+                        role: client
+                    name: ipa.test
+                    type: IPA
+
+        - '{prefix}-timed-integration-{project}-{pretty_name}-domlevel-{domain_level}':
+            pretty_name: netgroup
+            suite: test_integration/test_netgroup.py
+            domain_level: 1
+            config_template: |
+                domains:
+                  - hosts:
+                      - name: master.ipa.test
+                        role: master
+                    name: ipa.test
+                    type: IPA
+
+        - '{prefix}-timed-integration-{project}-{pretty_name}-domlevel-{domain_level}':
+            pretty_name: http_kdc_proxy
+            suite: test_integration/test_http_kdc_proxy.py
+            domain_level: 1
+            config_template: |
+                domains:
+                  - hosts:
+                      - name: master.ipa.test
+                        role: master
+                      - name: client.ipa.test
+                        role: client
+                    name: ipa.test
+                    type: IPA
 
 - job-group:
     name: build-and-check-fast
