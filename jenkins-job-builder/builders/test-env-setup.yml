@@ -24,7 +24,11 @@
             echo $FREEIPACI_PASSWORD > $HOME/.ipa/.dmpw
             sudo cp -R /etc/httpd/alias $HOME/.ipa/nssdb
             sudo cp /etc/httpd/alias/pwdfile.txt $HOME/.ipa/nssdb/.pwd
-            sudo chown -R jenkins:jenkins $HOME/.ipa
+            sudo chown -R $USER. $HOME/.ipa
+            # For master / future ipa-4-5
+            cp /etc/ipa/ca.crt $HOME/.ipa/ || :
+            cp /var/lib/ipa/ra-agent.{pem,key} $HOME/.ipa/ || :
+            chown $USER. $HOME/.ipa/ra-agent.{pem,key} || :
 
 
 ### Cleaning up the environment
