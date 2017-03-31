@@ -139,6 +139,8 @@
                         role: ad
                       - name: child.child.ad.test
                         role: ad_subdomain
+                      - name: tree.treedomain.ad.test
+                        role: ad_treedomain
                     name: ad.test
                     type: AD
 
@@ -501,6 +503,8 @@
                         role: ad
                       - name: child.child.ad.test
                         role: ad_subdomain
+                      - name: tree.treedomain.ad.test
+                        role: ad_treedomain
                     name: ad.test
                     type: AD
 
