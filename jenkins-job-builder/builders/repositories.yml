@@ -81,3 +81,9 @@
     builders:
         - shell: |
             sudo dnf config-manager --set-disabled updates-testing
+
+- builder:
+    name: update-system-packages
+    builders:
+        - shell: |
+            sudo dnf --refresh distro-sync --allowerasing -y

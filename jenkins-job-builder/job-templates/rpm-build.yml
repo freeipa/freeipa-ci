@@ -62,6 +62,7 @@
             enable-updates-testing: "{enable-updates-testing}"
         - setup-copr-repos:
             copr-repos: "{copr-repos}"
+        - update-system-packages
         - install-freeipa-builddeps
         - build-rpms
     publishers:
@@ -102,6 +103,7 @@
             enable-updates-testing: "{enable-updates-testing}"
         - setup-copr-repos:
             copr-repos: "{copr-repos}"
+        - update-system-packages
         - prepare-local-repo:
             prefix: "{prefix}"
             project: "{project}"
