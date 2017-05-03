@@ -44,16 +44,21 @@
     name: setup-webui-tests
     builders:
         - shell: |
+            export HOSTNAME=$(hostname -f)
+            export DOMAIN=$(echo $HOSTNAME | sed -e 's/^vm/dom/')
+            export REALM=$(echo $DOMAIN | tr '[:lower:]' '[:upper:]')
+            export LOCAL_IP=$(dig +short $HOSTNAME)
             echo """
             # Current FreeIPA server configuration
             # ====================================
+            # currently using localhost
             ipa_admin: admin
             ipa_password: $FREEIPACI_PASSWORD
 
-            ipa_server: $(hostname)
-            ipa_ip: $(ipa dnsrecord-show $FREEIPACI_DOMAIN `hostname -s` | grep '^ *A record:' | sed -e's/.*: *//')
-            ipa_domain: $FREEIPACI_DOMAIN
-            ipa_realm: $FREEIPACI_REALM
+            ipa_server: $HOSTNAME
+            ipa_ip: $LOCAL_IP
+            ipa_domain: $DOMAIN
+            ipa_realm: $REALM
 
             no_ca: {noca}
 
@@ -78,7 +83,7 @@
 
             # Browser to test with
             # Allowed: ['chrome', 'chromium', 'firefox', 'ie']
-            browser: firefox
+            browser: {browser}
             """ > ~/.ipa/ui_test.conf
 
 - builder:
