@@ -26,10 +26,12 @@
             options-dns-setup: "{options-dns-setup}"
             options-ca-setup: "{options-ca-setup}"
         - install-selenium
-        - install-browser-{browser}
+        - setup-default-conf
+        - copy-pw-files
         - setup-webui-tests:
             noca: "{noca}"
             nodns: "{nodns}"
+            browser: "{browser}"
         - shell: |
             export DISPLAY=:99
             /usr/bin/Xvfb $DISPLAY -ac -noreset -screen 0 1400x1200x8 > ~/xvfb-stdout 2> ~/xvfb-stderr &
