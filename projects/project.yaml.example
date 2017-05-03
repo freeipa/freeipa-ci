@@ -18,6 +18,8 @@
     copr-repos:
         - @freeipa/freeipa-master
     enable-updates-testing: true
+    # for webui tests
+    browser: chrome
     # timed-schedule is used with timed-integration
     # - timed-schedule: 0 23 * * *
     jobs:

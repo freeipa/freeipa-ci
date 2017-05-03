@@ -120,6 +120,6 @@
         - trigger:
             project: '{prefix}-outoftree-tests-with-trust-{project}'
         - trigger:
-            project: '{prefix}-webui-firefox-with-dns-with-ca-{project}'
+            project: '{prefix}-webui-{browser}-with-dns-with-ca-{project}'
         - trigger:
-            project: '{prefix}-webui-firefox-no-dns-no-ca-{project}'
+            project: '{prefix}-webui-{browser}-no-dns-no-ca-{project}'

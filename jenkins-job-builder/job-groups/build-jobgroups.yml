@@ -9,13 +9,11 @@
             prettyname: with-dns-with-ca
             noca: False
             nodns: False
-            browser: firefox
 
         - '{prefix}-webui-{browser}-{project}-{prettyname}':
             prettyname: no-dns-no-ca
             noca: True
             nodns: True
-            browser: firefox
             options-dns-setup: ""
             options-ca-setup: >
                 --http_pkcs12 server--cert.p12 \
@@ -756,21 +754,19 @@
         - '{prefix}-check-deps-{project}'
         - '{prefix}-outoftree-tests-{project}'
         - '{prefix}-outoftree-tests-with-trust-{project}'
+          # browser variable is provided in the project file
         - '{prefix}-webui-{browser}-{prettyname}-{project}':
             prettyname: with-dns-with-ca
             noca: False
             nodns: False
-            browser: firefox
-
         - '{prefix}-webui-{browser}-{prettyname}-{project}':
             prettyname: no-dns-no-ca
             noca: True
             nodns: True
-            browser: firefox
             options-dns-setup: ""
             options-ca-setup: >-
-                --http_pkcs12 server--cert.p12 \
-                --dirsrv_pkcs12 server--cert.p12 \
-                --http_pin Secret123 \
-                --dirsrv_pin Secret123 \
+                --http_pkcs12 server-cert.p12
+                --dirsrv_pkcs12 server-cert.p12
+                --http_pin Secret123
+                --dirsrv_pin Secret123
                 --root-ca-file server-cert-ca.crt
