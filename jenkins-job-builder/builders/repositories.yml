@@ -34,7 +34,6 @@
     # to /etc/yum.repos.d/
     name: create-local-repo
     builders:
-        - shell: "sudo dnf install -y createrepo_c"
         - shell: |
             export REPO_DEST="/tmp/freeipa-build"
             export RPM_DIR="dist/rpms"
@@ -42,7 +41,7 @@
             mkdir -p "$REPO_DEST/debug"
             find "$RPM_DIR" -type f -name 'freeipa-debuginfo-*.rpm' -execdir cp -t "$REPO_DEST/debug" {} +
             find "$RPM_DIR" -type f ! -name '*debuginfo*.rpm' -execdir cp -t "$REPO_DEST" {} +
-            find "$REPO_DEST" -type d ! -name 'repodata' -execdir createrepo_c {} +
+            find "$REPO_DEST" -type d ! -name 'repodata' -execdir createrepo {} +
         - shell: |
             cat > /tmp/freeipa-local.repo <<EOF
             [freeipa-local]
