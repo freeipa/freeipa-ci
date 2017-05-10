@@ -15,12 +15,32 @@
             # install
             export DOMAIN=$(hostname -f | sed -e 's/^vm/dom/')
             REALM=$(echo $DOMAIN | tr '[:lower:]' '[:upper:]')
-            sudo ipa-server-install \
-                {options-dns-setup} \
-                {options-ca-setup} \
-                -p "$FREEIPACI_PASSWORD" -a "$FREEIPACI_PASSWORD" \
-                -r "$REALM" -n "$DOMAIN" \
-                -U
+            if [ -n "{options-dns-setup}" && -n "{options-ca-setup}" ]; then
+                sudo ipa-server-install \
+                    {options-dns-setup} \
+                    {options-ca-setup} \
+                    -p "$FREEIPACI_PASSWORD" -a "$FREEIPACI_PASSWORD" \
+                    -r "$REALM" -n "$DOMAIN" \
+                    -U
+            elif [ -n "{options-dns-setup}" ]; then
+                sudo ipa-server-install \
+                    {options-dns-setup} \
+                    -p "$FREEIPACI_PASSWORD" -a "$FREEIPACI_PASSWORD" \
+                    -r "$REALM" -n "$DOMAIN" \
+                    -U
+            elif [ -n "{options-ca-setup}" ]; then
+                sudo ipa-server-install \
+                    {options-ca-setup} \
+                    -p "$FREEIPACI_PASSWORD" -a "$FREEIPACI_PASSWORD" \
+                    -r "$REALM" -n "$DOMAIN" \
+                    -U
+            else
+                sudo ipa-server-install \
+                    -p "$FREEIPACI_PASSWORD" -a "$FREEIPACI_PASSWORD" \
+                    -r "$REALM" -n "$DOMAIN" \
+                    -U
+            fi
+
 
             echo $FREEIPACI_PASSWORD | kinit admin
 

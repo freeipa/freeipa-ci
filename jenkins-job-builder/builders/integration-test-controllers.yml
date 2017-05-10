@@ -26,15 +26,6 @@
             ./shutdown-hosts || :
 
 - builder:
-    name: download-certificate
-    builders:
-        - shell: |
-            # download certificates for CA less files
-            wget -O star-cert.p12 $FREEIPACI_STAR_CERT
-            wget -O star-cert-ca.crt $FREEIPACI_CA_CERT
-
-
-- builder:
     name: prepare-inventory-config
     builders:
         - shell: |  # The builder for dynamic inventory. Requires python3
@@ -61,4 +52,16 @@
             else
                 ansible-playbook -i $(which ipaqe-dyndir) /usr/share/idm-jenkins-ansible/prepare-integration-hosts.yml \
                 --ssh-common-args '-o StrictHostKeyChecking=no' --private-key ~/.ssh/test_ssh_key
+            fi
+
+- builder:
+    name: run-integration-test
+    builders:
+        - shell: |
+            export IPATEST_YAML_CONFIG=$(realpath ./test-config.yaml)
+            ipa-test-config --yaml
+            if [ -n "{test_filter}" ] ; then
+                ipa-run-tests -v -r a --with-xunit -k "{test_filter}" {suite} --logging-level=DEBUG --logfile-dir=$(realpath test_logs) || :
+            else
+                ipa-run-tests -v -r a --with-xunit {suite} --logging-level=DEBUG --logfile-dir=$(realpath test_logs) || :
             fi

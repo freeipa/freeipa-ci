@@ -20,8 +20,7 @@
             enable-updates-testing: "{enable-updates-testing}"
         - setup-copr-repos:
             copr-repos: "{copr-repos}"
-        - shell: |
-            sudo dnf distro-sync --allowerasing -y
+        - update-system-packages
         - prepare-local-repo:
             prefix: "{prefix}"
             project: "{project}"
@@ -40,10 +39,9 @@
         - shell: |
             rm -fr test_logs || :
             mkdir test_logs
-        - shell: |
-            export IPATEST_YAML_CONFIG=$(realpath ./test-config.yaml)
-            ipa-test-config --yaml
-            ipa-run-tests -v -r a --with-xunit {suite} --logging-level=DEBUG --logfile-dir=$(realpath test_logs) || :
+        - run-integration-test:
+            suite: "{suite}"
+            test_filter: "{test_filter}"
         - destroy-hosts
         - uninstall-freeipa-packages
         - cleanup-local-repo
@@ -93,10 +91,9 @@
         - shell: |
             rm -fr test_logs || :
             mkdir test_logs
-        - shell: |
-            export IPATEST_YAML_CONFIG=$(realpath ./test-config.yaml)
-            ipa-test-config --yaml
-            ipa-run-tests -v -r a --with-xunit {suite} --logging-level=DEBUG --logfile-dir=$(realpath test_logs) || :
+        - run-integration-test:
+            suite: "{suite}"
+            test_filter: "{test_filter}"
         - destroy-hosts
         - uninstall-freeipa-packages
         - cleanup-local-repo
