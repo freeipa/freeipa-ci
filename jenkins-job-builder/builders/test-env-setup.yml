@@ -58,6 +58,8 @@
             sudo pkidestroy -s CA -i pki-tomcat || :
             sudo systemctl reset-failed pki-tomcatd@pki-tomcat.service || :
             sudo systemctl restart NetworkManager.service || :
+            sudo rm -rf /var/lib/sss/db/* || :
+            sudo systemctl restart gssproxy.service || :
 
 ### RPM installation
 

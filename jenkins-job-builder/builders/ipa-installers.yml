@@ -50,6 +50,8 @@
         - shell: |
             # kra installation
             sudo ipa-kra-install -U --password="${FREEIPACI_PASSWORD}"
+            # clean in-memory cache
+            ipa vaultconfig_show || :
 
 - builder:
     name: trust-setup
