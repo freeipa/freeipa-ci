@@ -36,7 +36,6 @@
             ipa-run-tests -v --with-xunit --ignore test_integration --ignore test_webui \
                 --ignore test_xmlrpc/test_trust_plugin.py \
                 --ignore test_xmlrpc/test_external_members.py || :
-        - kra-uninstall
         - uninstall
         - clean-user-configuration
         - clean-httpd-dir
@@ -134,7 +133,6 @@
             ipa-run-tests -v --with-xunit --ignore test_integration --ignore test_webui \
                 --ignore test_xmlrpc/test_trust_plugin.py \
                 --ignore test_xmlrpc/test_external_members.py || :
-        - kra-uninstall
         - uninstall
         - clean-user-configuration
         - clean-httpd-dir

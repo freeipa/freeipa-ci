@@ -75,12 +75,6 @@
             sudo dnf erase -y freeipa-server python-ipatests || :
 
 - builder:
-    name: kra-uninstall
-    builders:
-        - shell: |
-            sudo ipa-kra-install --uninstall -U || :
-
-- builder:
     name: uninstall
     builders:
         - shell: |
