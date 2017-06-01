@@ -10,9 +10,11 @@
     name: setup-copr-repos
     builders:
         - shell: |
-            for repo in {copr-repos}; do
-                sudo dnf copr enable -y "$repo"
-            done
+            if grep Fedora 1>/dev/null 2>&1 ; then
+                for repo in {copr-repos}; do
+                    sudo dnf copr enable -y "$repo"
+                done
+            fi
 
 - builder:
     # a pair builder for setup-copr-repos
@@ -35,6 +37,8 @@
     name: create-local-repo
     builders:
         - shell: |
+            sudo yum install -y createrepo
+        - shell: |
             export REPO_DEST="/tmp/freeipa-build"
             export RPM_DIR="dist/rpms"
             rm -fr "$REPO_DEST" || :
@@ -51,7 +55,7 @@
             gpgcheck=0
 
             [freeipa-local-debuginfo]
-            name=freeipa-local-debug
+            name=freeipa-local-debuginfo
             baseurl=file:///tmp/freeipa-build/debug/
             enabled=0
             gpgcheck=0
@@ -72,17 +76,25 @@
     name: configure-updates-testing
     builders:
         - shell: |
-            [ "{enable-updates-testing}" = "True" ] && sudo dnf config-manager --set-enabled updates-testing || :
+            if grep Fedora /etc/os-release 1>/dev/null 2>&1 ; then
+                [ "{enable-updates-testing}" = "True" ] && sudo dnf config-manager --set-enabled updates-testing || :
+            fi
 
 - builder:
     # Disables updates testing on the executing node
     name: disable-updates-testing
     builders:
         - shell: |
-            sudo dnf config-manager --set-disabled updates-testing
+            if grep Fedora /etc/os-release 1>/dev/null 2>&1; then
+                sudo dnf config-manager --set-disabled updates-testing
+            fi
 
 - builder:
     name: update-system-packages
     builders:
         - shell: |
-            sudo dnf --refresh distro-sync --allowerasing -y
+            if grep Fedora /etc/os-release 1>/dev/null 2>&1 ; then
+                sudo dnf --refresh distro-sync --allowerasing -y
+            else
+                sudo yum distro-sync -y
+            fi

@@ -52,7 +52,7 @@
     builders:
         - uninstall
         - shell: |
-            sudo dnf remove -y 'freeipa-*' || :
+            sudo yum remove -y 'freeipa-*' || :
             sudo iptables -F || :
             sudo systemctl stop dirsrv.target || :
             sudo pkidestroy -s CA -i pki-tomcat || :
@@ -75,7 +75,7 @@
 - builder:
     name: print-repository-info
     builders:
-        - shell: "sudo dnf repolist"
+        - shell: "sudo yum repolist"
 
 
 - builder:
@@ -99,6 +99,7 @@
     builders:
         - print-repository-info
         - shell: |
-            sudo dnf --refresh update -y
-            sudo dnf install -y freeipa-server-dns freeipa-server-trust-ad python-ipatests python3-ipatests
+            sudo yum clean all
+            sudo yum update -y
+            sudo yum install -y freeipa-server-dns freeipa-server-trust-ad python-ipatests
         - list-installed-rpms

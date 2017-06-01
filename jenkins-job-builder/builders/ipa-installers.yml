@@ -68,13 +68,13 @@
     name: uninstall-freeipa-packages
     builders:
         - shell: |
-            sudo dnf erase -y freeipa-server python-ipatests
+            sudo yum erase -y freeipa-server python-ipatests
 
 - builder:
     name: uninstall-freeipa-packages-soft
     builders:
         - shell: |
-            sudo dnf erase -y freeipa-server python-ipatests || :
+            sudo yum erase -y freeipa-server python-ipatests || :
 
 - builder:
     name: uninstall

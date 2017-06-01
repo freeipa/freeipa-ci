@@ -5,35 +5,27 @@
 # TODO: describe prerequisites and setup
 
 - builder:
-    # The builer uses the prepare-hosts script
-    # to provision virtual machines to use for the test
-    name: prepare-controller
-    builders:
-        - shell: |
-            wget -O ./prepare-hosts $FREEIPACI_PREPARE_HOSTS_URL
-            chmod +x ./prepare-hosts
-            wget $FREEIPACI_HOSTS_DOMAINS
-            wget $FREEIPACI_HOSTS_STATIC
-
-- builder:
     # The builder stops and deletes the virtual machines
     # that were used in the test
     name: destroy-hosts
     builders:
         - shell: |
-            wget -O ./shutdown-hosts $FREEIPACI_SHUTDOWN_HOSTS_URL
-            chmod +x ./shutdown-hosts
-            ./shutdown-hosts || :
+            ipaqe-provision-hosts delete
 
 - builder:
     name: prepare-inventory-config
     builders:
         - shell: |  # The builder for dynamic inventory. Requires python3
             # Infer the updates-testing option from the current system
-            UPDATES_TESTING=$(dnf config-manager --dump updates-testing | sed -n 's/^enabled = \(.*\)$/\1/p')
-            echo "updates-testing: $UPDATES_TESTING" > dyndir.conf
-            echo -n "copr: " >> dyndir.conf
-            echo "{copr-repos}" | python3 -c "print(str(input()).split())" >> dyndir.conf
+            if grep Fedora /etc/os-release 1>/dev/null 2>&1 ; then
+                UPDATES_TESTING=$(dnf config-manager --dump updates-testing | sed -n 's/^enabled = \(.*\)$/\1/p')
+                echo "updates-testing: $UPDATES_TESTING" > dyndir.conf
+                echo -n "copr: " >> dyndir.conf
+                echo "{copr-repos}" | python3 -c "print(str(input()).split())" >> dyndir.conf
+            else
+                # RHEL
+                touch dyndir.conf
+            fi
 
 
 - builder:
@@ -43,9 +35,11 @@
     name: install-packages-on-dynamic-hosts
     builders:
         - shell: |
-            export IPATEST_YAML_CONFIG=$(realpath ./test-config.yaml)
+            export IPATEST_YAML_CONFIG=$(realpath $HOME/test-config.yaml)
             export IPAQE_DYNDIR_CONFIG=$(realpath ./dyndir.conf)
 
+            source $HOME/ansible-override/bin/activate
+            # because integration with broken tools, we need special environment
             if [ -d dist ] ; then
                 ansible-playbook -i $(which ipaqe-dyndir) /usr/share/idm-jenkins-ansible/prepare-integration-hosts.yml \
                 -e "rpmdir=$(realpath dist/rpms)" --ssh-common-args '-o StrictHostKeyChecking=no' --private-key ~/.ssh/test_ssh_key
@@ -55,10 +49,20 @@
             fi
 
 - builder:
+    name: provision-hosts
+    builders:
+        - shell: |
+            echo "{config_template}" > $HOME/test-config-template.yaml
+        - shell: |
+            pushd $HOME
+            ipaqe-provision-hosts create --topology $HOME/test-config-template.yaml --output $HOME/test-config.yaml
+            popd
+
+- builder:
     name: run-integration-test
     builders:
         - shell: |
-            export IPATEST_YAML_CONFIG=$(realpath ./test-config.yaml)
+            export IPATEST_YAML_CONFIG=$(realpath $HOME/test-config.yaml)
             ipa-test-config --yaml
             if [ -n "{test_filter}" ] ; then
                 ipa-run-tests -v -r a --with-xunit -k "{test_filter}" {suite} --logging-level=DEBUG --logfile-dir=$(realpath test_logs) || :
