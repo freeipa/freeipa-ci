@@ -6,7 +6,7 @@
     git-branch: master
     git-url: git://git.fedorahosted.org/git/freeipa.git
     git-browser-url: https://git.fedorahosted.org/cgit/freeipa.git/
-    options-dns-setup: >
+    options-dns-setup: >-
         --setup-dns
         --auto-forwarders
         --auto-reverse
