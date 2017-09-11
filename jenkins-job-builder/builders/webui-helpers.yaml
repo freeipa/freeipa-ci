@@ -99,7 +99,7 @@
 
             # Create and sign request for server certificate
             certutil -R -d alias -s "CN=$(hostname),CN=WebUI Test" -p Secret123 -o server-cert.req -n webui-test -z noise.dat
-            certutil -C -d alias -m 2345 -i server-cert.req -o server-cert.crt -c CACert -n webui-test --keyUsage keyEncipherment --nsCertType sslServer
+            certutil -C -d alias -m 2345 -i server-cert.req -o server-cert.crt -c CACert -n webui-test --keyUsage keyEncipherment --nsCertType sslServer -8 $(hostname)
             certutil -A -d alias -i server-cert.crt -n webui-test -t u,u,u
 
             # Export the server certificate and CA certificate
