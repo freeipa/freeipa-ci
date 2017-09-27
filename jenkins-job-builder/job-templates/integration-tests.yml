@@ -9,7 +9,7 @@
         - workspace-cleanup
     properties:
         - build-discarder:
-              num-to-keep: 2
+              num-to-keep: 15
     triggers:
         - timed: "{timed-schedule}"
     builders:
@@ -42,6 +42,7 @@
         - run-integration-test:
             suite: "{suite}"
             test_filter: "{test_filter}"
+        - compress-collected-logs
         - destroy-hosts
         - uninstall-freeipa-packages
         - cleanup-local-repo
@@ -65,7 +66,7 @@
         - workspace-cleanup
     properties:
         - build-discarder:
-             num-to-keep: 2
+             num-to-keep: 15
     builders:
         - uninstall-freeipa-packages-soft
         - disable-updates-testing
@@ -94,6 +95,7 @@
         - run-integration-test:
             suite: "{suite}"
             test_filter: "{test_filter}"
+        - compress-collected-logs
         - destroy-hosts
         - uninstall-freeipa-packages
         - cleanup-local-repo

@@ -65,3 +65,9 @@
             else
                 ipa-run-tests -v -r a --with-xunit {suite} --logging-level=DEBUG --logfile-dir=$(realpath test_logs) || :
             fi
+
+- builder:
+    name: compress-collected-logs
+    builders:
+        - shell: |
+            find $(realpath test_logs) -type f -exec gzip {} \;
