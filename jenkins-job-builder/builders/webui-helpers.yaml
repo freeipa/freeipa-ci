@@ -95,7 +95,9 @@
 
             # Prepare the NSS DB anc create the CA
             certutil -N -d alias --empty-password
-            echo -e "y\n0\ny\n" | certutil -S -s "CN=WebUI Test CA Issuer" -n CACert -2 -x -t "CT,C,C" -v 120 -m 1234 -d alias/ -z noise.dat
+            echo -e "0\n1\n5\n6\n9\ny\ny\ny\n0\ny\n${RANDOM}\nn\n" \
+            | certutil -S -s "CN=WebUI Test CA Issuer" -n CACert -1 -2 -x -t "CT,C,C" -v 120 -m 1234 -d alias/ -z noise.dat --extSKID
+
 
             # Create and sign request for server certificate
             certutil -R -d alias -s "CN=$(hostname),CN=WebUI Test" -p Secret123 -o server-cert.req -n webui-test -z noise.dat
