@@ -32,10 +32,7 @@
             NPROC=$(nproc)
 
             if [ -e makerpms.sh ] ; then
-                autoreconf -i
-                ./configure
-                make lint
-                make -j$NPROC rpms
+                ./makerpms.sh
             else
                 make rpms
             fi
