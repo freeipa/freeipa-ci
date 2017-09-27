@@ -1,6 +1,6 @@
 - job-template:
     name: '{prefix}-timed-integration-{project}-{pretty_name}-domlevel-{domain_level}'
-    node: freeipa-controller-{os}{controller_suffix}
+    node: ipa-ci-{os}-controller{controller_suffix}
     defaults: global
     concurrent: false
     description: |
@@ -56,7 +56,7 @@
 
 - job-template:
     name: '{prefix}-nobuild-integration-{project}-{pretty_name}-domlevel-{domain_level}'
-    node: freeipa-controller-{os}{controller_suffix}
+    node: ipa-ci-{os}-controller{controller_suffix}
     defaults: global
     concurrent: false
     description: |

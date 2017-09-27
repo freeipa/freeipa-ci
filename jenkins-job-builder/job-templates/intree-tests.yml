@@ -1,6 +1,6 @@
 - job-template:
     name: '{prefix}-intree-tests-{project}'
-    node: freeipa-runner-{os}
+    node: ipa-ci-{os}-xmlrpc-runner
     defaults: global
     description: |
         Run the FreeIPA test suite (sans WebUI & Integration), in-tree.
@@ -61,7 +61,7 @@
 
 - job-template:
     name: '{prefix}-intree-tests-with-trust-{project}'
-    node: freeipa-runner-{os}
+    node: ipa-ci-{os}-xmlrpc-runner
     defaults: global
     description: |
         Run the FreeIPA test suite (sans WebUI & Integration), in-tree.

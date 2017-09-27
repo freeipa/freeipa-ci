@@ -1,6 +1,6 @@
 - job-template:
     name: '{prefix}-webui-{browser}-{prettyname}-{project}'
-    node: freeipa-webui-{os}
+    node: ipa-ci-{os}-webui
     defaults: global
     description: |
         Run the FreeIPA Web UI tests on {browser}.

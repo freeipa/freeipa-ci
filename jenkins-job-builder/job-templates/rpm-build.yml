@@ -44,7 +44,7 @@
 
 - job-template:
     name: '{prefix}-build-{project}'
-    node: freeipa-builder-{os}
+    node: ipa-ci-{os}-builder
     defaults: global
     description: |
         Build and archive FreeIPA RPMs.
@@ -86,7 +86,7 @@
 
 - job-template:
     name: '{prefix}-check-deps-{project}'
-    node: freeipa-builder-{os}
+    node: ipa-ci-{os}-builder
     defaults: global
     description: |
         Check that the built RPMs are actually installable.
