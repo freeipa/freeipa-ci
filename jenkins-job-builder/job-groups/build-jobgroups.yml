@@ -15,12 +15,13 @@
             noca: True
             nodns: True
             options-dns-setup: ""
-            options-ca-setup: >
-                --http_pkcs12 server--cert.p12 \
-                --dirsrv_pkcs12 server--cert.p12 \
-                --http_pin Secret123 \
-                --dirsrv_pin Secret123 \
+            options-ca-setup: >-
+                --http_pkcs12 server--cert.p12
+                --dirsrv_pkcs12 server--cert.p12
+                --http_pin Secret123
+                --dirsrv_pin Secret123
                 --root-ca-file server-cert-ca.crt
+                --no-pkinit
 
         - '{prefix}-integration-{project}-{pretty_name}-domlevel-{domain_level}':
             pretty_name: caless
@@ -774,3 +775,4 @@
                 --http_pin Secret123
                 --dirsrv_pin Secret123
                 --root-ca-file server-cert-ca.crt
+                --no-pkinit
