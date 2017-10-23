@@ -50,7 +50,7 @@
             enabled=1
             gpgcheck=0
 
-            [freeipa-local-debug]
+            [freeipa-local-debuginfo]
             name=freeipa-local-debug
             baseurl=file:///tmp/freeipa-build/debug/
             enabled=0
