@@ -1,0 +1,28 @@
+---
+- name: Put repofile to system
+  copy:
+      src: freeipa-local.repo
+      dest: /etc/yum.repos.d/
+  when: controller_rpm_dir is defined
+
+- name: Populate the local repository
+  shell: >
+      export REPO_DEST="/tmp/freeipa-build"
+      export RPM_DIR="{{ controller_rpm_dir }}"
+      rm -fr "$REPO_DEST" || :
+      mkdir -p "$REPO_DEST/debug"
+      find "$RPM_DIR" -type f -name 'freeipa-debuginfo-*.rpm' -execdir \
+      cp -t "$REPO_DEST/debug" {} +
+      find "$RPM_DIR" -type f ! -name '*debuginfo*.rpm' -execdir cp -t "$REPO_DEST" {} +
+      find "$REPO_DEST" -type d ! -name 'repodata' -execdir createrepo {} +
+  when: controller_rpm_dir is defined
+
+- name: Install packages locally
+  package:
+      name: "{{ item }}"
+      state: present
+  with_items:
+      - python2-ipatests
+      - python3-ipatests
+      - freeipa-server-dns
+      - freeipa-server-trust-ad

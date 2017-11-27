@@ -1,0 +1,17 @@
+---
+- name: Make sure freeipa packages are absent
+  package:
+      name: "{{ item }}"
+      state: absent
+  with_items:
+      - freeipa-server
+      - python2-ipatests
+      - python3-ipatests
+
+- name: Disable updates testing on Fedora
+  shell: dnf config-manager --set-disabled updates-testing
+  when: ansible_distribution|lower == "fedora"
+
+
+- name: Clean COPR repositories
+  shell: find /etc/yum.repos.d -name '_copr_*' -exec rm -f {} +

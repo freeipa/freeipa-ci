@@ -1,0 +1,11 @@
+[freeipa-local]
+name=freeipa-local
+baseurl=file:///tmp/freeipa-build/
+enabled=1
+gpgcheck=0
+
+[freeipa-local-debuginfo]
+name=freeipa-local-debug
+baseurl=file:///tmp/freeipa-build/debug/
+enabled=0
+gpgcheck=0
