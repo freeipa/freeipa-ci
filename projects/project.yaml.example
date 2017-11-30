@@ -1,11 +1,11 @@
 - project:
-    name: f23master
-    project: f23master
-    os: f23
+    name: f27master
+    project: f27master
+    os: f27
     prefix: freeipa
     git-branch: master
-    git-url: git://git.fedorahosted.org/git/freeipa.git
-    git-browser-url: https://git.fedorahosted.org/cgit/freeipa.git/
+    git-url: https://pagure.io/freeipa.git
+    git-browser-url: https://pagure.io/freeipa
     options-dns-setup: >-
         --setup-dns
         --auto-forwarders
@@ -15,8 +15,8 @@
         - 0
         - 1
     report-mail-address: your.email@example
-    copr-repos:
-        - @freeipa/freeipa-master
+    copr-repos: >-
+        @freeipa/freeipa-master
     enable-updates-testing: true
     # for webui tests
     browser: chrome
@@ -24,4 +24,3 @@
     # - timed-schedule: 0 23 * * *
     jobs:
         - build-and-check
-        - docs
