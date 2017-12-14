@@ -92,45 +92,8 @@ The type of node is indicated as a label in jenkins configuration. The JJB uses 
 
 ### Installed Jenkins plugins
 
-TODO: Not all of these are needed. Prune.
-
-- Ant Plugin
-- Backup Plugin
-- Copy Artifact Plugin
-- Credentials Plugin
-- Dashboard View
-- External Monitor Job Type Plugin
-- Green Balls
-- Hudson Build-Publisher plugin
-- Hudson Post build task
-- Javadoc Plugin
-- Jenkins Beaker builder
-- Jenkins build timeout plugin
-- Jenkins BuildResultTrigger Plug-in
-- Jenkins GIT client plugin
-- Jenkins GIT plugin
-- Jenkins instant-messaging plugin
-- Jenkins IRC Plugin
-- Jenkins Job Configuration History Plugin
-- Jenkins Mailer Plugin
-- Jenkins Priority Sorter Plugin
-- Jenkins SLOCCount Plug-in
-- Jenkins SSH Slaves plugin
-- Jenkins Workspace Cleanup Plugin
-- LDAP Plugin
-- Matrix Authorization Strategy Plugin
-- Maven Integration plugin
-- PAM Authentication plugin
-- Periodic Backup
-- Plot plugin
-- SCM API Plugin
-- SCM Sync Configuration Plugin
-- Simple Theme Plugin
-- SSH Agent Plugin
-- SSH Credentials Plugin
-- Static Analysis Utilities
-- Warnings Plug-in
-- xUnit plugin
+The list of required jenkins plugins is in
+the file [required-jenkins-plugins.md](/required-jenkins-plugins.md).
 
 ## Controller scripts
 
