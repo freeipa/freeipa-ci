@@ -97,7 +97,7 @@
             test_filter: "{test_filter}"
         - compress-collected-logs
         - destroy-hosts
-        - uninstall-freeipa-packages
+        - uninstall-freeipa-packages-soft
         - cleanup-local-repo
     publishers:
         - nosetests-xunit
@@ -107,4 +107,3 @@
         - mail-on-fail:
             report-mail-address: '{report-mail-address}'
         - workspace-cleanup
-
